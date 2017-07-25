@@ -1,0 +1,21 @@
+spring:
+ application:
+   name: backup-agent
+
+ data:
+   mongodb:
+     host: 127.0.0.1
+     port: 27017
+     database: evoila
+     username: evoila
+     password: evoila
+
+
+security:
+ token:
+   default: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+   name: X-Auth-Token
+login:
+   username: admin
+   password: cloudfoundry
+   role: USER
