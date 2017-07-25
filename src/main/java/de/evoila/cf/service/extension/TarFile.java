@@ -1,6 +1,7 @@
 package de.evoila.cf.service.extension;
 
 import de.evoila.cf.service.exception.ProcessException;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -26,7 +27,10 @@ public interface TarFile {
       throw new ProcessException();
     }
     if (delete) {
-      input.delete();
+      if(!input.delete()){
+        FileUtils.deleteDirectory(input);
+      }
+
     }
 
     return output;
