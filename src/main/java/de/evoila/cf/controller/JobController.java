@@ -3,8 +3,8 @@ package de.evoila.cf.controller;
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.openstack.OSException;
-import de.evoila.cf.openstack.SwiftClient;
 import de.evoila.cf.repository.BackupAgentJobRepository;
+import de.evoila.cf.service.BackupServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +27,8 @@ public class JobController {
 
     @Autowired
     BackupAgentJobRepository jobRepository;
+    @Autowired
+    BackupServiceManager backupServiceManager;
 
     @RequestMapping(value = "/job/{jobid}", method = RequestMethod.GET)
     public ResponseEntity<BackupJob> getJobUpdate (@PathVariable String jobid) {
@@ -37,7 +39,7 @@ public class JobController {
     @RequestMapping("/jobs/byInstance/{instance}")
     public ResponseEntity<List<BackupJob>> getByInstance (@PathVariable String instance,
                                                           @RequestParam(value = "page_size", defaultValue = "25") int pageSize,
-                                                          @RequestParam(value = "page", defaultValue = "1") int page) {
+                                                          @RequestParam(value = "page", defaultValue = "0") int page) {
         Pageable pageable = new PageRequest(page, pageSize, new Sort(Sort.Direction.ASC, "startDate"));
         List<BackupJob> jobs = jobRepository.findByInstanceId(instance, pageable);
         return new ResponseEntity<>(jobs, HttpStatus.OK);
@@ -52,14 +54,7 @@ public class JobController {
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        SwiftClient swiftClient = new SwiftClient(destination.getAuthUrl(),
-                                                  destination.getUsername(),
-                                                  destination.getPassword(),
-                                                  destination.getDomain(),
-                                                  destination.getProjectName()
-        );
-        swiftClient.delete(job.getDestination().getContainer(), job.getDestination().getFilename());
-        jobRepository.delete(jobid);
+        backupServiceManager.delete(job, destination);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 

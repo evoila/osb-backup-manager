@@ -2,6 +2,7 @@ package de.evoila.cf.service;
 
 import de.evoila.cf.model.*;
 import de.evoila.cf.openstack.OSException;
+import de.evoila.cf.openstack.SwiftClient;
 import de.evoila.cf.repository.BackupAgentJobRepository;
 import de.evoila.cf.service.exception.BackupRequestException;
 import de.evoila.cf.service.exception.ProcessException;
@@ -13,7 +14,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by yremmet on 27.06.17.
@@ -131,7 +137,69 @@ public class BackupServiceManager {
     return job;
   }
 
-  public void removeOldBackupFiles (BackupPlan plan) {
+  public void removeOldBackupFiles (BackupPlan plan) throws IOException, OSException {
+    switch (plan.getRetentionStyle()){
+      case FILES:
+        removeOldBackupByFiles(plan);
+        break;
+      case DAYS:
+        removeOldBackupByTime(plan, ChronoUnit.DAYS);
+        break;
+      case HOURS:
+        removeOldBackupByTime(plan, ChronoUnit.HOURS);
+        break;
+      case ALL:
+      default:
+    }
 
+  }
+
+  private void removeOldBackupByFiles (BackupPlan plan) throws IOException, OSException {
+    List<BackupJob> jobs = getJobs(plan);
+    while(jobs.size() > plan.getRetentionPeriod()){
+      BackupJob job = jobs.get(0);
+      jobs.remove(job);
+      plan.getJobIds().remove(job.getId());
+      delete(job, plan.getDestination());
+    }
+
+  }
+
+  private List<BackupJob> getJobs (BackupPlan plan) {
+    List<String> jobIds =plan.getJobIds();
+    Iterable<BackupJob> jobsIterator = jobRepository.findAll(jobIds);
+    ArrayList<BackupJob> jobs = new ArrayList<>();
+
+    StreamSupport.stream(jobsIterator.spliterator(), false)
+          .filter(job-> job.getStatus().equals(JobStatus.FINISHED))
+          .filter(job-> job.getJobType().equals(BackupJob.BACKUP_JOB))
+          .forEach(job -> jobs.add(job));
+    Collections.sort(jobs, (o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()));
+    return jobs;
+  }
+
+
+  private void removeOldBackupByTime (BackupPlan plan, TemporalUnit unit) throws IOException, OSException {
+    List<BackupJob> jobs = getJobs(plan).stream()
+                                 .filter(j -> Instant.now().isAfter(j.getStartDate().toInstant().plus(plan.getRetentionPeriod(),
+                                                                                                      unit)))
+                                 .collect(Collectors.toList());
+    for(BackupJob job : jobs){
+      delete(job, plan.getDestination());
+    }
+  }
+
+
+
+  public void delete (BackupJob job, FileDestination destination) throws IOException, OSException {
+    SwiftClient swiftClient = new SwiftClient(destination.getAuthUrl(),
+                                              destination.getUsername(),
+                                              destination.getPassword(),
+                                              destination.getDomain(),
+                                              destination.getProjectName()
+    );
+    swiftClient.delete(job.getDestination().getContainer(), job.getDestination().getFilename());
+
+    jobRepository.delete(job.getId());
   }
 }

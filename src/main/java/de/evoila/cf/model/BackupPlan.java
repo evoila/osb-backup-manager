@@ -2,6 +2,7 @@ package de.evoila.cf.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.evoila.cf.model.enums.RetentionStyle;
 
 import java.util.ArrayList;
@@ -10,17 +11,20 @@ import java.util.List;
 /**
  * Created by yremmet on 18.07.17.
  */
-public class BackupPlan{
+public class BackupPlan {
     private String id;
     private DatabaseCredential source;
     private String frequency;
-    private RetentionStyle retentionstyle;
+    private String retentionStyle;
     private int retentionPeriod;
     private FileDestination destination;
     private List<String> jobIds;
 
     public String getId () {
         return id;
+    }
+    public void setId (String id) {
+        this.id = id;
     }
 
     public String getFrequency () {
@@ -31,21 +35,23 @@ public class BackupPlan{
         this.frequency = frequency;
     }
 
-    public RetentionStyle getRetentionstyle () {
-        return retentionstyle;
+    @JsonProperty
+    public RetentionStyle getRetentionStyle () {
+        return RetentionStyle.valueOf(retentionStyle);
     }
 
-    public void setRetentionstyle (String retentionstyle) {
-        this.retentionstyle = RetentionStyle.valueOf(retentionstyle);
+    @JsonIgnore
+    public void setRetentionStyle (RetentionStyle retentionStyle) {
+        this.retentionStyle = retentionStyle.toString();
     }
-    public void setRetentionstyle (RetentionStyle retentionstyle) {
-        this.retentionstyle = retentionstyle;
+    @JsonProperty
+    public void setRetentionStyle (String retentionStyle) {
+        this.retentionStyle = retentionStyle;
     }
 
     public int getRetentionPeriod () {
         return retentionPeriod;
     }
-
     public void setRetentionPeriod (int retentionPeriod) {
         this.retentionPeriod = retentionPeriod;
     }
@@ -68,7 +74,7 @@ public class BackupPlan{
 
     @JsonIgnore
     public List<String> getJobIds () {
-        if(jobIds == null)
+        if (jobIds == null)
             jobIds = new ArrayList<>();
         return jobIds;
     }
@@ -77,21 +83,18 @@ public class BackupPlan{
         this.jobIds = jobIds;
     }
 
-    public void setId (String id) {
-        this.id = id;
-    }
-
     public void update (BackupPlan plan) {
-        if(plan.frequency != null) {
+        if (plan.frequency != null) {
             this.frequency = plan.frequency;
         }
-        if(plan.retentionstyle != null){
-            this.retentionstyle = plan.retentionstyle;
+
+        if (plan.retentionStyle != null) {
+            this.retentionStyle = plan.retentionStyle;
         }
-        if(plan.destination != null){
+        if (plan.destination != null) {
             this.destination = plan.destination;
         }
-        if(plan.getRetentionPeriod() > 0) {
+        if (plan.getRetentionPeriod() > 0) {
             this.retentionPeriod = plan.retentionPeriod;
         }
     }

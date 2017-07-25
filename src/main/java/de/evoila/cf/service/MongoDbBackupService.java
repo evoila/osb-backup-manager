@@ -1,6 +1,8 @@
 package de.evoila.cf.service;
 
-import de.evoila.cf.model.*;
+import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.service.exception.ProcessException;
@@ -33,13 +35,14 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
 
     long s_time = System.currentTimeMillis();
 
-    log.info(String.format("Starting baclup process to %s:%d/%s",
+    log.info(String.format("Starting backup process to %s:%d/%s",
                            source.getHostname(),
                            source.getPort(),
                            source.getContext()
     ));
     File backup = new File(String.format("%s_%s",source.getContext(), format.format(new Date())));
-    backup.mkdirs();
+
+    while (!backup.mkdirs()) Thread.sleep(1000);
     ProcessBuilder process = new ProcessBuilder(this.getClass().getResource("/mongodump").getPath(),
                                          String.format("--host=%s:%d", source.getHostname(), source.getPort()),
                                          String.format("--username=%s", source.getUsername()),

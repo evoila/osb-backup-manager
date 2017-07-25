@@ -4,17 +4,15 @@ import de.evoila.cf.model.enums.DestinationType;
 
 public class FileDestination implements SwiftConfig{
 
-    String authUrl;
-    String username;
-    String password;
-    String domain;
-    String containerName;
-    String projectName;
-    DestinationType type;
+    private String authUrl;
+    private String username;
+    private String password;
+    private String domain;
+    private String containerName;
+    private String projectName;
+    private DestinationType type;
     private String filename;
 
-
-    @Override
     public String getFilename () {
         return filename;
     }
@@ -49,5 +47,32 @@ public class FileDestination implements SwiftConfig{
 
     public void setFilename (String filename) {
         this.filename = filename;
+    }
+
+    public void setAuthUrl (String authUrl) {
+        this.authUrl = authUrl;
+    }
+
+    public void setUsername (String username) {
+        this.username = username;
+    }
+    public void setPassword (String password) {
+        this.password = password;
+    }
+
+    public void setDomain (String domain) {
+        this.domain = domain;
+    }
+
+    public void setContainerName (String containerName) {
+        this.containerName = containerName;
+    }
+
+    public void setProjectName (String projectName) {
+        this.projectName = projectName;
+    }
+
+    public void setType (DestinationType type) {
+        this.type = type;
     }
 }

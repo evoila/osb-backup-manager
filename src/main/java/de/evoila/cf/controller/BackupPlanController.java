@@ -18,13 +18,12 @@ import java.util.List;
  * Created by yremmet on 19.07.17.
  */
 @Controller
-@RequestMapping(value = "/v2/dashboard/manage/backup")
 public class BackupPlanController {
 
     @Autowired
     BackupPlanService backupPlanService;
 
-    @RequestMapping(value = "/{serviceInstanceId}/plans", method = RequestMethod.GET)
+    @RequestMapping(value = "/plans/byServiceInstanceId/{serviceInstanceId}", method = RequestMethod.GET)
     public ResponseEntity<List<BackupPlan>> getPlans (@PathVariable() String serviceInstanceId)
           throws BackupException{
 
@@ -32,27 +31,24 @@ public class BackupPlanController {
         return new ResponseEntity<List<BackupPlan>>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{serviceInstanceId}/plans", method = RequestMethod.POST)
-    public ResponseEntity<BackupPlan> createPlan (@PathVariable() String serviceInstanceId,
-                                                  @RequestBody BackupPlan plan)
+    @RequestMapping(value = "/plans", method = RequestMethod.POST)
+    public ResponseEntity<BackupPlan> createPlan (@RequestBody BackupPlan plan)
           throws BackupException{
 
         BackupPlan response = backupPlanService.createPlan(plan);
         return new ResponseEntity<BackupPlan>(response, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/{serviceInstanceId}/plan/{planId}", method = RequestMethod.DELETE)
-    public ResponseEntity<BackupPlan> deletePlan (@PathVariable() String serviceInstanceId,
-                                                  @PathVariable() String planId)
+    @RequestMapping(value = "/plan/{planId}", method = RequestMethod.DELETE)
+    public ResponseEntity<BackupPlan> deletePlan (@PathVariable() String planId)
           throws BackupException{
 
         BackupPlan response = backupPlanService.deletePlan(planId);
         return new ResponseEntity<BackupPlan>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "a/{serviceInstanceId}/plan/{planId}", method = RequestMethod.PUT)
-    public ResponseEntity<BackupPlan> updatePlan (@PathVariable() String serviceInstanceId,
-                                                  @PathVariable() String planId,
+    @RequestMapping(value = "plan/{planId}", method = RequestMethod.PUT)
+    public ResponseEntity<BackupPlan> updatePlan (@PathVariable() String planId,
                                                   @RequestBody BackupPlan plan)
           throws BackupException{
 
