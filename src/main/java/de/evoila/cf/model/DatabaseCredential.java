@@ -34,4 +34,28 @@ public class DatabaseCredential {
     public DatabaseType getType() {
         return type;
     }
+
+    public void setPort (int port) {
+        this.port = port;
+    }
+
+    public void setHostname (String hostname) {
+        this.hostname = hostname;
+    }
+
+    public void setUsername (String username) {
+        this.username = username;
+    }
+
+    public void setPassword (String password) {
+        this.password = password;
+    }
+
+    public void setContext (String context) {
+        this.context = context;
+    }
+
+    public void setType (DatabaseType type) {
+        this.type = type;
+    }
 }

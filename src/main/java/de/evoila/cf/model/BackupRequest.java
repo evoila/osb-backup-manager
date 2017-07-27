@@ -15,4 +15,12 @@ public class BackupRequest {
     public FileDestination getDestination() {
         return destination;
     }
+
+    public void setSource (DatabaseCredential source) {
+        this.source = source;
+    }
+
+    public void setDestination (FileDestination destination) {
+        this.destination = destination;
+    }
 }

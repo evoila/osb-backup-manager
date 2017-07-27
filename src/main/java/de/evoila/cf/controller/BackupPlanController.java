@@ -23,7 +23,7 @@ public class BackupPlanController {
     @Autowired
     BackupPlanService backupPlanService;
 
-    @RequestMapping(value = "/plans/byServiceInstanceId/{serviceInstanceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/plans/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
     public ResponseEntity<List<BackupPlan>> getPlans (@PathVariable() String serviceInstanceId)
           throws BackupException{
 
@@ -47,7 +47,7 @@ public class BackupPlanController {
         return new ResponseEntity<BackupPlan>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "plan/{planId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "plan/{planId}", method = RequestMethod.PATCH)
     public ResponseEntity<BackupPlan> updatePlan (@PathVariable() String planId,
                                                   @RequestBody BackupPlan plan)
           throws BackupException{

@@ -2,6 +2,7 @@ package de.evoila.cf.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.evoila.cf.model.enums.RetentionStyle;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * Created by yremmet on 18.07.17.
  */
 public class BackupPlan {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String id;
     private DatabaseCredential source;
     private String frequency;

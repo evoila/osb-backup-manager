@@ -1,0 +1,113 @@
+= REST API Documentation
+:author: Yannic Remmet
+:doctype: book
+:toc:
+:sectanchors:
+:sectlinks:
+:toclevels: 4
+:source-highlighter: highlightjs
+
+[[overview]]
+= Overview
+
+
+ill start a backup of the given databse and upload the backup to the given Swift Container.
+
+== Request
+include::{snippets}/backup/http-request.adoc[]
+include::{snippets}/backup/request-fields.adoc[]
+
+== Response
+include::{snippets}/backup/http-response.adoc[]
+include::{snippets}/backup/response-fields.adoc[]
+
+= Restore
+A `POST` request will start a restoring the data of the given source to the destination databse.
+
+=== Request
+include::{snippets}/restore/http-request.adoc[]
+include::{snippets}/restore/request-fields.adoc[]
+
+=== Response
+include::{snippets}/backup/http-response.adoc[]
+include::{snippets}/backup/response-fields.adoc[]
+
+[[Jobs]]
+= Job-Api
+
+== Find Jobs for Instance
+A `GET` request will list you the jobs that were performed on the given service instance.
+Can be parameterisiert with `page` and `page_size`.
+
+=== Request
+include::{snippets}/jobs-by-instance/http-request.adoc[]
+include::{snippets}/jobs-by-instance/request-fields.adoc[]
+
+=== Response
+include::{snippets}/jobs-by-instance/http-response.adoc[]
+include::{snippets}/jobs-by-instance/response-fields.adoc[]
+
+== Get details of an single job
+A `GET` request will give you the details for a Job provieded the `jobid`
+
+=== Request
+include::{snippets}/get-job/http-request.adoc[]
+
+=== Response
+include::{snippets}/get-job/http-response.adoc[]
+include::{snippets}/get-job/response-fields.adoc[]
+
+== Delete job
+A `DELETE`request will delete the Job and and associated File.
+
+=== Request
+include::{snippets}/delete-job/http-request.adoc[]
+include::{snippets}/delete-job/request-fields.adoc[]
+
+=== Response
+include::{snippets}/delete-job/http-response.adoc[]
+
+
+= Backup Plans-Api
+
+== Find Backup Plans for instance
+A `GET` request will list you the automated backup plans that were created for a database.
+
+=== Request
+include::{snippets}/plans-by-instance/http-request.adoc[]
+=== Response
+include::{snippets}/plans-by-instance/http-response.adoc[]
+include::{snippets}/plans-by-instance/response-fields.adoc[]
+
+== Create Plan
+A `POST` request will create a new backup plan that backups a database periodically.
+
+=== Request
+include::{snippets}/update-plan/http-request.adoc[]
+include::{snippets}/update-plan/request-fields.adoc[]
+
+=== Response
+include::{snippets}/update-plan/http-response.adoc[]
+include::{snippets}/update-plan/response-fields.adoc[]
+
+== Update Plan
+A `PATCH` request will let you update an backup plan.
+
+=== Request
+include::{snippets}/update-plan/http-request.adoc[]
+include::{snippets}/update-plan/request-fields.adoc[]
+
+=== Response
+include::{snippets}/update-plan/http-response.adoc[]
+include::{snippets}/update-plan/response-fields.adoc[]
+
+== Delete Plan
+A `DELTE` will stop automated backups but leaves the files.
+
+=== Request
+include::{snippets}/delete-plan/http-request.adoc[]
+include::{snippets}/delete-plan/request-fields.adoc[]
+
+=== Response
+include::{snippets}/delete-plan/http-response.adoc[]
+

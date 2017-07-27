@@ -1,5 +1,6 @@
 package de.evoila.cf.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import de.evoila.cf.model.enums.DestinationType;
 
 public class FileDestination implements SwiftConfig{
@@ -11,6 +12,7 @@ public class FileDestination implements SwiftConfig{
     private String containerName;
     private String projectName;
     private DestinationType type;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String filename;
 
     public String getFilename () {
