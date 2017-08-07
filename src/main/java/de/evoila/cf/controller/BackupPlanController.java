@@ -22,7 +22,7 @@ import java.util.List;
  * Created by yremmet on 19.07.17.
  */
 @Controller
-public class  BackupPlanController extends BaseController {
+public class  BackupPlanController {
 
     @Autowired
     BackupPlanService backupPlanService;

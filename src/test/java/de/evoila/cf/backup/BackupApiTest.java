@@ -21,7 +21,7 @@ public class BackupApiTest extends MockMvcTest{
     public void backup() throws Exception {
         BackupRequest request = new BackupRequest();
         request.setSource(createDummySource());
-        request.setDestination(createDummyDestination());
+        //request.setDestination(createDummyDestination());
 
         FieldDescriptor[] responseDescriptors = getDestinationDescriptors();
         responseDescriptors = ArrayUtils.addAll(responseDescriptors, getSoruceDestinationDescriptor());

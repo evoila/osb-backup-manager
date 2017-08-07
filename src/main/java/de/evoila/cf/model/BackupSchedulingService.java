@@ -2,6 +2,7 @@ package de.evoila.cf.model;
 
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.repository.BackupPlanRepository;
+import de.evoila.cf.repository.FileDestinationRepository;
 import de.evoila.cf.service.BackupServiceManager;
 import de.evoila.cf.service.exception.BackupRequestException;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ public class BackupSchedulingService {
 
     @Autowired
     BackupPlanRepository repository;
+    @Autowired
+    FileDestinationRepository destinationRepository;
 
     ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
@@ -62,6 +65,7 @@ public class BackupSchedulingService {
         task.setScheduledFuture(scheduledFuture);
     }
 
+
     private class BackupTask implements Runnable{
         BackupPlan plan;
         ScheduledFuture scheduledFuture;
@@ -89,7 +93,8 @@ public class BackupSchedulingService {
                 scheduledFuture.cancel(true);
             }
             try {
-                BackupJob job = backupServiceManager.backup(plan.getSource(), plan.getDestination());
+                FileDestination destination = destinationRepository.findOne(plan.getId());
+                BackupJob job = backupServiceManager.backup(plan.getSource(), destination);
 
                 plan.getJobIds().add(job.getId());
                 repository.save(plan);

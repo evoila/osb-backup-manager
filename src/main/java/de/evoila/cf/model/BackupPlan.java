@@ -19,7 +19,7 @@ public class BackupPlan {
     private String frequency;
     private String retentionStyle;
     private int retentionPeriod;
-    private FileDestination destination;
+    private String destinationId;
     private List<String> jobIds;
 
     public String getId () {
@@ -66,12 +66,12 @@ public class BackupPlan {
         this.source = source;
     }
 
-    public FileDestination getDestination () {
-        return destination;
+    public String getDestinationId () {
+        return destinationId;
     }
 
-    public void setDestination (FileDestination destination) {
-        this.destination = destination;
+    public void setDestinationId (String destinationId) {
+        this.destinationId = destinationId;
     }
 
     @JsonIgnore
@@ -89,12 +89,11 @@ public class BackupPlan {
         if (plan.frequency != null) {
             this.frequency = plan.frequency;
         }
-
         if (plan.retentionStyle != null) {
             this.retentionStyle = plan.retentionStyle;
         }
-        if (plan.destination != null) {
-            this.destination = plan.destination;
+        if (plan.destinationId != null) {
+            this.destinationId = plan.destinationId;
         }
         if (plan.getRetentionPeriod() > 0) {
             this.retentionPeriod = plan.retentionPeriod;

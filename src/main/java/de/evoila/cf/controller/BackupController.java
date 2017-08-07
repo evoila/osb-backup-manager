@@ -1,5 +1,6 @@
 package de.evoila.cf.controller;
 
+import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupRequest;
 import de.evoila.cf.model.RestoreRequest;
 import de.evoila.cf.model.BackupJob;
@@ -20,13 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
  *
  */
 @Controller
-public class BackupController extends BaseController {
+public class BackupController {
 
 	@Autowired
 	BackupServiceManager serviceManager;
 
 	@RequestMapping(value = "/backup", method = RequestMethod.POST)
-	public ResponseEntity restore(@RequestBody BackupRequest backupRequest) throws BackupRequestException {
+	public ResponseEntity restore(@RequestBody BackupRequest backupRequest) throws BackupRequestException, BackupException {
 		BackupJob job = serviceManager.backup(backupRequest);
 		return new ResponseEntity<>(job, HttpStatus.CREATED);
 	}

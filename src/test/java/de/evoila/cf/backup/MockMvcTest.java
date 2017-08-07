@@ -94,7 +94,7 @@ public abstract class MockMvcTest {
         plan.setRetentionPeriod(RETENTION_PERIOD);
         plan.setFrequency(FREQUENCY);
         plan.setSource(createDummySource());
-        plan.setDestination(createDummyDestination());
+        //plan.setDestination(createDummyDestination());
         return plan;
     }
 

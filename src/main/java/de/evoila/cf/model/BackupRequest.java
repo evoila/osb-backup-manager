@@ -6,21 +6,21 @@ package de.evoila.cf.model;
 public class BackupRequest {
 
     private DatabaseCredential source;
-    private FileDestination destination;
+    private String destinationId;
 
     public DatabaseCredential getSource() {
         return source;
-    }
-
-    public FileDestination getDestination() {
-        return destination;
     }
 
     public void setSource (DatabaseCredential source) {
         this.source = source;
     }
 
-    public void setDestination (FileDestination destination) {
-        this.destination = destination;
+    public void setDestinationId (String destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public String getDestinationId () {
+        return destinationId;
     }
 }

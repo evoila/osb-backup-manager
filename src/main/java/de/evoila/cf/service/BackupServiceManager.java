@@ -1,11 +1,13 @@
 package de.evoila.cf.service;
 
+import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.*;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.openstack.SwiftClient;
 import de.evoila.cf.repository.BackupAgentJobRepository;
+import de.evoila.cf.repository.FileDestinationRepository;
 import de.evoila.cf.service.exception.BackupRequestException;
 import de.evoila.cf.service.exception.ProcessException;
 import org.slf4j.Logger;
@@ -34,6 +36,8 @@ public class BackupServiceManager {
   private ThreadPoolTaskExecutor taskExecutor;
   @Autowired
   private BackupAgentJobRepository jobRepository;
+  @Autowired
+  private FileDestinationRepository destRepoisitory;
 
   public void addBackupServiceManager (BackupService service) {
     this.services.add(service);
@@ -52,8 +56,12 @@ public class BackupServiceManager {
     return Collections.unmodifiableList(services);
   }
 
-  public BackupJob backup (BackupRequest backupRequest) throws BackupRequestException {
-    return backup(backupRequest.getSource(), backupRequest.getDestination());
+  public BackupJob backup (BackupRequest backupRequest) throws BackupRequestException, BackupException {
+    FileDestination destination = destRepoisitory.findOne(backupRequest.getDestinationId());
+    if(destination == null){
+      throw new BackupException("Did not find destination with ID=" + backupRequest.getDestinationId());
+    }
+    return backup(backupRequest.getSource(), destination);
   }
 
   private void executeBackup (DatabaseCredential source, FileDestination destination, BackupService service, BackupJob job) {
@@ -178,11 +186,13 @@ public class BackupServiceManager {
 
   private void removeOldBackupByFiles (BackupPlan plan) throws IOException, OSException {
     List<BackupJob> jobs = getJobs(plan);
+    FileDestination destination = destRepoisitory.findOne(plan.getDestinationId());
     while(jobs.size() > plan.getRetentionPeriod()){
       BackupJob job = jobs.get(0);
       jobs.remove(job);
       plan.getJobIds().remove(job.getId());
-      delete(job, plan.getDestination());
+
+      delete(job, destination);
     }
 
   }
@@ -202,12 +212,14 @@ public class BackupServiceManager {
 
 
   private void removeOldBackupByTime (BackupPlan plan, TemporalUnit unit) throws IOException, OSException {
+    FileDestination destination = destRepoisitory.findOne(plan.getDestinationId());
+
     List<BackupJob> jobs = getJobs(plan).stream()
                                  .filter(j -> Instant.now().isAfter(j.getStartDate().toInstant().plus(plan.getRetentionPeriod(),
                                                                                                       unit)))
                                  .collect(Collectors.toList());
     for(BackupJob job : jobs){
-      delete(job, plan.getDestination());
+      delete(job, destination);
     }
   }
 

@@ -27,7 +27,7 @@ import java.util.List;
 
 @Controller
 
-public class JobController extends BaseController {
+public class JobController {
 
     @Autowired
     BackupAgentJobRepository jobRepository;

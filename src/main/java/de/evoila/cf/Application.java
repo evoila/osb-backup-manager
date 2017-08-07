@@ -10,6 +10,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Executor;
 
 /**
@@ -23,7 +25,20 @@ public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
+		loadBinaries();
 	}
+
+	private static void loadBinaries () {
+		File f = new File(Application.class.getResource("/startup.sh").getFile());
+		try {
+			Runtime.getRuntime().exec("chmod +x "+ f.getAbsolutePath());
+			ProcessBuilder pb = new ProcessBuilder(f.getAbsolutePath(), f.getParent());
+			pb.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	@Bean
 	public FilterRegistrationBean corsFilter() {

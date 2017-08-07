@@ -15,7 +15,7 @@ public class BackupJob {
 
   public static final String BACKUP_JOB = "Backup Job";
   public static final String RESTORE_JOB = "Restore Job";
-  private String id;
+    private String id;
   private Date startDate;
   private String instanceId;
   private JobStatus status;

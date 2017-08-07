@@ -91,7 +91,7 @@ public class PlansApiTest extends MockMvcTest{
 
         plan.setFrequency(frequency);
         plan.setRetentionPeriod(retentionPeriod);
-        plan.getDestination().setPassword("secret");
+        //plan.getDestination().setPassword("secret");
         plan.setRetentionStyle(RetentionStyle.ALL);
 
         FieldDescriptor[] dest = getDestinationDescriptors();
