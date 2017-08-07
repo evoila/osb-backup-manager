@@ -51,7 +51,7 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
                                          String.format("--db=%s", source.getContext()),
                                          String.format("--out=%s", backup.getAbsolutePath())
     ).redirectError(new File("./mongodb.err.log")).redirectOutput(new File("./mongodb.log"));
-    runProcess(process);
+    runProcess(process, job);
 
     backup = tarGz(backup, true);
     String filePath = upload(backup,source,destination,job);
@@ -81,7 +81,7 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
                                          String.format("--db=%s", destination.getContext()),
                                          String.format("%s", backup.getAbsolutePath()))
                           ;
-    runProcess(process);
+    runProcess(process, job);
     log.info(String.format("Restore (%s) of File %s/%s took %f s (TO %f)",
                            job.getId(),
                            source.getContainerName(),

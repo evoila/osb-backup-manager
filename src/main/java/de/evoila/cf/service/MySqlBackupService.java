@@ -32,7 +32,10 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
     public String backup (DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException {
 
         long s_time = System.currentTimeMillis();
-        log.info(String.format("Starting backup (%s)", job.getId()));
+
+        String msg = String.format("Starting backup (%s)", job.getId());
+        log.info(msg);
+        job.appendLog(msg);
 
         File backup = new File(String.format("%s/%s_%s.sql",
                                              source.getContext(),
@@ -47,21 +50,26 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
                                                            "-P" + Integer.toString(source.getPort()),
                                                            source.getContext()
         ).redirectOutput(backup);
-        runProcess(processBuilder);
+        runProcess(processBuilder, job);
 
         backup = tarGz(backup, false);
-        log.info(String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
-                               job.getId(),
-                               source.getHostname(),
-                               source.getPort(),
-                               source.getContext(),
-                               ((System.currentTimeMillis() - s_time) / 1000.0),
-                               (backup.length() / 1048576.0)
-        ));
+
+        msg = String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
+                            job.getId(),
+                            source.getHostname(),
+                            source.getPort(),
+                            source.getContext(),
+                            ((System.currentTimeMillis() - s_time) / 1000.0),
+                            (backup.length() / 1048576.0)
+        );
+        log.info(msg);
+        job.appendLog(msg);
+
         String filePath = upload(backup, source,destination, job);
         backup.delete();
         return filePath;
     }
+
 
     public void restore (DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException {
 
@@ -87,7 +95,7 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
                                                            destination.getContext()
 
         ).redirectInput(backup);
-        runProcess(processBuilder);
+        runProcess(processBuilder, job);
         log.info(String.format("Restore (%s) of File %s/%s took %f s (TO %f)",
                                job.getId(),
                                source.getContainerName(),

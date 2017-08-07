@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by yremmet on 19.07.17.
@@ -46,7 +47,7 @@ public class BackupSchedulingService {
         threadPoolTaskScheduler.setPoolSize(5);
         threadPoolTaskScheduler.setThreadNamePrefix( "BackupThreadPoolTaskScheduler");
         threadPoolTaskScheduler().initialize();
-        repository.findAll().stream().parallel().forEach(plan -> addTask(plan));
+        StreamSupport.stream(repository.findAll().spliterator(),true).forEach(plan -> addTask(plan));
     }
 
     @Bean(destroyMethod = "shutdown")
@@ -80,6 +81,12 @@ public class BackupSchedulingService {
                     scheduledFuture.cancel(true);
                 }
                 return;
+            }
+            String frequency = plan.getFrequency();
+            this.plan = repository.findOne(plan.getId());
+            if(!frequency.equals(plan.getFrequency())){
+                addTask(plan);
+                scheduledFuture.cancel(true);
             }
             try {
                 BackupJob job = backupServiceManager.backup(plan.getSource(), plan.getDestination());

@@ -1,6 +1,8 @@
 package de.evoila.cf.service;
 
 import de.evoila.cf.model.*;
+import de.evoila.cf.model.enums.DatabaseType;
+import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.openstack.SwiftClient;
 import de.evoila.cf.repository.BackupAgentJobRepository;
@@ -64,7 +66,7 @@ public class BackupServiceManager {
       job.setStatus(JobStatus.FINISHED);
       jobRepository.save(job);
     } catch (IOException | OSException | ProcessException | InterruptedException e) {
-      log.error(String.format("An error occured (%s) : %s", job.getDestination(), e.getMessage()));
+      log.error(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
       e.printStackTrace();
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
@@ -85,10 +87,13 @@ public class BackupServiceManager {
     jobRepository.save(job);
     Optional<BackupService> service = this.getServices().stream()
                                             .filter(s -> s.getSourceType().equals(destination.getType()))
-                                            .filter(s -> s.getDestinationTypes().contains(source.getType()))
+                                            .filter(s -> s.getDestinationTypes().contains(DestinationType.Swift))
                                             .findAny();
     if (! service.isPresent()) {
-      log.warn(String.format("No Backup Service found (JOB=%s) for Database %s", job.getId(),destination.getType()));
+      String msg = String.format("No Backup Service found (JOB=%s) for Database %s", job.getId(),destination.getType())
+            + getServices().stream().map(s -> s.getSourceType().toString()).collect(Collectors.toList());
+      log.warn(msg);
+      job.appendLog(msg);
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
       throw new BackupRequestException("No Backupservice found");
@@ -109,7 +114,7 @@ public class BackupServiceManager {
       jobRepository.save(job);
     } catch (IOException | OSException | ProcessException | InterruptedException e) {
       e.printStackTrace();
-      log.error(String.format("An error occured (%s) : %s", job.getDestination(), e.getMessage()));
+      log.error(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
     }
@@ -122,19 +127,36 @@ public class BackupServiceManager {
     job.setStatus(JobStatus.STARTED);
     job.setStartDate(new Date());
     jobRepository.save(job);
-    Optional<BackupService> service = this.getServices()
-                                            .stream()
-                                            .filter(s -> s.getSourceType().equals(source.getType()))
-                                            .filter(s -> s.getDestinationTypes().contains(destination.getType()))
-                                            .findAny();
-    if (! service.isPresent()) {
-      log.warn(String.format("No Backup Service found (JOB=%s) for Database %s", job.getId(),source.getType()));
+    Optional<BackupService> service = this.getBackupService(source.getType(), DestinationType.Swift);
+
+    if (!service.isPresent()) {
+      String msg = String.format("No Backup Service found (JOB=%s) for Database %s", job.getId(),source.getType().toString())
+                         + getServices().stream().map(s -> s.getSourceType().toString()).collect(Collectors.toList());
+      log.warn(msg);
+      job.appendLog(msg);
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
-      throw new BackupRequestException("No Backupservice found");
+      throw new BackupRequestException("No Backup Service found");
     }
+
     taskExecutor.execute(() -> executeBackup(source,destination, service.get(), job));
     return job;
+  }
+
+  private Optional<BackupService> getBackupService (DatabaseType sourceType, DestinationType destType) {
+    Optional<BackupService> service = this.getServices()
+                                            .stream()
+                                            .filter(s -> s.getSourceType().equals(sourceType))
+                                            .filter(s -> s.getDestinationTypes().contains(destType))
+                                            .findFirst();
+    if(!service.isPresent()){
+      for(BackupService service1 : this.getServices()){
+        if(service1.getSourceType().equals(sourceType)){
+          service = Optional.of(service1);
+        }
+      }
+    }
+    return service;
   }
 
   public void removeOldBackupFiles (BackupPlan plan) throws IOException, OSException {
@@ -202,4 +224,5 @@ public class BackupServiceManager {
 
     jobRepository.delete(job.getId());
   }
+
 }

@@ -43,7 +43,7 @@ public class PostgresBackupService extends SwiftBackupService {
                                                          String.format("%s", source.getContext())
         ).redirectOutput(backup);
         process.environment().put("PGPASSWORD", source.getPassword());
-        runProcess(process);
+        runProcess(process, job);
 
         log.info(String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
                                job.getId(),
@@ -81,7 +81,7 @@ public class PostgresBackupService extends SwiftBackupService {
                                                     )
         ).redirectError(new File("pg.err.log")).redirectOutput(new File("pg.test.log"));
         process.environment().put("PGPASSWORD", destination.getPassword());
-        runProcess(process);
+        runProcess(process, job);
 
         log.info(String.format("Restore (%s) of File %s/%s took %f s (TO %f)",
                                job.getId(),
