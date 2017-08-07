@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  *
  */
 @Controller
-public class BackupController {
+public class BackupController extends BaseController {
 
 	@Autowired
 	BackupServiceManager serviceManager;

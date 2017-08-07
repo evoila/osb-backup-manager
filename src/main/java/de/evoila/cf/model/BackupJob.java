@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import de.evoila.cf.model.enums.DestinationType;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by yremmet on 06.07.17.
@@ -18,8 +20,8 @@ public class BackupJob {
   private String instanceId;
   private JobStatus status;
   private String jobType;
-  private String backupPath;
   private BackupDestination destination;
+  private List<String> logs;
 
   public String getId () {
     return id;
@@ -61,6 +63,16 @@ public class BackupJob {
     this.startDate = startDate;
   }
 
+  public List<String> getLogs () {
+    if(logs == null){
+      logs = new LinkedList<>();
+    }
+    return logs;
+  }
+
+  public void setLogs (List<String> logs) {
+    this.logs = logs;
+  }
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public BackupDestination getDestination () {
@@ -74,10 +86,12 @@ public class BackupJob {
     this.destination = destination;
   }
 
+    public synchronized void appendLog (String msg) {
+      this.getLogs().add(msg);
+    }
 
 
-
-  public static class BackupDestination {
+    public static class BackupDestination {
     private String type;
     private String project;
     private String container;
