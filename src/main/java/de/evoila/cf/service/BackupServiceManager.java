@@ -73,8 +73,9 @@ public class BackupServiceManager {
       job.setBackupFile(destination);
       job.setStatus(JobStatus.FINISHED);
       jobRepository.save(job);
-    } catch (IOException | OSException | ProcessException | InterruptedException e) {
+    } catch (BackupException | IOException | OSException | ProcessException | InterruptedException e) {
       log.error(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
+      job.appendLog(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
       e.printStackTrace();
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
@@ -120,7 +121,7 @@ public class BackupServiceManager {
       service.restore(source,destination, job);
       job.setStatus(JobStatus.FINISHED);
       jobRepository.save(job);
-    } catch (IOException | OSException | ProcessException | InterruptedException e) {
+    } catch (BackupException | IOException | OSException | ProcessException | InterruptedException e) {
       e.printStackTrace();
       log.error(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
       job.setStatus(JobStatus.FAILED);

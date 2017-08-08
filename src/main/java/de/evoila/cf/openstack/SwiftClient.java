@@ -2,10 +2,10 @@ package de.evoila.cf.openstack;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.evoila.cf.model.BackupJob;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.*;
+import org.apache.http.client.fluent.Content;
+import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,6 @@ public class SwiftClient {
       logger.error("could not find Swift URL AUTH-URL=" + authUrl + " "+ response.getStatusLine().getReasonPhrase());
       throw new OSException("could not find Swift URL AUTH-URL=" + authUrl + " "+ response.getStatusLine().getReasonPhrase());
     }
-
-
   }
 
     /*

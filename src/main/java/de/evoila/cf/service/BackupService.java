@@ -1,5 +1,6 @@
 package de.evoila.cf.service;
 
+import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.*;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.model.enums.DestinationType;
@@ -15,6 +16,6 @@ import java.util.List;
 public interface BackupService {
     public DatabaseType getSourceType();
     public List<DestinationType> getDestinationTypes();
-    public String backup(DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException;
-    void restore(DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException;
+    public String backup(DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException, BackupException;
+    void restore(DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException, BackupException;
 }

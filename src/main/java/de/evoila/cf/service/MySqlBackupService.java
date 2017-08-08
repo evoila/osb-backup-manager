@@ -1,7 +1,10 @@
 package de.evoila.cf.service;
 
 
-import de.evoila.cf.model.*;
+import de.evoila.cf.controller.exception.BackupException;
+import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.service.exception.ProcessException;
@@ -29,7 +32,7 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
     }
 
 
-    public String backup (DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException {
+    public String backup (DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException,BackupException {
 
         long s_time = System.currentTimeMillis();
 
@@ -43,7 +46,8 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
                                              format.format(new Date())
         ));
         backup.getParentFile().mkdirs();
-        ProcessBuilder processBuilder = new ProcessBuilder(this.getClass().getResource("/mysqldump").getPath(),
+        String tool = getBinary("/mysqldump");
+        ProcessBuilder processBuilder = new ProcessBuilder(tool,
                                                            "-u" + source.getUsername(),
                                                            "-p" + source.getPassword(),
                                                            "-h" + source.getHostname(),
@@ -71,7 +75,9 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
     }
 
 
-    public void restore (DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException {
+
+
+    public void restore (DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException, BackupException {
 
 
         log.info(String.format("Starting restore (%s) process to %s:%d/%s",
@@ -86,8 +92,7 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
 
 
         long s_time = System.currentTimeMillis();
-
-        ProcessBuilder processBuilder = new ProcessBuilder(this.getClass().getResource("/mysql").getPath(),
+        ProcessBuilder processBuilder = new ProcessBuilder(getBinary("/mysql"),
                                                            "-u" + destination.getUsername(),
                                                            "-p" + destination.getPassword(),
                                                            "-h" + destination.getHostname(),

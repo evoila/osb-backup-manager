@@ -29,16 +29,19 @@ public abstract class SwiftBackupService extends AbstractBackupService{
         String msg = String.format("Uploading Backup (%s)", job.getId());
         log.info(msg);
         job.appendLog(msg);
-
-        SwiftClient client = new SwiftClient(destination.getAuthUrl(),
-                                             destination.getUsername(),
-                                             destination.getPassword(),
-                                             destination.getDomain(),
-                                             destination.getProjectName()
-        );
         String backupName = String.format(backup.getName(), format.format(new Date()));
-        String filePath = client.upload(destination.getContainerName(), backupName, backup);
-
+        try {
+            SwiftClient client = new SwiftClient(destination.getAuthUrl(),
+                                                 destination.getUsername(),
+                                                 destination.getPassword(),
+                                                 destination.getDomain(),
+                                                 destination.getProjectName()
+            );
+            String filePath = client.upload(destination.getContainerName(), backupName, backup);
+        } catch (OSException | IOException e){
+            job.appendLog(e.getMessage());
+            throw e;
+        }
         msg = String.format("Uploading the Backup (%s) from %s:%d/%s took %fs (File size %f)",
                             job.getId(),
                             source.getHostname(),

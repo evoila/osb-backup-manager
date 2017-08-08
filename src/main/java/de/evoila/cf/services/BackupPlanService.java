@@ -27,7 +27,7 @@ public class BackupPlanService {
     }
 
     public BackupPlan createPlan (BackupPlan plan) throws BackupException {
-        if(destinationRepository.exists(plan.getId())){
+        if(!destinationRepository.exists(plan.getDestinationId())){
             throw new BackupException("Backup Destination does not exists ID = " + plan.getId());
         }
         plan = repository.save(plan);
