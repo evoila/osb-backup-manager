@@ -3,7 +3,10 @@ package de.evoila.cf.service.extension;
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.service.exception.ProcessException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Created by yremmet on 10.07.17.

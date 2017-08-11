@@ -1,7 +1,10 @@
 package de.evoila.cf.service;
 
+
 import de.evoila.cf.controller.exception.BackupException;
-import de.evoila.cf.model.*;
+import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.openstack.OSException;

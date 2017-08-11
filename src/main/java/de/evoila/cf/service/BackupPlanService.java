@@ -1,8 +1,7 @@
-package de.evoila.cf.services;
+package de.evoila.cf.service;
 
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupPlan;
-import de.evoila.cf.model.BackupSchedulingService;
 import de.evoila.cf.repository.BackupPlanRepository;
 import de.evoila.cf.repository.FileDestinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class BackupPlanService {
     }
 
     public BackupPlan createPlan (BackupPlan plan) throws BackupException {
-        if(!destinationRepository.exists(plan.getDestinationId())){
+        if(plan.getDestinationId() != null && !destinationRepository.exists(plan.getDestinationId())){
             throw new BackupException("Backup Destination does not exists ID = " + plan.getId());
         }
         plan = repository.save(plan);

@@ -32,8 +32,8 @@ public class Application {
 		File f = new File(Application.class.getResource("/startup.sh").getFile());
 		try {
 			Runtime.getRuntime().exec("chmod +x "+ f.getAbsolutePath());
-			ProcessBuilder pb = new ProcessBuilder(f.getAbsolutePath(), f.getParent());
-			pb.start();
+			//ProcessBuilder pb = new ProcessBuilder(f.getAbsolutePath(), f.getParent());
+			//pb.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

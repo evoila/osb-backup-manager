@@ -4,6 +4,7 @@ import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.*;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.model.enums.DestinationType;
+import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.openstack.SwiftClient;
 import de.evoila.cf.repository.BackupAgentJobRepository;
@@ -58,9 +59,8 @@ public class BackupServiceManager {
 
   public BackupJob backup (BackupRequest backupRequest) throws BackupRequestException, BackupException {
     FileDestination destination = destRepoisitory.findOne(backupRequest.getDestinationId());
-    if(destination == null){
+    if(destination == null)
       throw new BackupException("Did not find destination with ID=" + backupRequest.getDestinationId());
-    }
     return backup(backupRequest.getSource(), destination);
   }
 

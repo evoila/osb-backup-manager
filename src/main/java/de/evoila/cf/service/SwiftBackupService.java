@@ -1,6 +1,9 @@
 package de.evoila.cf.service;
 
-import de.evoila.cf.model.*;
+
+import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.openstack.SwiftClient;
@@ -25,11 +28,23 @@ public abstract class SwiftBackupService extends AbstractBackupService{
 
     protected String upload(File backup, DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, OSException {
         long s_time = System.currentTimeMillis();
+        String msg;
+        if(backup == null){
+            msg = "Backup file is null";
+            log.error(msg);
+            job.appendLog(msg);
+        }
 
-        String msg = String.format("Uploading Backup (%s)", job.getId());
+        if(!backup.exists()){
+            msg = "Backup file does not exist";
+            log.error(msg);
+            job.appendLog(msg);
+        }
+
+        msg = String.format("Uploading Backup (%s)", job.getId());
         log.info(msg);
         job.appendLog(msg);
-        String backupName = String.format(backup.getName(), format.format(new Date()));
+
         try {
             SwiftClient client = new SwiftClient(destination.getAuthUrl(),
                                                  destination.getUsername(),
@@ -37,23 +52,26 @@ public abstract class SwiftBackupService extends AbstractBackupService{
                                                  destination.getDomain(),
                                                  destination.getProjectName()
             );
+            String backupName = String.format(backup.getName(), format.format(new Date()));
             String filePath = client.upload(destination.getContainerName(), backupName, backup);
+
+            msg = String.format("Uploading the Backup (%s) from %s:%d/%s took %fs (File size %f)",
+                                job.getId(),
+                                source.getHostname(),
+                                source.getPort(),
+                                source.getContext(),
+                                ((System.currentTimeMillis() - s_time) / 1000.0),
+                                (backup.length() / 1048576.0)
+            );
+            log.info(msg);
+            job.appendLog(msg);
+
+            return backupName;
         } catch (OSException | IOException e){
             job.appendLog(e.getMessage());
             throw e;
         }
-        msg = String.format("Uploading the Backup (%s) from %s:%d/%s took %fs (File size %f)",
-                            job.getId(),
-                            source.getHostname(),
-                            source.getPort(),
-                            source.getContext(),
-                            ((System.currentTimeMillis() - s_time) / 1000.0),
-                            (backup.length() / 1048576.0)
-        );
-        log.info(msg);
-        job.appendLog(msg);
 
-        return backupName;
     }
 
     public File download (FileDestination source, BackupJob job) throws IOException, OSException {

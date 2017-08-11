@@ -2,7 +2,7 @@ package de.evoila.cf.controller;
 
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupPlan;
-import de.evoila.cf.services.BackupPlanService;
+import de.evoila.cf.service.BackupPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

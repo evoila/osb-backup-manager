@@ -2,9 +2,13 @@ package de.evoila.cf.backup;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.evoila.cf.model.*;
+import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.BackupPlan;
+import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.model.enums.DestinationType;
+import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.RetentionStyle;
 import org.junit.Before;
 import org.junit.Rule;

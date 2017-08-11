@@ -3,7 +3,7 @@ package de.evoila.cf.backup;
 
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.FileDestination;
-import de.evoila.cf.model.JobStatus;
+import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.repository.BackupAgentJobRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,9 +12,7 @@ import org.springframework.http.MediaType;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

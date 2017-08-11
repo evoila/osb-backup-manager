@@ -2,6 +2,11 @@ spring:
  application:
    name: backup-agent
 
+ rabbitmq:
+   password: evoila
+   user: evoila
+   virtual-host: evoila
+   addresses: localhost:5672
 
 security:
  token:
@@ -9,6 +14,13 @@ security:
    name: X-Auth-Token
 
 login:
-   username: wsp
-   password: wspbackup
+   username: admin
+   password: cloudfoundry
    role: USER
+
+
+queue:
+  exchange: jobs
+  routing-key: backup
+  queue: jobs
+

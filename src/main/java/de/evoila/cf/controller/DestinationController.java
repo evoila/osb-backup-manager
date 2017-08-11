@@ -1,5 +1,6 @@
 package de.evoila.cf.controller;
 
+
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.openstack.SwiftClient;
@@ -26,7 +27,6 @@ public class DestinationController extends BaseController {
     @Autowired
     FileDestinationRepository desinationRepository;
 
-
     @RequestMapping(value = "/destinations/{destId}", method = RequestMethod.GET)
     public ResponseEntity<FileDestination> getDestinationUpdate (@PathVariable String destId) {
         FileDestination job = desinationRepository.findOne(destId);
@@ -41,7 +41,7 @@ public class DestinationController extends BaseController {
     }
 
     @RequestMapping(value = "/destinations/{jobid}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteJob (@PathVariable String jobid)
+    public ResponseEntity deleteDestination (@PathVariable String jobid)
            {
         FileDestination job = desinationRepository.findOne(jobid);
         if (job == null) {
@@ -54,6 +54,7 @@ public class DestinationController extends BaseController {
     @RequestMapping(value = "/destinations", method = RequestMethod.POST)
     public ResponseEntity<FileDestination> createDestination (@RequestBody FileDestination dest)
           {
+              setName(dest);
         FileDestination response = desinationRepository.save(dest);
         return new ResponseEntity<FileDestination>(response, HttpStatus.CREATED);
     }
@@ -62,7 +63,7 @@ public class DestinationController extends BaseController {
     public ResponseEntity<FileDestination> updateDestination (@PathVariable() String destId,
                                                   @RequestBody FileDestination dest)
           {
-
+              setName(dest);
         desinationRepository.delete(destId);
         desinationRepository.save(dest);
         return new ResponseEntity<FileDestination>(dest, HttpStatus.OK);
@@ -78,5 +79,11 @@ public class DestinationController extends BaseController {
             return new ResponseEntity<FileDestination>(dest, HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    public void setName (FileDestination dest) {
+        if(dest.getName() == null){
+            dest.setName(String.format("%s - %s - %s", dest.getDomain(), dest.getProjectName(), dest.getContainerName()));
+        }
     }
 }

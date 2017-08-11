@@ -1,9 +1,12 @@
-package de.evoila.cf.model;
+package de.evoila.cf.service;
 
+
+import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.BackupPlan;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.repository.BackupPlanRepository;
 import de.evoila.cf.repository.FileDestinationRepository;
-import de.evoila.cf.service.BackupServiceManager;
 import de.evoila.cf.service.exception.BackupRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
