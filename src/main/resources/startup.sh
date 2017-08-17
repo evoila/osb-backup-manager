@@ -6,7 +6,7 @@ rm pg.tar.gz
 cp pgsql/bin/pg_dump $1
 cp pgsql/bin/pg_restore $1
 rm -rf pqsql
-curl https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.4.6.tgz >> mongo.tgz
+curl https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.7.tgz >> mongo.tgz
 tar xfz mongo.tgz
 cp mongodb-linux-x86_64-amazon-3.4.6/bin/mongodump $1
 cp mongodb-linux-x86_64-amazon-3.4.6/bin/mongorestore $1
