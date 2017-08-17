@@ -1,9 +1,11 @@
 package de.evoila.cf.service;
 
 
+import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.FileDestination;
+import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.repository.BackupPlanRepository;
 import de.evoila.cf.repository.FileDestinationRepository;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -83,35 +86,41 @@ public class BackupSchedulingService {
 
         @Override
         public void run () {
-            if(!repository.exists(plan.getId())) {
-                if(scheduledFuture != null){
+            if (! repository.exists(plan.getId())) {
+                if (scheduledFuture != null) {
                     scheduledFuture.cancel(true);
                 }
                 return;
             }
             String frequency = plan.getFrequency();
             this.plan = repository.findOne(plan.getId());
-            if(!frequency.equals(plan.getFrequency())){
+            if (! frequency.equals(plan.getFrequency())) {
                 addTask(plan);
                 scheduledFuture.cancel(true);
             }
+            BackupJob job = null;
             try {
-                FileDestination destination = destinationRepository.findOne(plan.getId());
-                BackupJob job = backupServiceManager.backup(plan.getSource(), destination);
+                FileDestination destination = destinationRepository.findOne(plan.getDestinationId());
+                if (destination == null) {
+                    throw new BackupException("Destination can not be found");
+                }
+                job = backupServiceManager.backup(plan.getSource(), destination);
 
                 plan.getJobIds().add(job.getId());
                 repository.save(plan);
 
                 backupServiceManager.removeOldBackupFiles(plan);
                 repository.save(plan);
-            } catch (BackupRequestException e) {
-                logger.error("Could not execute scheduled Backup " + e.getMessage());
-            } catch (IOException e) {
-                logger.warn("Could remove old Backup Files" + e.getMessage());
+            } catch (Exception | BackupRequestException e) {
+                String msg = String.format("Could not execute scheduled backup [Plan %s] : %s",plan.getId(), e.getMessage());
+                if (job != null) {
+                    job.setStatus(JobStatus.FAILED);
+                    job.appendLog(msg);
+                }
+                logger.error(msg);
+                logger.error(e.getStackTrace().toString());
             } catch (OSException e) {
-                logger.warn("Could remove old Backup Files" + e.getMessage());
-            } finally {
-
+                logger.error(String.format("Could not remove old Backups [Plan %s] : %s", plan.getId(), e.getMessage()));
             }
         }
     }

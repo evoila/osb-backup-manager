@@ -58,6 +58,9 @@ public class BackupServiceManager {
   }
 
   public BackupJob backup (BackupRequest backupRequest) throws BackupRequestException, BackupException {
+    if(backupRequest == null){
+      throw new BackupException("Backup Request is null");
+    }
     FileDestination destination = destRepoisitory.findOne(backupRequest.getDestinationId());
     if(destination == null)
       throw new BackupException("Did not find destination with ID=" + backupRequest.getDestinationId());
@@ -73,9 +76,10 @@ public class BackupServiceManager {
       job.setBackupFile(destination);
       job.setStatus(JobStatus.FINISHED);
       jobRepository.save(job);
-    } catch (BackupException | IOException | OSException | ProcessException | InterruptedException e) {
-      log.error(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
-      job.appendLog(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
+    } catch (Exception | OSException | ProcessException e) {
+      String msg = String.format("An error occured (%s) : %s", job.getId(), e.getMessage());
+      log.error(msg);
+      job.appendLog(msg);
       e.printStackTrace();
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
@@ -123,7 +127,7 @@ public class BackupServiceManager {
       jobRepository.save(job);
     } catch (BackupException | IOException | OSException | ProcessException | InterruptedException e) {
       e.printStackTrace();
-      log.error(String.format("An error occured (%s) : %s", job.getId(), e.getMessage()));
+      log.error(String.format("An error occured (%s) : [%s]   %s", job.getId(), e.getClass(), e.getMessage()));
       job.setStatus(JobStatus.FAILED);
       jobRepository.save(job);
     }
@@ -139,8 +143,13 @@ public class BackupServiceManager {
     Optional<BackupService> service = this.getBackupService(source.getType(), DestinationType.Swift);
 
     if (!service.isPresent()) {
-      String msg = String.format("No Backup Service found (JOB=%s) for Database %s", job.getId(),source.getType().toString())
-                         + getServices().stream().map(s -> s.getSourceType().toString()).collect(Collectors.toList());
+      String msg = String.format("No Backup Service found (JOB=%s) for Database %s",
+                                 job.getId(),
+                                 source.getType())
+                         + getServices()
+                                 .stream()
+                                 .map(s -> s.getSourceType().toString())
+                                 .collect(Collectors.toList());
       log.warn(msg);
       job.appendLog(msg);
       job.setStatus(JobStatus.FAILED);
