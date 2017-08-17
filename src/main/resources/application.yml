@@ -20,7 +20,7 @@ login:
 
 
 queue:
-  exchange: jobs
-  routing-key: backup
-  queue: jobs
+  exchange: backup-jobs
+  routing-key: backup-jobs
+  queue: backup-jobs
 

@@ -3,12 +3,13 @@ instances: 1
 timeout: 180
 memory: 1024M
 disk_quota: 4G
-domain: cf.eu-de-netde.msh.host
+domain: cf.eu-de-darz.msh.host
 services: 
-  - mongo-backupbackend
+  - backup-database
+  - backup-queue
 applications:
-- name: backup-agent
-  host: backup-agent
+- name: backup-agent-prod
+  host: backup-agent-prod
   path: target/backup-agent.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
   env:
