@@ -79,7 +79,7 @@ public class PostgresBackupService extends SwiftBackupService {
                                                     String.format("--port=%d", destination.getPort()),
                                                     String.format("--username=%s", destination.getUsername()),
                                                     String.format("--dbname=%s", destination.getContext()),
-                                                    "--schema=plublic",
+                                                    "--schema=public",
                                                     String.format("%s", backup.getAbsolutePath()
                                                     )
         ).redirectError(new File("pg.err.log")).redirectOutput(new File("pg.test.log"));

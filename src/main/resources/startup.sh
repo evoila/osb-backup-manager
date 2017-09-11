@@ -8,11 +8,11 @@ cp pgsql/bin/pg_restore $1
 rm -rf pqsql
 curl https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.7.tgz >> mongo.tgz
 tar xfz mongo.tgz
-cp mongodb-linux-x86_64-amazon-3.4.6/bin/mongodump $1
-cp mongodb-linux-x86_64-amazon-3.4.6/bin/mongorestore $1
-rm -rf mongodb-linux-x86_64-amazon-3.4.6/
+cp mongodb-linux-x86_64-3.4.7/bin/mongodump $1
+cp mongodb-linux-x86_64-3.4.7/bin/mongorestore $1
+rm -rf mongodb-linux-x86_64-3.4.7/
 rm mongo.tgz
-curl http://mirror.rackspeed.de/mariadb.org//mariadb-10.2.6/bintar-linux-x86_64/mariadb-10.2.6-linux-x86_64.tar.gz > my.tar.gz
+curl http://ftp.hosteurope.de/mirror/archive.mariadb.org//mariadb-10.2.6/bintar-linux-x86_64/mariadb-10.2.6-linux-x86_64.tar.gz > my.tar.gz
 tar xzf my.tar.gz
 cp mariadb-10.2.6-linux-x86_64/bin/mysqldump $1
 cp mariadb-10.2.6-linux-x86_64/bin/mysql $1
