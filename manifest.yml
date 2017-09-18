@@ -1,9 +1,9 @@
 ---
 instances: 1
 timeout: 180
-memory: 1024M
-disk_quota: 4G
-domain: cf.eu-de-darz.msh.host
+memory: 2G
+disk_quota: 8G
+domain: cf.eu-de-netde.msh.host
 services: 
   - backup-database
   - backup-queue

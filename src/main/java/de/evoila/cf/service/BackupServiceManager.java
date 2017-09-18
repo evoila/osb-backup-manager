@@ -48,7 +48,7 @@ public class BackupServiceManager {
   private void postConstruct () {
     taskExecutor = new ThreadPoolTaskExecutor();
     taskExecutor.setCorePoolSize(2);
-    taskExecutor.setMaxPoolSize(5);
+    taskExecutor.setMaxPoolSize(10);
     taskExecutor.initialize();
 
   }

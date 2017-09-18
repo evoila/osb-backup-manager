@@ -1,5 +1,7 @@
 package de.evoila.cf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -22,20 +24,22 @@ import java.util.concurrent.Executor;
 @SpringBootApplication
 @EnableAsync
 public class Application {
-
+	static Logger logger = LoggerFactory.getLogger(Application.class);
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
 		loadBinaries();
+		SpringApplication.run(Application.class, args);
 	}
 
 	private static void loadBinaries () {
 		File f = new File(Application.class.getResource("/startup.sh").getFile());
 		try {
+			logger.info("Downloading binaries");
 			Runtime.getRuntime().exec("chmod +x "+ f.getAbsolutePath());
-			//ProcessBuilder pb = new ProcessBuilder(f.getAbsolutePath(), f.getParent());
-			//pb.start();
+			ProcessBuilder pb = new ProcessBuilder(f.getAbsolutePath(), "/home/vcap/app/");
+			Process process = pb.start();
+
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("An error occured downloading the backup binaries");
 		}
 	}
 
