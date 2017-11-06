@@ -2,15 +2,12 @@
 instances: 1
 timeout: 180
 memory: 2G
-disk_quota: 8G
-domain: cf.eu-de-netde.msh.host
-services: 
-  - backup-database
-  - backup-queue
+disk_quota: 10G
+domain: cf.eu-de-darz.msh.host
 applications:
 - name: backup-agent-prod
   host: backup-agent-prod
-  path: target/backup-agent.jar
+  path: osb-backup-agent/target/backup-agent.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
   env:
     SPRING_CLOUD_CONFIG_USERNAME: admin

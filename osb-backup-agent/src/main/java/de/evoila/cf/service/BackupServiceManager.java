@@ -210,13 +210,11 @@ public class BackupServiceManager {
   private List<BackupJob> getJobs (BackupPlan plan) {
     List<String> jobIds =plan.getJobIds();
     Iterable<BackupJob> jobsIterator = jobRepository.findAll(jobIds);
-    ArrayList<BackupJob> jobs = new ArrayList<>();
-
-    StreamSupport.stream(jobsIterator.spliterator(), false)
+    List<BackupJob> jobs = StreamSupport.stream(jobsIterator.spliterator(), false)
           .filter(job-> job.getStatus().equals(JobStatus.FINISHED))
           .filter(job-> job.getJobType().equals(BackupJob.BACKUP_JOB))
-          .forEach(job -> jobs.add(job));
-    Collections.sort(jobs, (o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()));
+          .sorted((o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()))
+          .collect(Collectors.toList());
     return jobs;
   }
 
@@ -236,15 +234,22 @@ public class BackupServiceManager {
 
 
   public void delete (BackupJob job, FileDestination destination) throws IOException, OSException {
+
     SwiftClient swiftClient = new SwiftClient(destination.getAuthUrl(),
                                               destination.getUsername(),
                                               destination.getPassword(),
                                               destination.getDomain(),
                                               destination.getProjectName()
     );
-    swiftClient.delete(job.getDestination().getContainer(), job.getDestination().getFilename());
+    try {
+      swiftClient.delete(job.getDestination().getContainer(), job.getDestination().getFilename());
+      jobRepository.delete(job.getId());
+    } catch (OSException e){
+      log.error(String.format("Could not remove old Backups [File %s] : %s", job.getDestination().getFilename(), e.getMessage()));
 
-    jobRepository.delete(job.getId());
+    }
+
+
   }
 
 }

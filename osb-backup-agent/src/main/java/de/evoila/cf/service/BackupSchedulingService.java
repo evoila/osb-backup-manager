@@ -33,7 +33,6 @@ import java.util.stream.StreamSupport;
  */
 @Service
 @EnableScheduling
-
 public class BackupSchedulingService {
     private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
@@ -65,6 +64,7 @@ public class BackupSchedulingService {
     }
 
     public void addTask (BackupPlan job) {
+        logger.debug(String.format("Starting Plan [%s] frequency:", job.getId(), job.getFrequency()));
         Trigger trigger = new CronTrigger(job.getFrequency());
         BackupTask task = new BackupTask(job);
         ScheduledFuture scheduledFuture = threadPoolTaskScheduler().schedule(task, trigger);

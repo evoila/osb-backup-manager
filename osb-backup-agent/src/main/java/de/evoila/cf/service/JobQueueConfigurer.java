@@ -3,6 +3,7 @@ package de.evoila.cf.service;
 import de.evoila.cf.config.RabbitMQConfig;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class JobQueueConfigurer {
 
     private ConnectionFactory connectionFactory;
+    private RabbitTemplate template;
     private JobMessageListener jobMessageLister;
     private AmqpAdmin amqpAdmin;
     private RabbitMQConfig config;
@@ -45,7 +47,7 @@ public class JobQueueConfigurer {
 
     @Bean
     public DirectExchange jobDirectExchange() {
-        DirectExchange directExchange = new DirectExchange(config.getExchange(), true, true);
+        DirectExchange directExchange = new DirectExchange(config.getExchange(), true, false);
         amqpAdmin.declareExchange(directExchange);
         return directExchange;
     }
