@@ -2,14 +2,16 @@
 instances: 1
 timeout: 180
 memory: 2G
-disk_quota: 10G
-domain: cf.eu-de-darz.msh.host
+disk_quota: 2G
 applications:
-- name: backup-agent-prod
-  host: backup-agent-prod
+- name: osb-backup-agent
+  host: osb-backup-agent
   path: osb-backup-agent/target/backup-agent.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
   env:
+    SPRING_PROFILES_ACTIVE: dev.eu-de-central
     SPRING_CLOUD_CONFIG_USERNAME: admin
     SPRING_CLOUD_CONFIG_PASSWORD: cloudfoundry
+    SPRING_CLOUD_CONFIG_URI: https://config-server.cf.dev.eu-de-central.msh.host
+    SPRING_APPLICATION_NAME: osb-backup-agent
     JAVA_OPTS: -Djava.security.egd=file:/dev/urandom

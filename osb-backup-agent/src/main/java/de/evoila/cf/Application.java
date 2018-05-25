@@ -25,10 +25,12 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class Application {
 	static Logger logger = LoggerFactory.getLogger(Application.class);
+
 	public static void main(String[] args) {
 		loadBinaries();
 		SpringApplication.run(Application.class, args);
 	}
+
 
 	private static void loadBinaries () {
 		File f = new File(Application.class.getResource("/startup.sh").getFile());
@@ -45,28 +47,6 @@ public class Application {
 
 
 	@Bean
-	public FilterRegistrationBean corsFilter() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-
-		config.setAllowCredentials(true);
-		config.addAllowedOrigin("*");
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("OPTIONS");
-		config.addAllowedMethod("HEAD");
-		config.addAllowedMethod("GET");
-		config.addAllowedMethod("PUT");
-		config.addAllowedMethod("POST");
-		config.addAllowedMethod("DELETE");
-		config.addAllowedMethod("PATCH");
-		source.registerCorsConfiguration("/**", config);
-
-		final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-		bean.setOrder(0);
-		return bean;
-	}
-
-	@Bean
 	public Executor asyncExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(2);
@@ -75,6 +55,17 @@ public class Application {
 		executor.setThreadNamePrefix("BackupAgent-");
 		executor.initialize();
 		return executor;
+	}
+
+	@Bean
+	public CorsFilter corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.addAllowedOrigin("*");
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
+		source.registerCorsConfiguration("/**", config);
+		return new CorsFilter(source);
 	}
 
 }

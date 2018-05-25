@@ -1,5 +1,7 @@
 package de.evoila.cf.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class ConfigurationWebSecurity extends WebSecurityConfigurerAdapter {
-
-    @Autowired
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationWebSecurity.class);
     private AuthenticationProperties authentication;
+
+    ConfigurationWebSecurity(AuthenticationProperties ap) {
+        super();
+        authentication = ap;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -25,8 +31,8 @@ public class ConfigurationWebSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
     protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-              .inMemoryAuthentication()
+        log.info(String.format("User : %s, Password: %s", authentication.getUsername(), authentication.getPassword()));
+        auth.inMemoryAuthentication()
               .withUser(authentication.getUsername())
               .password(authentication.getPassword())
               .roles(authentication.getRole());
@@ -46,7 +52,7 @@ public class ConfigurationWebSecurity extends WebSecurityConfigurerAdapter {
               .antMatchers("/**").hasRole("USER")
               .and()
               .httpBasic()
-              ;
+        ;
         ;
     }
 }
