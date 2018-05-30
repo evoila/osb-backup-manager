@@ -42,7 +42,7 @@ public abstract class MockMvcTest {
     static final String FREQUENCY = "* * 14 * * *";
     static final String PASSWORD = "PASSWORD";
     static final String USERNAME = "USERNAME";
-    static final DatabaseType DATABASE_TYPE = DatabaseType.MySQL;
+    static final DatabaseType DATABASE_TYPE = DatabaseType.MYSQL;
     static final String HOSTNAME = "127.0.0.1";
     static final int PORT = 3306;
     static final String DATABASE_NAME = "database_1";

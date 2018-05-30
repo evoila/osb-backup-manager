@@ -27,9 +27,8 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
 
   @Override
   public DatabaseType getSourceType () {
-    return DatabaseType.MongoDB;
+    return DatabaseType.MONGODB;
   }
-
 
   @Override
   public String backup (DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException {

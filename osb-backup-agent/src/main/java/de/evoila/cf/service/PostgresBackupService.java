@@ -26,9 +26,8 @@ public class PostgresBackupService extends SwiftBackupService {
 
     @Override
     public DatabaseType getSourceType () {
-        return DatabaseType.PostgreSQL;
+        return DatabaseType.POSTGRESQL;
     }
-
 
     @Override
     public String backup (DatabaseCredential source, FileDestination dest, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException {

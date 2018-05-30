@@ -28,9 +28,8 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
 
     @Override
     public DatabaseType getSourceType () {
-        return DatabaseType.MySQL;
+        return DatabaseType.MYSQL;
     }
-
 
     public String backup (DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException,BackupException {
 
