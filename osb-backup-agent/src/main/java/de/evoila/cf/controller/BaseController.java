@@ -10,9 +10,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
 import javax.servlet.http.HttpServletResponse;
 
 public abstract class BaseController {
@@ -25,26 +22,18 @@ public abstract class BaseController {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+
     public ResponseEntity<ErrorMessage> handleException(MethodArgumentNotValidException ex,
-                                                                                  HttpServletResponse response) {
+                                                        HttpServletResponse response) {
         BindingResult result = ex.getBindingResult();
         String message = "Missing required fields:";
         for (FieldError error: result.getFieldErrors()) {
             message += " " + error.getField();
         }
-        return processErrorResponse(message, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
-
-    @ExceptionHandler(Exception.class)
-    @RequestMapping(value = { "/error" }, method = RequestMethod.GET)
-    public ResponseEntity<ErrorMessage> handleException(Exception ex,
-                                                                                  HttpServletResponse response) {
-        log.warn("Exception", ex);
-        return processErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return processErrorResponse(message, HttpStatus.BAD_REQUEST);
     }
 
     protected ResponseEntity<ErrorMessage> processErrorResponse(String message, HttpStatus status) {
-        return new ResponseEntity<ErrorMessage>(new ErrorMessage(message), status);
+        return new ResponseEntity<>(new ErrorMessage(message), status);
     }
-
 }

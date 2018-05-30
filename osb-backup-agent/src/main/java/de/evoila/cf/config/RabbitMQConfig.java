@@ -1,4 +1,4 @@
- package de.evoila.cf.config;
+package de.evoila.cf.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "queue")
 public class RabbitMQConfig {
+
     private String exchange;
     private String routingKey;
     private String queue;

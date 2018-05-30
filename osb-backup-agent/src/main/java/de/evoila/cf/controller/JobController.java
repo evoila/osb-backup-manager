@@ -26,7 +26,6 @@ import java.util.List;
  */
 
 @Controller
-
 public class JobController {
 
     @Autowired
@@ -35,22 +34,21 @@ public class JobController {
     BackupServiceManager backupServiceManager;
 
     @RequestMapping(value = "/jobs/{jobid}", method = RequestMethod.GET)
-    public ResponseEntity<BackupJob> getJobUpdate (@PathVariable String jobid) {
+    public ResponseEntity<BackupJob> getJobUpdate(@PathVariable String jobid) {
         BackupJob job = jobRepository.findOne(jobid);
-        return new ResponseEntity<BackupJob>(job, HttpStatus.OK);
+        return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
     @RequestMapping("/jobs/byInstance/{instance}")
-    public ResponseEntity<Page<BackupJob>> getByInstance (@PathVariable String instance,
+    public ResponseEntity<Page<BackupJob>> getByInstance(@PathVariable String instance,
                                                           @PageableDefault(size = 50, page = 0) Pageable pageable) {
-
         List<BackupJob> jobs = jobRepository.findByInstanceId(instance, pageable);
-        Page<BackupJob> pageI = new PageImpl<BackupJob>(jobs);
-        return new ResponseEntity<Page<BackupJob>>(pageI, HttpStatus.OK);
+        Page<BackupJob> pageI = new PageImpl<>(jobs);
+        return new ResponseEntity<>(pageI, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/jobs/{jobid}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteJob (@PathVariable String jobid)
+    public ResponseEntity deleteJob(@PathVariable String jobid)
           throws IOException, OSException {
         BackupJob job = jobRepository.findOne(jobid);
         if (job == null) {
@@ -59,8 +57,9 @@ public class JobController {
         jobRepository.delete(job);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
     @RequestMapping(value = "/jobs/{jobid}/file", method = RequestMethod.DELETE)
-    public ResponseEntity getJobUpdate (@PathVariable String jobid, @RequestBody FileDestination destination)
+    public ResponseEntity getJobUpdate(@PathVariable String jobid, @RequestBody FileDestination destination)
           throws IOException, OSException {
 
         BackupJob job = jobRepository.findOne(jobid);

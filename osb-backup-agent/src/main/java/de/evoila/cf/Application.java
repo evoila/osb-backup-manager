@@ -21,16 +21,16 @@ import java.util.concurrent.Executor;
  * @author Johannes Hiemer.
  *
  */
-@SpringBootApplication
 @EnableAsync
+@SpringBootApplication
 public class Application {
-	static Logger logger = LoggerFactory.getLogger(Application.class);
+
+    static Logger logger = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) {
 		loadBinaries();
 		SpringApplication.run(Application.class, args);
 	}
-
 
 	private static void loadBinaries () {
 		File f = new File(Application.class.getResource("/startup.sh").getFile());
@@ -44,7 +44,6 @@ public class Application {
 			logger.info("An error occured downloading the backup binaries");
 		}
 	}
-
 
 	@Bean
 	public Executor asyncExecutor() {

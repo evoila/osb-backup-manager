@@ -1,6 +1,5 @@
 package de.evoila.cf.controller;
 
-
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.openstack.OSException;
 import de.evoila.cf.openstack.SwiftClient;
@@ -28,21 +27,21 @@ public class DestinationController extends BaseController {
     FileDestinationRepository desinationRepository;
 
     @RequestMapping(value = "/destinations/{destId}", method = RequestMethod.GET)
-    public ResponseEntity<FileDestination> getDestinationUpdate (@PathVariable String destId) {
+    public ResponseEntity<FileDestination> getDestinationUpdate(@PathVariable String destId) {
         FileDestination job = desinationRepository.findOne(destId);
         return new ResponseEntity<FileDestination>(job, HttpStatus.OK);
     }
 
     @RequestMapping("/destinations/byInstance/{instance}")
-    public ResponseEntity<Page<FileDestination>> getByInstance (@PathVariable String instance, @PageableDefault(size = 50, page = 0) Pageable pageable) {
+    public ResponseEntity<Page<FileDestination>> getByInstance(@PathVariable String instance,
+                                                               @PageableDefault(size = 50, page = 0) Pageable pageable) {
         List<FileDestination> dest = desinationRepository.findByInstanceId(instance, pageable);
         Page<FileDestination> page = new PageImpl<FileDestination>(dest);
-        return new ResponseEntity<Page<FileDestination>>(page, HttpStatus.OK);
+        return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/destinations/{jobid}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteDestination (@PathVariable String jobid)
-           {
+    public ResponseEntity deleteDestination(@PathVariable String jobid) {
         FileDestination job = desinationRepository.findOne(jobid);
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -52,31 +51,28 @@ public class DestinationController extends BaseController {
     }
 
     @RequestMapping(value = "/destinations", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> createDestination (@RequestBody FileDestination dest)
-          {
-              setName(dest);
+    public ResponseEntity<FileDestination> createDestination(@RequestBody FileDestination dest) {
+        setName(dest);
         FileDestination response = desinationRepository.save(dest);
-        return new ResponseEntity<FileDestination>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/destinations/{destId}", method = RequestMethod.PUT)
-    public ResponseEntity<FileDestination> updateDestination (@PathVariable() String destId,
-                                                  @RequestBody FileDestination dest)
-          {
-              setName(dest);
+    public ResponseEntity<FileDestination> updateDestination(@PathVariable() String destId,
+                                                  @RequestBody FileDestination dest) {
+        setName(dest);
         desinationRepository.delete(destId);
         desinationRepository.save(dest);
-        return new ResponseEntity<FileDestination>(dest, HttpStatus.OK);
+        return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/destinations/validate", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> updateDestination (@RequestBody FileDestination dest)
-          {
+    public ResponseEntity<FileDestination> updateDestination(@RequestBody FileDestination dest) {
         try {
             SwiftClient client = new SwiftClient(dest.getAuthUrl(),dest.getUsername(),dest.getPassword(),dest.getDomain(),dest.getProjectName());
-            return new ResponseEntity<FileDestination>(dest, HttpStatus.OK);
+            return new ResponseEntity<>(dest, HttpStatus.OK);
         } catch (OSException|IOException e) {
-            return new ResponseEntity<FileDestination>(dest, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(dest, HttpStatus.BAD_REQUEST);
         }
 
     }

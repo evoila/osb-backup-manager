@@ -10,23 +10,17 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 
 @Configuration
 @EnableWebSecurity
 public class ConfigurationWebSecurity extends WebSecurityConfigurerAdapter {
+
     private final static Logger log = LoggerFactory.getLogger(ConfigurationWebSecurity.class);
     private AuthenticationProperties authentication;
 
-    ConfigurationWebSecurity(AuthenticationProperties ap) {
+    ConfigurationWebSecurity(AuthenticationProperties authenticationProperties) {
         super();
-        authentication = ap;
-    }
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        authentication = authenticationProperties;
     }
 
     @Autowired
@@ -46,13 +40,13 @@ public class ConfigurationWebSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-              .antMatcher("/**")
-              .authorizeRequests()
-              .antMatchers("/**").hasRole("USER")
-              .and()
-              .httpBasic()
-        ;
-        ;
+        http.authorizeRequests()
+                .anyRequest().authenticated()
+            .and()
+                .httpBasic()
+                .and()
+                .anonymous().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new org.springframework.boot.autoconfigure.security.Http401AuthenticationEntryPoint("Authorization"));
     }
 }

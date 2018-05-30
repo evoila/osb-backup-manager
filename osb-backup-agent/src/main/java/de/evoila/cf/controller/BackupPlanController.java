@@ -22,52 +22,46 @@ import java.util.List;
  * Created by yremmet on 19.07.17.
  */
 @Controller
-public class  BackupPlanController {
+public class BackupPlanController {
 
     @Autowired
     BackupPlanService backupPlanService;
 
     @RequestMapping(value = "/plans/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<Page<BackupPlan>> getPlans (@PathVariable() String serviceInstanceId, @PageableDefault(size = 50, page = 0) Pageable pageable)
-          throws BackupException{
+    public ResponseEntity<Page<BackupPlan>> getPlans (@PathVariable() String serviceInstanceId,
+                                                      @PageableDefault(size = 50, page = 0) Pageable pageable) {
         List<BackupPlan> response = backupPlanService.getPlans(serviceInstanceId, pageable);
         Page<BackupPlan> plans = new PageImpl<BackupPlan>(response);
-        return new ResponseEntity<Page<BackupPlan>>(plans, HttpStatus.OK);
+        return new ResponseEntity<>(plans, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/plans", method = RequestMethod.POST)
-    public ResponseEntity<BackupPlan> createPlan (@RequestBody BackupPlan plan)
-          throws BackupException{
+    public ResponseEntity<BackupPlan> createPlan(@RequestBody BackupPlan plan) throws BackupException {
 
         BackupPlan response = backupPlanService.createPlan(plan);
-        return new ResponseEntity<BackupPlan>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/plans/{planId}", method = RequestMethod.GET)
-    public ResponseEntity<BackupPlan> getPlan (@PathVariable() String planId)
-          throws BackupException{
+    public ResponseEntity<BackupPlan> getPlan(@PathVariable() String planId) {
 
         BackupPlan response = backupPlanService.getPlan(planId);
-        return new ResponseEntity<BackupPlan>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/plans/{planId}", method = RequestMethod.DELETE)
-    public ResponseEntity<BackupPlan> deletePlan (@PathVariable() String planId)
-          throws BackupException{
+    public ResponseEntity<BackupPlan> deletePlan(@PathVariable() String planId) {
 
         BackupPlan response = backupPlanService.deletePlan(planId);
-        return new ResponseEntity<BackupPlan>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "plans/{planId}", method = RequestMethod.PUT)
-    public ResponseEntity<BackupPlan> updatePlan (@PathVariable() String planId,
-                                                  @RequestBody BackupPlan plan)
-          throws BackupException{
+    @RequestMapping(value = "/plans/{planId}", method = RequestMethod.PUT)
+    public ResponseEntity<BackupPlan> updatePlan(@PathVariable() String planId, @RequestBody BackupPlan plan)
+          throws BackupException {
 
         BackupPlan response = backupPlanService.updatePlan(planId, plan);
-        return new ResponseEntity<BackupPlan>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 
 }
