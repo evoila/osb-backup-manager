@@ -24,8 +24,8 @@ import java.util.Date;
  */
 @Service
 public class MySqlBackupService extends SwiftBackupService implements TarFile {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     public DatabaseType getSourceType () {
@@ -33,7 +33,8 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
     }
 
 
-    public String backup (DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException,BackupException {
+    public String backup(DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException,
+            InterruptedException, OSException, ProcessException,BackupException {
 
         long s_time = System.currentTimeMillis();
 
@@ -49,11 +50,11 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
         backup.getParentFile().mkdirs();
         String tool = getBinary("/mysqldump");
         ProcessBuilder processBuilder = new ProcessBuilder(tool,
-                                                           "-u" + source.getUsername(),
-                                                           "-p" + source.getPassword(),
-                                                           "-h" + source.getHostname(),
-                                                           "-P" + Integer.toString(source.getPort()),
-                                                           source.getContext()
+                "-u" + source.getUsername(),
+                "-p" + source.getPassword(),
+                "-h" + source.getHostname(),
+                "-P" + Integer.toString(source.getPort()),
+                "--all-databases"
         ).redirectOutput(backup);
         runProcess(processBuilder, job);
 
@@ -78,7 +79,8 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
 
 
 
-    public void restore (DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException, BackupException {
+    public void restore(DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException,
+            InterruptedException, ProcessException, BackupException {
 
 
         log.info(String.format("Starting restore (%s) process to %s:%d/%s",

@@ -44,8 +44,9 @@ public class ConfigurationWebSecurity extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
             .and()
                 .httpBasic()
-                .and()
+            .and()
                 .anonymous().disable()
+            .csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(new org.springframework.boot.autoconfigure.security.Http401AuthenticationEntryPoint("Authorization"));
     }

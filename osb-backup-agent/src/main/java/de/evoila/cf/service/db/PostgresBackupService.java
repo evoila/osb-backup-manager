@@ -43,7 +43,6 @@ public class PostgresBackupService extends SwiftBackupService {
                                                          String.format("--host=%s", source.getHostname()),
                                                          String.format("--port=%d", source.getPort()),
                                                          String.format("--username=%s", source.getUsername()),
-
                                                          String.format("%s", source.getContext())
         ).redirectOutput(backup);
         process.environment().put("PGPASSWORD", source.getPassword());
