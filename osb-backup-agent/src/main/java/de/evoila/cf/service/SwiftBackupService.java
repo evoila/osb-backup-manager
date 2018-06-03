@@ -2,7 +2,7 @@ package de.evoila.cf.service;
 
 
 import de.evoila.cf.model.BackupJob;
-import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.openstack.OSException;
@@ -18,7 +18,8 @@ import java.util.Date;
 /**
  * Created by yremmet on 10.07.17.
  */
-public abstract class SwiftBackupService extends AbstractBackupService{
+public abstract class SwiftBackupService extends AbstractBackupService {
+
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @PostConstruct
@@ -26,7 +27,7 @@ public abstract class SwiftBackupService extends AbstractBackupService{
         destinationTypes.add(DestinationType.Swift);
     }
 
-    protected String upload(File backup, DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException, OSException {
+    protected String upload(File backup, EndpointCredential source, FileDestination destination, BackupJob job) throws IOException, OSException {
         long s_time = System.currentTimeMillis();
         String msg;
         if(backup == null){
@@ -53,13 +54,13 @@ public abstract class SwiftBackupService extends AbstractBackupService{
                                                  destination.getProjectName()
             );
             String backupName = String.format(backup.getName(), format.format(new Date()));
-            String filePath = client.upload(destination.getContainerName(), backupName, backup);
+            client.upload(destination.getContainerName(), backupName, backup);
 
             msg = String.format("Uploading the Backup (%s) from %s:%d/%s took %fs (File size %f)",
                                 job.getId(),
                                 source.getHostname(),
                                 source.getPort(),
-                                source.getContext(),
+                                backupName,
                                 ((System.currentTimeMillis() - s_time) / 1000.0),
                                 (backup.length() / 1048576.0)
             );
@@ -74,7 +75,7 @@ public abstract class SwiftBackupService extends AbstractBackupService{
 
     }
 
-    public File download (FileDestination source, BackupJob job) throws IOException, OSException {
+    public File download(FileDestination source, String fileName, BackupJob job) throws IOException, OSException {
         long s_time = System.currentTimeMillis();
         String msg = String.format("Downloading Backup (%s)", job.getId());
         log.info(msg);
@@ -86,11 +87,11 @@ public abstract class SwiftBackupService extends AbstractBackupService{
                                              source.getProjectName()
         );
 
-        File backup = client.download(source.getContainerName(), source.getFilename());
+        File backup = client.download(source.getContainerName(), fileName);
         msg = String.format("Download (%s) of File %s/%s took %f s (File size %f)",
                                job.getId(),
                                source.getContainerName(),
-                               source.getFilename(),
+                               fileName,
                                ((System.currentTimeMillis() - s_time) / 1000.0),
                                (backup.length() / 1048576.0)
         );

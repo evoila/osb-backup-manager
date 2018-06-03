@@ -6,108 +6,121 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.interfaces.SwiftConfig;
 
+import java.util.Map;
 
 public class FileDestination implements SwiftConfig {
 
     private String authUrl;
+
     private String username;
-    @JsonProperty()
+
+    @JsonProperty
     private String password;
+
     private String domain;
+
     private String containerName;
+
     private String projectName;
+
     private DestinationType type;
+
     private String name;
+
     private String instanceId;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String filename;
+    private Map<String, String> filenames;
+
     private String id;
 
-    public String getInstanceId () {
+    public String getInstanceId() {
         return instanceId;
     }
 
-    public String getId () {
+    public String getId() {
         return id;
     }
 
-    public void setId (String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public void setInstanceId (String instanceId) {
+    public void setInstanceId(String instanceId) {
         this.instanceId = instanceId;
     }
 
-    public String getName () {
+    public String getName() {
         return name;
     }
 
-    public void setName (String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getFilename () {
-        return filename;
+    public Map<String, String> getFilenames() {
+        return filenames;
     }
 
-    public void setFilename (String filename) {
-        this.filename = filename;
+    public void setFilenames(Map<String, String> filenames) {
+        this.filenames = filenames;
     }
 
-    public String getAuthUrl () {
+    public String getAuthUrl() {
         return authUrl;
     }
 
-    public void setAuthUrl (String authUrl) {
+    public void setAuthUrl(String authUrl) {
         this.authUrl = authUrl;
     }
 
-    public String getUsername () {
+    public String getUsername() {
         return username;
     }
 
-    public void setUsername (String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
+
     @JsonIgnore
-    public String getPassword () {
+    public String getPassword() {
         return password;
     }
+
     @JsonProperty("password")
-    public void setPassword (String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public String getDomain () {
+    public String getDomain() {
         return domain;
     }
 
-    public void setDomain (String domain) {
+    public void setDomain(String domain) {
         this.domain = domain;
     }
 
-    public String getContainerName () {
+    public String getContainerName() {
         return containerName;
     }
 
-    public void setContainerName (String containerName) {
+    public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
 
-    public String getProjectName () {
+    public String getProjectName() {
         return projectName;
     }
 
-    public void setProjectName (String projectName) {
+    public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
 
-    public DestinationType getType () {
+    public DestinationType getType() {
         return type;
     }
 
-    public void setType (DestinationType type) {
+    public void setType(DestinationType type) {
         this.type = type;
     }
 }

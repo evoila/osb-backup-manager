@@ -15,17 +15,18 @@ public class BackupPlanService {
 
     @Autowired
     BackupPlanRepository repository;
+
     @Autowired
     BackupSchedulingService backupSchedulingService;
+
     @Autowired
     FileDestinationRepository destinationRepository;
 
-    public List<BackupPlan> getPlans (String serviceInstanceId, Pageable pageable) {
-
+    public List<BackupPlan> getPlans(String serviceInstanceId, Pageable pageable) {
         return repository.findBySourceContext(serviceInstanceId, pageable);
     }
 
-    public BackupPlan createPlan (BackupPlan plan) throws BackupException {
+    public BackupPlan createPlan(BackupPlan plan) throws BackupException {
         if(plan.getDestinationId() != null && !destinationRepository.exists(plan.getDestinationId())){
             throw new BackupException("Backup Destination does not exists ID = " + plan.getId());
         }
@@ -39,14 +40,13 @@ public class BackupPlanService {
         return plan;
     }
 
-
-    public BackupPlan deletePlan (String planId) {
+    public BackupPlan deletePlan(String planId) {
         BackupPlan plan = repository.findOne(planId);
         repository.delete(planId);
         return plan;
     }
 
-    public BackupPlan updatePlan (String planId, BackupPlan plan) throws BackupException {
+    public BackupPlan updatePlan(String planId, BackupPlan plan) throws BackupException {
         BackupPlan backupPlan = repository.findOne(planId);
         if(backupPlan == null)
             throw new BackupException("Backup plan not found" + planId);
@@ -58,7 +58,7 @@ public class BackupPlanService {
         return plan;
     }
 
-    public BackupPlan getPlan (String planId) {
+    public BackupPlan getPlan(String planId) {
         return repository.findOne(planId);
     }
 }

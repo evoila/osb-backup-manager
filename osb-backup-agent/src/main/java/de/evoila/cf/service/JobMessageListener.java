@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JobMessageListener implements MessageListener{
+
     private static final Logger log = LoggerFactory.getLogger(JobMessageListener.class);
 
     @Autowired
@@ -41,7 +42,6 @@ public class JobMessageListener implements MessageListener{
         } catch (BackupRequestException | BackupException e){
             log.error("Couldnd´t execute backup Request" + e.getMessage());
         }
-
     }
 
     private void handleMessage(BackupRequest request) throws BackupRequestException, BackupException {

@@ -1,6 +1,5 @@
 package de.evoila.cf.backup;
 
-
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.JobStatus;
@@ -18,8 +17,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-
 public class JobsApiTest extends MockMvcTest {
 
     @Autowired
@@ -30,7 +27,6 @@ public class JobsApiTest extends MockMvcTest {
         // Delete all
         jobRepository.deleteAll();
     }
-
 
     @Test
     public void jobsByInstance() throws Exception {
@@ -45,9 +41,7 @@ public class JobsApiTest extends MockMvcTest {
               .andExpect(jsonPath("$", hasSize(1)))
         .andDo(document("jobs-by-instance", responseFields(
               fieldWithPath("[]").description("List of Backup Jobs for this Service Instance")
-        )))
-       ;
-
+        )));
     }
 
     @Test
@@ -67,7 +61,6 @@ public class JobsApiTest extends MockMvcTest {
               .andDo(document("get-job", responseFields(
                     getJobDescriptors()
               )));
-
     }
 
     @Test
@@ -79,7 +72,7 @@ public class JobsApiTest extends MockMvcTest {
         jobRepository.save(job);
 
         FileDestination fileDestination = createDummyDestination();
-        fileDestination.setFilename(null);
+        fileDestination.setFilenames(null);
         mvc.perform(delete("/job/"+ job.getId()).content(toJson(fileDestination)))
               .andExpect(status().isNoContent())
               .andDo(document("delete-job", requestFields(
@@ -92,8 +85,5 @@ public class JobsApiTest extends MockMvcTest {
                     fieldWithPath("domain").description("Openstack domain")
               )));
     }
-
-
-
 
 }

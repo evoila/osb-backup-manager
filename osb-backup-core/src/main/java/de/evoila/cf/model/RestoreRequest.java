@@ -5,7 +5,7 @@ package de.evoila.cf.model;
  */
 public class RestoreRequest {
   private FileDestination source;
-  private DatabaseCredential destination;
+  private EndpointCredential destination;
 
   public FileDestination getSource () {
     return source;
@@ -15,12 +15,12 @@ public class RestoreRequest {
     this.source = source;
   }
 
-  public void setDestination (DatabaseCredential destination) {
+  public void setDestination (EndpointCredential destination) {
     this.destination = destination;
   }
 
 
-  public DatabaseCredential getDestination () {
+  public EndpointCredential getDestination () {
     return destination;
   }
 }

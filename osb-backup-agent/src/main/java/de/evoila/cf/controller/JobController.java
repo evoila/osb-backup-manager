@@ -33,9 +33,9 @@ public class JobController {
     @Autowired
     BackupServiceManager backupServiceManager;
 
-    @RequestMapping(value = "/jobs/{jobid}", method = RequestMethod.GET)
-    public ResponseEntity<BackupJob> getJobUpdate(@PathVariable String jobid) {
-        BackupJob job = jobRepository.findOne(jobid);
+    @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
+    public ResponseEntity<BackupJob> getJobUpdate(@PathVariable String jobId) {
+        BackupJob job = jobRepository.findOne(jobId);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
@@ -47,10 +47,9 @@ public class JobController {
         return new ResponseEntity<>(pageI, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/jobs/{jobid}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteJob(@PathVariable String jobid)
-          throws IOException, OSException {
-        BackupJob job = jobRepository.findOne(jobid);
+    @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteJob(@PathVariable String jobId) {
+        BackupJob job = jobRepository.findOne(jobId);
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
@@ -58,11 +57,10 @@ public class JobController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/jobs/{jobid}/file", method = RequestMethod.DELETE)
-    public ResponseEntity getJobUpdate(@PathVariable String jobid, @RequestBody FileDestination destination)
+    @RequestMapping(value = "/jobs/{jobId}/file", method = RequestMethod.DELETE)
+    public ResponseEntity getJobUpdate(@PathVariable String jobId, @RequestBody FileDestination destination)
           throws IOException, OSException {
-
-        BackupJob job = jobRepository.findOne(jobid);
+        BackupJob job = jobRepository.findOne(jobId);
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }

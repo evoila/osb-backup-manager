@@ -3,7 +3,7 @@ package de.evoila.cf.service.db;
 
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupJob;
-import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.openstack.OSException;
@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -28,90 +30,93 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
-    public DatabaseType getSourceType () {
+    public DatabaseType getSourceType() {
         return DatabaseType.MYSQL;
     }
 
 
-    public String backup(DatabaseCredential source, FileDestination destination, BackupJob job) throws IOException,
-            InterruptedException, OSException, ProcessException,BackupException {
+    public Map<String, String> backup(EndpointCredential source, FileDestination destination, BackupJob job) throws IOException,
+            InterruptedException, OSException, ProcessException, BackupException {
 
         long s_time = System.currentTimeMillis();
 
-        String msg = String.format("Starting backup (%s)", job.getId());
-        log.info(msg);
-        job.appendLog(msg);
+        Map<String, String> backupFiles = new HashMap<>();
+        for (String database : source.getItems()) {
+            String msg = String.format("Starting backup (%s)", job.getId());
+            log.info(msg);
+            job.appendLog(msg);
 
-        File backup = new File(String.format("%s/%s_%s.sql",
-                                             source.getContext(),
-                                             source.getContext(),
-                                             format.format(new Date())
-        ));
-        backup.getParentFile().mkdirs();
-        String tool = getBinary("/mysqldump");
-        ProcessBuilder processBuilder = new ProcessBuilder(tool,
-                "-u" + source.getUsername(),
-                "-p" + source.getPassword(),
-                "-h" + source.getHostname(),
-                "-P" + Integer.toString(source.getPort()),
-                "--all-databases"
-        ).redirectOutput(backup);
-        runProcess(processBuilder, job);
+            File backup = new File(String.format("%s/%s_%s.sql",
+                    database,
+                    database,
+                    format.format(new Date())
+            ));
+            backup.getParentFile().mkdirs();
+            String tool = getBinary("/mysqldump");
+            ProcessBuilder processBuilder = new ProcessBuilder(tool,
+                    "-u" + source.getUsername(),
+                    "-p" + source.getPassword(),
+                    "-h" + source.getHostname(),
+                    "-P" + Integer.toString(source.getPort()),
+                    " " + database
+            ).redirectOutput(backup);
+            runProcess(processBuilder, job);
 
-        backup = tarGz(backup, false);
+            backup = tarGz(backup, false);
 
-        msg = String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
-                            job.getId(),
-                            source.getHostname(),
-                            source.getPort(),
-                            source.getContext(),
-                            ((System.currentTimeMillis() - s_time) / 1000.0),
-                            (backup.length() / 1048576.0)
-        );
-        log.info(msg);
-        job.appendLog(msg);
+            msg = String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
+                    job.getId(),
+                    source.getHostname(),
+                    source.getPort(),
+                    database,
+                    ((System.currentTimeMillis() - s_time) / 1000.0),
+                    (backup.length() / 1048576.0)
+            );
+            log.info(msg);
+            job.appendLog(msg);
 
-        String filePath = upload(backup, source,destination, job);
-        backup.delete();
-        return filePath;
+            String filePath = upload(backup, source, destination, job);
+            backup.delete();
+            backupFiles.put(database, filePath);
+        }
+        return backupFiles;
     }
 
 
-
-
-    public void restore(DatabaseCredential destination, FileDestination source, BackupJob job) throws IOException, OSException,
+    public void restore(EndpointCredential destination, FileDestination source, BackupJob job) throws IOException, OSException,
             InterruptedException, ProcessException, BackupException {
 
+        for (Map.Entry<String, String> filename : source.getFilenames().entrySet()) {
+            log.info(String.format("Starting restore (%s) process to %s:%d/%s",
+                    job.getId(),
+                    destination.getHostname(),
+                    destination.getPort(),
+                    filename.getKey()
+            ));
 
-        log.info(String.format("Starting restore (%s) process to %s:%d/%s",
-                               job.getId(),
-                               destination.getHostname(),
-                               destination.getPort(),
-                               destination.getContext()
-        ));
-
-        File backup = super.download(source, job);
-        backup = unTarGz(backup, true).get(0);
+            File backup = super.download(source, filename.getValue(), job);
+            backup = unTarGz(backup, true).get(0);
 
 
-        long s_time = System.currentTimeMillis();
-        ProcessBuilder processBuilder = new ProcessBuilder(getBinary("/mysql"),
-                                                           "-u" + destination.getUsername(),
-                                                           "-p" + destination.getPassword(),
-                                                           "-h" + destination.getHostname(),
-                                                           "-P" + Integer.toString(destination.getPort()),
-                                                           destination.getContext()
+            long s_time = System.currentTimeMillis();
+            ProcessBuilder processBuilder = new ProcessBuilder(getBinary("/mysql"),
+                    "-u" + destination.getUsername(),
+                    "-p" + destination.getPassword(),
+                    "-h" + destination.getHostname(),
+                    "-P" + Integer.toString(destination.getPort()),
+                    filename.getKey()
 
-        ).redirectInput(backup);
-        runProcess(processBuilder, job);
-        log.info(String.format("Restore (%s) of File %s/%s took %f s (TO %f)",
-                               job.getId(),
-                               source.getContainerName(),
-                               source.getFilename(),
-                               ((System.currentTimeMillis() - s_time) / 1000.0),
-                               (backup.length() / 1048576.0)
-        ));
-        backup.delete();
+            ).redirectInput(backup);
+            runProcess(processBuilder, job);
+            log.info(String.format("Restore (%s) of File %s/%s took %f s (TO %f)",
+                    job.getId(),
+                    source.getContainerName(),
+                    filename.getValue(),
+                    ((System.currentTimeMillis() - s_time) / 1000.0),
+                    (backup.length() / 1048576.0)
+            ));
+            backup.delete();
 
+        }
     }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.BackupPlan;
-import de.evoila.cf.model.DatabaseCredential;
+import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
 import de.evoila.cf.model.enums.DestinationType;
@@ -23,7 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -85,7 +88,9 @@ public abstract class MockMvcTest {
 
     protected BackupJob.BackupDestination createDestination () {
         BackupJob.BackupDestination destination = new BackupJob.BackupDestination();
-        destination.setFilename(TEST_FILE_NAME);
+        Map<String, String> filenames = new HashMap<>();
+        filenames.put(TEST_INSTANCE, TEST_FILE_NAME);
+        destination.setFilenames(filenames);
         destination.setContainer(TEST_CONTAINER);
         destination.setProject(TEST_PROJECT);
         destination.setType(DestinationType.Swift);
@@ -105,7 +110,9 @@ public abstract class MockMvcTest {
     protected FileDestination createDummyDestination () {
         FileDestination destination = new FileDestination();
         destination.setContainerName(TEST_CONTAINER);
-        destination.setFilename(TEST_FILE_NAME);
+        Map<String, String> filenames = new HashMap<>();
+        filenames.put(TEST_INSTANCE, TEST_FILE_NAME);
+        destination.setFilenames(filenames);
         destination.setAuthUrl(AUTH_URL);
         destination.setDomain(TEST_DOMAIN);
         destination.setUsername(USERNAME);
@@ -115,14 +122,14 @@ public abstract class MockMvcTest {
         return destination;
     }
 
-    protected DatabaseCredential createDummySource () {
-        DatabaseCredential credential = new DatabaseCredential();
+    protected EndpointCredential createDummySource () {
+        EndpointCredential credential = new EndpointCredential();
         credential.setPassword(PASSWORD);
         credential.setUsername(USERNAME);
         credential.setType(DATABASE_TYPE);
         credential.setHostname(HOSTNAME);
         credential.setPort(PORT);
-        credential.setContext(TEST_INSTANCE);
+        credential.setItems(Arrays.asList(TEST_INSTANCE));
         return credential;
     }
 

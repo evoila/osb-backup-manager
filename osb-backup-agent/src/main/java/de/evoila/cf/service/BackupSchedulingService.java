@@ -34,12 +34,15 @@ import java.util.stream.StreamSupport;
 @Service
 @EnableScheduling
 public class BackupSchedulingService {
+
     private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     BackupServiceManager backupServiceManager;
 
     @Autowired
     BackupPlanRepository repository;
+
     @Autowired
     FileDestinationRepository destinationRepository;
 
@@ -53,17 +56,17 @@ public class BackupSchedulingService {
     private void init(){
         threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
         threadPoolTaskScheduler.setPoolSize(5);
-        threadPoolTaskScheduler.setThreadNamePrefix( "BackupThreadPoolTaskScheduler");
+        threadPoolTaskScheduler.setThreadNamePrefix("BackupThreadPoolTaskScheduler");
         threadPoolTaskScheduler().initialize();
         StreamSupport.stream(repository.findAll().spliterator(),true).forEach(plan -> addTask(plan));
     }
 
     @Bean(destroyMethod = "shutdown")
-    public Executor taskExecutor () {
+    public Executor taskExecutor() {
         return Executors.newScheduledThreadPool(10);
     }
 
-    public void addTask (BackupPlan job) {
+    public void addTask(BackupPlan job) {
         logger.debug(String.format("Starting Plan [%s] frequency:", job.getId(), job.getFrequency()));
         Trigger trigger = new CronTrigger(job.getFrequency());
         BackupTask task = new BackupTask(job);
@@ -71,33 +74,34 @@ public class BackupSchedulingService {
         task.setScheduledFuture(scheduledFuture);
     }
 
-
-    private class BackupTask implements Runnable{
+    private class BackupTask implements Runnable {
         BackupPlan plan;
         ScheduledFuture scheduledFuture;
 
-        public void setScheduledFuture (ScheduledFuture scheduledFuture) {
+        public void setScheduledFuture(ScheduledFuture scheduledFuture) {
             this.scheduledFuture = scheduledFuture;
         }
 
-        public BackupTask (BackupPlan plan) {
+        public BackupTask(BackupPlan plan) {
             this.plan = plan;
         }
 
         @Override
-        public void run () {
-            if (! repository.exists(plan.getId())) {
+        public void run() {
+            if (!repository.exists(plan.getId())) {
                 if (scheduledFuture != null) {
                     scheduledFuture.cancel(true);
                 }
                 return;
             }
+
             String frequency = plan.getFrequency();
             this.plan = repository.findOne(plan.getId());
-            if (! frequency.equals(plan.getFrequency())) {
+            if (!frequency.equals(plan.getFrequency())) {
                 addTask(plan);
                 scheduledFuture.cancel(true);
             }
+
             BackupJob job = null;
             try {
                 FileDestination destination = destinationRepository.findOne(plan.getDestinationId());
@@ -112,7 +116,7 @@ public class BackupSchedulingService {
                 backupServiceManager.removeOldBackupFiles(plan);
                 repository.save(plan);
             } catch (Exception | BackupRequestException e) {
-                String msg = String.format("Could not execute scheduled backup [Plan %s] : %s",plan.getId(), e.getMessage());
+                String msg = String.format("Could not execute scheduled backup [Plan %s] : %s", plan.getId(), e.getMessage());
                 if (job != null) {
                     job.setStatus(JobStatus.FAILED);
                     job.appendLog(msg);

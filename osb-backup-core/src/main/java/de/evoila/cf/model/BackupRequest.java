@@ -5,14 +5,14 @@ package de.evoila.cf.model;
  */
 public class BackupRequest {
 
-    private DatabaseCredential source;
+    private EndpointCredential source;
     private String destinationId;
 
-    public DatabaseCredential getSource() {
+    public EndpointCredential getSource() {
         return source;
     }
 
-    public void setSource (DatabaseCredential source) {
+    public void setSource (EndpointCredential source) {
         this.source = source;
     }
 

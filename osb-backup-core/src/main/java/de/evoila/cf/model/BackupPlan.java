@@ -15,7 +15,7 @@ import java.util.List;
 public class BackupPlan {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String id;
-    private DatabaseCredential source;
+    private EndpointCredential source;
     private String frequency;
     private String retentionStyle;
     private int retentionPeriod;
@@ -58,11 +58,11 @@ public class BackupPlan {
         this.retentionPeriod = retentionPeriod;
     }
 
-    public DatabaseCredential getSource () {
+    public EndpointCredential getSource () {
         return source;
     }
 
-    public void setSource (DatabaseCredential source) {
+    public void setSource (EndpointCredential source) {
         this.source = source;
     }
 
