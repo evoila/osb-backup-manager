@@ -2,6 +2,7 @@ package de.evoila.cf.service.db;
 
 
 import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
@@ -35,24 +36,26 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
 
 
     @Override
-    public Map<String, String> backup(EndpointCredential source, FileDestination destination, BackupJob job) throws IOException, InterruptedException, OSException, ProcessException {
+    public Map<String, String> backup(BackupPlan plan, FileDestination destination, BackupJob job) throws IOException, InterruptedException,
+            OSException, ProcessException {
 
         long s_time = System.currentTimeMillis();
 
+        EndpointCredential endpointCredential = plan.getSource();
         Map<String, String> backupFiles = new HashMap<>();
-        for (String collection : source.getItems()) {
+        for (String collection : plan.getItems()) {
             log.info(String.format("Starting backup process to %s:%d/%s",
-                    source.getHostname(),
-                    source.getPort(),
+                    endpointCredential.getHostname(),
+                    endpointCredential.getPort(),
                     collection
             ));
             File backup = new File(String.format("%s_%s", collection, format.format(new Date())));
 
             while (!backup.mkdirs()) Thread.sleep(1000);
             ProcessBuilder process = new ProcessBuilder(this.getClass().getResource("/mongodump").getPath(),
-                    String.format("--host=%s:%d", source.getHostname(), source.getPort()),
-                    String.format("--username=%s", source.getUsername()),
-                    String.format("--password=%s", source.getPassword()),
+                    String.format("--host=%s:%d", endpointCredential.getHostname(), endpointCredential.getPort()),
+                    String.format("--username=%s", endpointCredential.getUsername()),
+                    String.format("--password=%s", endpointCredential.getPassword()),
                     String.format("--authenticationDatabase=%s", collection),
                     String.format("--db=%s", collection),
                     String.format("--out=%s", backup.getAbsolutePath())
@@ -60,7 +63,7 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
             runProcess(process, job);
 
             backup = tarGz(backup, true);
-            String filePath = upload(backup, source, destination, job);
+            String filePath = upload(backup, endpointCredential, destination, job);
             backup.delete();
             backupFiles.put(collection, filePath);
         }
@@ -68,7 +71,8 @@ public class MongoDbBackupService extends SwiftBackupService implements TarFile 
     }
 
     @Override
-    public void restore(EndpointCredential destination, FileDestination source, BackupJob job) throws IOException, OSException, InterruptedException, ProcessException {
+    public void restore(EndpointCredential destination, FileDestination source, BackupJob job) throws IOException, OSException,
+            InterruptedException, ProcessException {
 
         for (Map.Entry<String, String> filename : source.getFilenames().entrySet()) {
             log.info(String.format("Starting restore process to %s:%d/%s",

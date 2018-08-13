@@ -4,23 +4,25 @@ package de.evoila.cf.model;
  * Created by yremmet on 28.06.17.
  */
 public class RestoreRequest {
-  private FileDestination source;
-  private EndpointCredential destination;
 
-  public FileDestination getSource () {
-    return source;
-  }
+    private BackupPlan plan;
 
-  public void setSource (FileDestination source) {
-    this.source = source;
-  }
+    private FileDestination source;
 
-  public void setDestination (EndpointCredential destination) {
-    this.destination = destination;
-  }
+    public BackupPlan getPlan() {
+        return plan;
+    }
 
+    public void setPlan(BackupPlan plan) {
+        this.plan = plan;
+    }
 
-  public EndpointCredential getDestination () {
-    return destination;
-  }
+    public FileDestination getSource() {
+        return source;
+    }
+
+    public void setSource(FileDestination source) {
+        this.source = source;
+    }
+
 }

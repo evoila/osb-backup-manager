@@ -3,6 +3,7 @@ package de.evoila.cf.service.db;
 
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
@@ -35,13 +36,14 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
     }
 
 
-    public Map<String, String> backup(EndpointCredential source, FileDestination destination, BackupJob job) throws IOException,
+    public Map<String, String> backup(BackupPlan plan, FileDestination destination, BackupJob job) throws IOException,
             InterruptedException, OSException, ProcessException, BackupException {
 
         long s_time = System.currentTimeMillis();
 
+        EndpointCredential endpointCredential = plan.getSource();
         Map<String, String> backupFiles = new HashMap<>();
-        for (String database : source.getItems()) {
+        for (String database : plan.getItems()) {
             String msg = String.format("Starting backup (%s)", job.getId());
             log.info(msg);
             job.appendLog(msg);
@@ -54,11 +56,11 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
             backup.getParentFile().mkdirs();
             String tool = getBinary("/mysqldump");
             ProcessBuilder processBuilder = new ProcessBuilder(tool,
-                    "-u" + source.getUsername(),
-                    "-p" + source.getPassword(),
-                    "-h" + source.getHostname(),
-                    "-P" + Integer.toString(source.getPort()),
-                    " " + database
+                    "-u" + endpointCredential.getUsername(),
+                    "-p" + endpointCredential.getPassword(),
+                    "-h" + endpointCredential.getHostname(),
+                    "-P" + Integer.toString(endpointCredential.getPort()),
+                    database
             ).redirectOutput(backup);
             runProcess(processBuilder, job);
 
@@ -66,8 +68,8 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
 
             msg = String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
                     job.getId(),
-                    source.getHostname(),
-                    source.getPort(),
+                    endpointCredential.getHostname(),
+                    endpointCredential.getPort(),
                     database,
                     ((System.currentTimeMillis() - s_time) / 1000.0),
                     (backup.length() / 1048576.0)
@@ -75,7 +77,7 @@ public class MySqlBackupService extends SwiftBackupService implements TarFile {
             log.info(msg);
             job.appendLog(msg);
 
-            String filePath = upload(backup, source, destination, job);
+            String filePath = upload(backup, endpointCredential, destination, job);
             backup.delete();
             backupFiles.put(database, filePath);
         }

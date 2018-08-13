@@ -64,22 +64,22 @@ public class BackupServiceManager {
         if (backupRequest == null) {
             throw new BackupException("Backup Request is null");
         }
-        FileDestination destination = destRepoisitory.findOne(backupRequest.getDestinationId());
+        FileDestination destination = destRepoisitory.findById(backupRequest.getDestinationId()).orElse(null);
         if (destination == null)
             throw new BackupException("Did not find destination with ID=" + backupRequest.getDestinationId());
-        return backup(backupRequest.getSource(), destination);
+        return backup(backupRequest.getPlan(), destination);
     }
 
-    private void executeBackup(EndpointCredential source, FileDestination destination, BackupService service, BackupJob job) {
+    private void executeBackup(BackupPlan plan, FileDestination destination, BackupService service, BackupJob job) {
         try {
             job.setStatus(JobStatus.IN_PROGRESS);
             jobRepository.save(job);
-            Map<String, String> fileNames = service.backup(source, destination, job);
+            Map<String, String> fileNames = service.backup(plan, destination, job);
             destination.setFilenames(fileNames);
             job.setBackupFile(destination);
             job.setStatus(JobStatus.FINISHED);
             jobRepository.save(job);
-        } catch (Exception | OSException | ProcessException e) {
+        } catch (Exception | ProcessException e) {
             String msg = String.format("An error occured (%s) : %s", job.getId(), e.getMessage());
             log.error(msg);
             job.appendLog(msg);
@@ -89,9 +89,8 @@ public class BackupServiceManager {
         }
     }
 
-
     public BackupJob restore(RestoreRequest restoreRequest) throws BackupRequestException {
-        return restore(restoreRequest.getDestination(), restoreRequest.getSource());
+        return restore(restoreRequest.getPlan().getSource(), restoreRequest.getSource());
     }
 
     public BackupJob restore(EndpointCredential destination, FileDestination source) throws BackupRequestException {
@@ -135,20 +134,21 @@ public class BackupServiceManager {
         }
     }
 
-    public BackupJob backup(EndpointCredential source, FileDestination destination) throws BackupRequestException {
+    public BackupJob backup(BackupPlan plan, FileDestination destination) throws BackupRequestException {
 
+        EndpointCredential endpointCredential = plan.getSource();
         BackupJob job = new BackupJob();
         job.setJobType(BackupJob.BACKUP_JOB);
-        job.setInstanceId(source.getServiceInstanceId());
+        job.setInstanceId(endpointCredential.getServiceInstanceId());
         job.setStatus(JobStatus.STARTED);
         job.setStartDate(new Date());
         jobRepository.save(job);
-        Optional<BackupService> service = this.getBackupService(source.getType(), DestinationType.Swift);
+        Optional<BackupService> service = this.getBackupService(endpointCredential.getType(), DestinationType.Swift);
 
         if (!service.isPresent()) {
             String msg = String.format("No Backup Service found (JOB=%s) for Database %s",
                     job.getId(),
-                    source.getType())
+                    endpointCredential.getType())
                     + getServices()
                     .stream()
                     .map(s -> s.getSourceType().toString())
@@ -160,7 +160,7 @@ public class BackupServiceManager {
             throw new BackupRequestException("No Backup Service found");
         }
 
-        taskExecutor.execute(() -> executeBackup(source, destination, service.get(), job));
+        taskExecutor.execute(() -> executeBackup(plan, destination, service.get(), job));
         return job;
     }
 
@@ -198,7 +198,7 @@ public class BackupServiceManager {
 
     private void removeOldBackupByFiles(BackupPlan plan) throws IOException, OSException {
         List<BackupJob> jobs = getJobs(plan);
-        FileDestination destination = destRepoisitory.findOne(plan.getDestinationId());
+        FileDestination destination = destRepoisitory.findById(plan.getDestinationId()).orElse(null);
         while (jobs.size() > plan.getRetentionPeriod()) {
             BackupJob job = jobs.get(0);
             jobs.remove(job);
@@ -210,7 +210,7 @@ public class BackupServiceManager {
 
     private List<BackupJob> getJobs(BackupPlan plan) {
         List<String> jobIds = plan.getJobIds();
-        Iterable<BackupJob> jobsIterator = jobRepository.findAll(jobIds);
+        Iterable<BackupJob> jobsIterator = jobRepository.findAllById(jobIds);
         List<BackupJob> jobs = StreamSupport.stream(jobsIterator.spliterator(), false)
                 .filter(job -> job.getStatus().equals(JobStatus.FINISHED))
                 .filter(job -> job.getJobType().equals(BackupJob.BACKUP_JOB))
@@ -221,7 +221,7 @@ public class BackupServiceManager {
 
 
     private void removeOldBackupByTime(BackupPlan plan, TemporalUnit unit) throws IOException, OSException {
-        FileDestination destination = destRepoisitory.findOne(plan.getDestinationId());
+        FileDestination destination = destRepoisitory.findById(plan.getDestinationId()).orElse(null);
 
         List<BackupJob> jobs = getJobs(plan).stream()
                 .filter(j -> Instant.now().isAfter(j.getStartDate().toInstant().plus(plan.getRetentionPeriod(),
@@ -244,7 +244,7 @@ public class BackupServiceManager {
         for (Map.Entry<String, String> filename : destination.getFilenames().entrySet()) {
             try {
                 swiftClient.delete(job.getDestination().getContainer(), filename.getValue());
-                jobRepository.delete(job.getId());
+                jobRepository.deleteById(job.getId());
             } catch (OSException e) {
                 log.error(String.format("Could not remove old Backups [File %s] : %s", filename.getValue(), e.getMessage()));
 

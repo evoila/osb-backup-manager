@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -88,7 +87,7 @@ public class BackupSchedulingService {
 
         @Override
         public void run() {
-            if (!repository.exists(plan.getId())) {
+            if (!repository.findById(plan.getId()).isPresent()) {
                 if (scheduledFuture != null) {
                     scheduledFuture.cancel(true);
                 }
@@ -96,7 +95,6 @@ public class BackupSchedulingService {
             }
 
             String frequency = plan.getFrequency();
-            this.plan = repository.findOne(plan.getId());
             if (!frequency.equals(plan.getFrequency())) {
                 addTask(plan);
                 scheduledFuture.cancel(true);
@@ -104,27 +102,27 @@ public class BackupSchedulingService {
 
             BackupJob job = null;
             try {
-                FileDestination destination = destinationRepository.findOne(plan.getDestinationId());
+                FileDestination destination = destinationRepository.findById(plan.getDestinationId())..orElse(null)
                 if (destination == null) {
                     throw new BackupException("Destination can not be found");
                 }
-                job = backupServiceManager.backup(plan.getSource(), destination);
-
+                job = backupServiceManager.backup(plan, destination);
                 plan.getJobIds().add(job.getId());
                 repository.save(plan);
-
-                backupServiceManager.removeOldBackupFiles(plan);
-                repository.save(plan);
-            } catch (Exception | BackupRequestException e) {
-                String msg = String.format("Could not execute scheduled backup [Plan %s] : %s", plan.getId(), e.getMessage());
+            } catch (BackupException | BackupRequestException ex) {
+                String msg = String.format("Could not execute scheduled backup [Plan %s] : %s", plan.getId(), ex.getMessage());
                 if (job != null) {
                     job.setStatus(JobStatus.FAILED);
                     job.appendLog(msg);
                 }
-                logger.error(msg);
-                logger.error(e.getStackTrace().toString());
-            } catch (OSException e) {
-                logger.error(String.format("Could not remove old Backups [Plan %s] : %s", plan.getId(), e.getMessage()));
+                logger.error(msg, ex);
+            } finally {
+                try {
+                    backupServiceManager.removeOldBackupFiles(plan);
+                } catch(IOException | OSException ex) {
+                    logger.error("Could not remove execute removeOldBackupFiles", ex);
+                }
+                repository.save(plan);
             }
         }
     }

@@ -1,6 +1,7 @@
 package de.evoila.cf.repository;
 
 import de.evoila.cf.model.BackupJob;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -11,6 +12,8 @@ import java.util.List;
  */
 
 public interface  BackupAgentJobRepository extends MongoRepository<BackupJob, String> {
-  List<BackupJob> findByInstanceId (String instanceId , Pageable pageable);
-  List<BackupJob> findByInstanceId (String instanceId);
+
+    Page<BackupJob> findByInstanceId(String instanceId , Pageable pageable);
+    List<BackupJob> findByInstanceId(String instanceId);
+
 }

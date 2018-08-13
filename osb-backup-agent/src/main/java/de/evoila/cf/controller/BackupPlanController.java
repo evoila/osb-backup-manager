@@ -5,7 +5,6 @@ import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.service.BackupPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.List;
 
 /**
  * Created by yremmet on 19.07.17.
@@ -30,9 +27,8 @@ public class BackupPlanController {
     @RequestMapping(value = "/plans/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
     public ResponseEntity<Page<BackupPlan>> getPlans (@PathVariable() String serviceInstanceId,
                                                       @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        List<BackupPlan> response = backupPlanService.getPlans(serviceInstanceId, pageable);
-        Page<BackupPlan> plans = new PageImpl<BackupPlan>(response);
-        return new ResponseEntity<>(plans, HttpStatus.OK);
+        Page<BackupPlan> response = backupPlanService.getPlans(serviceInstanceId, pageable);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/plans", method = RequestMethod.POST)

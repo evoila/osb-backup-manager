@@ -3,6 +3,7 @@ package de.evoila.cf.service;
 
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
@@ -23,7 +24,7 @@ public interface BackupService {
 
     List<DestinationType> getDestinationTypes();
 
-    Map<String, String> backup(EndpointCredential source, FileDestination destination, BackupJob job) throws IOException,
+    Map<String, String> backup(BackupPlan plan, FileDestination destination, BackupJob job) throws IOException,
             InterruptedException, OSException, ProcessException, BackupException;
 
     void restore(EndpointCredential destination, FileDestination source, BackupJob job) throws IOException,

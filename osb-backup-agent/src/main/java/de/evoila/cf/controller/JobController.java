@@ -7,7 +7,6 @@ import de.evoila.cf.repository.BackupAgentJobRepository;
 import de.evoila.cf.service.BackupServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by yremmet on 06.07.17.
@@ -35,21 +33,20 @@ public class JobController {
 
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<BackupJob> getJobUpdate(@PathVariable String jobId) {
-        BackupJob job = jobRepository.findOne(jobId);
+        BackupJob job = jobRepository.findById(jobId).orElse(null);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
     @RequestMapping("/jobs/byInstance/{instance}")
     public ResponseEntity<Page<BackupJob>> getByInstance(@PathVariable String instance,
                                                           @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        List<BackupJob> jobs = jobRepository.findByInstanceId(instance, pageable);
-        Page<BackupJob> pageI = new PageImpl<>(jobs);
-        return new ResponseEntity<>(pageI, HttpStatus.OK);
+        Page<BackupJob> jobs = jobRepository.findByInstanceId(instance, pageable);
+        return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteJob(@PathVariable String jobId) {
-        BackupJob job = jobRepository.findOne(jobId);
+        BackupJob job = jobRepository.findById(jobId).orElse(null);
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
@@ -60,7 +57,7 @@ public class JobController {
     @RequestMapping(value = "/jobs/{jobId}/file", method = RequestMethod.DELETE)
     public ResponseEntity getJobUpdate(@PathVariable String jobId, @RequestBody FileDestination destination)
           throws IOException, OSException {
-        BackupJob job = jobRepository.findOne(jobId);
+        BackupJob job = jobRepository.findById(jobId).orElse(null);
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }

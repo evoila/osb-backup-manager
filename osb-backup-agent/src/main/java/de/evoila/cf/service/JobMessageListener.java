@@ -1,5 +1,6 @@
 package de.evoila.cf.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.BackupRequest;
 import de.evoila.cf.model.RestoreRequest;
@@ -44,8 +45,17 @@ public class JobMessageListener implements MessageListener{
         }
     }
 
-    private void handleMessage(BackupRequest request) throws BackupRequestException, BackupException {
-        service.backup(request);
+    private void handleMessage(BackupRequest backupRequest) throws BackupRequestException, BackupException {
+        try {
+            log.info(
+                    new ObjectMapper()
+                            .writer()
+                            .withDefaultPrettyPrinter()
+                            .writeValueAsString(backupRequest));
+        } catch(Exception ex) {
+
+        }
+        service.backup(backupRequest);
     }
 
     private void handleMessage(RestoreRequest request) throws BackupRequestException {

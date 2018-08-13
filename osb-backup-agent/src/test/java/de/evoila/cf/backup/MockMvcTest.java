@@ -129,7 +129,6 @@ public abstract class MockMvcTest {
         credential.setType(DATABASE_TYPE);
         credential.setHostname(HOSTNAME);
         credential.setPort(PORT);
-        credential.setItems(Arrays.asList(TEST_INSTANCE));
         return credential;
     }
 

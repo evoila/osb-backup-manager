@@ -2,8 +2,6 @@ package de.evoila.cf.model;
 
 import de.evoila.cf.model.enums.DatabaseType;
 
-import java.util.List;
-
 public class EndpointCredential {
 
     String serviceInstanceId;
@@ -15,8 +13,6 @@ public class EndpointCredential {
     String username;
 
     String password;
-
-    List<String> items;
 
     DatabaseType type;
 
@@ -60,14 +56,6 @@ public class EndpointCredential {
         this.password = password;
     }
 
-    public List<String> getItems() {
-        return items;
-    }
-
-    public void setItems(List<String> items) {
-        this.items = items;
-    }
-
     public DatabaseType getType() {
         return type;
     }
@@ -76,7 +64,7 @@ public class EndpointCredential {
         this.type = type;
     }
 
-    public void setType(String type) {
+    public void setTypeFromString(String type) {
         this.type = DatabaseType.valueOf(type);
     }
 

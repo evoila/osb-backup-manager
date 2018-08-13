@@ -16,26 +16,30 @@ import java.util.List;
  * Created by yremmet on 06.07.17.
  */
 public abstract class AbstractBackupService implements BackupService, ProcessRunner {
+
     protected static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
+
     private final Logger log = LoggerFactory.getLogger(getClass());
+
     protected List<DestinationType> destinationTypes = new ArrayList<DestinationType>();
+
     private BackupServiceManager serviceManager;
 
-    public List<DestinationType> getDestinationTypes () {
+    public List<DestinationType> getDestinationTypes() {
         return this.destinationTypes;
     }
 
-    public BackupServiceManager getServiceManager () {
+    public BackupServiceManager getServiceManager() {
         return serviceManager;
     }
 
     @Autowired
-    public void setServiceManager (BackupServiceManager serviceManager) {
+    public void setServiceManager(BackupServiceManager serviceManager) {
         this.serviceManager = serviceManager;
         this.serviceManager.addBackupServiceManager(this);
     }
 
-    protected String getBinary (String path) throws BackupException {
+    protected String getBinary(String path) throws BackupException {
         URL toolUrl = this.getClass().getResource(path);
         if (toolUrl == null)
             throw new BackupException("Could not load " + path);

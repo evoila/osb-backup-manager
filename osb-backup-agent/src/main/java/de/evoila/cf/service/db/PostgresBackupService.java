@@ -1,6 +1,7 @@
 package de.evoila.cf.service.db;
 
 import de.evoila.cf.model.BackupJob;
+import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.DatabaseType;
@@ -31,12 +32,13 @@ public class PostgresBackupService extends SwiftBackupService {
     }
 
     @Override
-    public Map<String, String> backup(EndpointCredential source, FileDestination dest, BackupJob job) throws IOException, InterruptedException,
+    public Map<String, String> backup(BackupPlan plan, FileDestination dest, BackupJob job) throws IOException, InterruptedException,
             OSException, ProcessException {
         long s_time = System.currentTimeMillis();
 
+        EndpointCredential endpointCredential = plan.getSource();
         Map<String, String> backupFiles = new HashMap<>();
-        for (String database : source.getItems()) {
+        for (String database : plan.getItems()) {
 
 
             log.info(String.format("Starting restore (%s)", job.getId()));
@@ -45,25 +47,25 @@ public class PostgresBackupService extends SwiftBackupService {
 
             ProcessBuilder process = new ProcessBuilder(this.getClass().getResource("/pg_dump").getPath(),
                                                              "-Fc", // enable custom export format for big databases
-                                                             String.format("--host=%s", source.getHostname()),
-                                                             String.format("--port=%d", source.getPort()),
-                                                             String.format("--username=%s", source.getUsername()),
+                                                             String.format("--host=%s", endpointCredential.getHostname()),
+                                                             String.format("--port=%d", endpointCredential.getPort()),
+                                                             String.format("--username=%s", endpointCredential.getUsername()),
                                                              String.format("%s", database)
             ).redirectOutput(backup);
-            process.environment().put("PGPASSWORD", source.getPassword());
+            process.environment().put("PGPASSWORD", endpointCredential.getPassword());
             runProcess(process, job);
 
             log.info(String.format("Backup (%s) from %s:%d/%s took %fs (File size %f)",
-                                   job.getId(),
-                                   source.getHostname(),
-                                   source.getPort(),
-                                   database,
-                                   ((System.currentTimeMillis() - s_time) / 1000.0),
-                                   (backup.length() / 1048576.0)
+                    job.getId(),
+                    endpointCredential.getHostname(),
+                    endpointCredential.getPort(),
+                    database,
+                    ((System.currentTimeMillis() - s_time) / 1000.0),
+                    (backup.length() / 1048576.0)
             ));
             s_time = System.currentTimeMillis();
 
-            String filePath = upload(backup, source, dest, job);
+            String filePath = upload(backup, endpointCredential, dest, job);
             backup.delete();
             backupFiles.put(database, filePath);
         }

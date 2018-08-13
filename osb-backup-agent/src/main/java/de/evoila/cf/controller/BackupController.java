@@ -6,6 +6,8 @@ import de.evoila.cf.model.BackupRequest;
 import de.evoila.cf.model.RestoreRequest;
 import de.evoila.cf.service.BackupServiceManager;
 import de.evoila.cf.service.exception.BackupRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +24,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class BackupController {
 
+    private final Logger log = LoggerFactory.getLogger(BackupController.class);
+
 	@Autowired
 	BackupServiceManager serviceManager;
 
 	@RequestMapping(value = "/backup", method = RequestMethod.POST)
 	public ResponseEntity restore(@RequestBody BackupRequest backupRequest) throws BackupRequestException, BackupException {
-		BackupJob job = serviceManager.backup(backupRequest);
+	    BackupJob job = serviceManager.backup(backupRequest);
 		return new ResponseEntity<>(job, HttpStatus.CREATED);
 	}
 

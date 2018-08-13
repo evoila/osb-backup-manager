@@ -1,6 +1,5 @@
 package de.evoila.cf.backup;
 
-
 import de.evoila.cf.model.BackupRequest;
 import de.evoila.cf.model.RestoreRequest;
 import org.apache.commons.lang3.ArrayUtils;
@@ -14,12 +13,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class BackupApiTest extends MockMvcTest{
+public class BackupApiTest extends MockMvcTest {
+
     @Test
     public void backup() throws Exception {
         BackupRequest request = new BackupRequest();
-        request.setSource(createDummySource());
-        //request.setDestination(createDummyDestination());
+        request.setPlan(createDummyPlan());
 
         FieldDescriptor[] responseDescriptors = getDestinationDescriptors();
         responseDescriptors = ArrayUtils.addAll(responseDescriptors, getSoruceDestinationDescriptor());
@@ -30,14 +29,13 @@ public class BackupApiTest extends MockMvcTest{
               .andExpect(status().isCreated())
               .andExpect(jsonPath("id").isNotEmpty())
               .andDo(document("backup", responseFields(getJobStartedDescriptors())))
-              .andDo(document("backup", requestFields(responseDescriptors)))
-        ;
+              .andDo(document("backup", requestFields(responseDescriptors)));
     }
 
     @Test
     public void restore() throws Exception {
         RestoreRequest request = new RestoreRequest();
-        request.setDestination(createDummySource());
+        request.setPlan(createDummyPlan());
         request.setSource(createDummyDestination());
 
         FieldDescriptor[] responseDescriptors = restoreSource();
@@ -48,8 +46,7 @@ public class BackupApiTest extends MockMvcTest{
                           .content(toJson(request)))
               .andExpect(status().isCreated())
               .andExpect(jsonPath("id").isNotEmpty())
-              .andDo(document("restore", requestFields(responseDescriptors)))
-        ;
+              .andDo(document("restore", requestFields(responseDescriptors)));
     }
 
     private FieldDescriptor[] restoreSource () {

@@ -9,11 +9,11 @@
 	<packaging>pom</packaging>
 	<name>osb-backup-agent</name>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.10.RELEASE</version>
-	</parent>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.2.RELEASE</version>
+    </parent>
 
 	<modules>
 		<module>osb-backup-core</module>
@@ -23,7 +23,7 @@
 	<properties>
 		<resource.dir>${basedir}/../osb-service/src/main/resources</resource.dir>
 		<java.version>1.8</java.version>
-		<spring-cloud.version>Edgware.SR2</spring-cloud.version>
+        <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
 	</properties>
 
 	<repositories>
