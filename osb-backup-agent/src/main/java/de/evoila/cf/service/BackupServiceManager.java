@@ -2,15 +2,15 @@ package de.evoila.cf.service;
 
 import de.evoila.cf.controller.exception.BackupException;
 import de.evoila.cf.model.*;
-import de.evoila.cf.model.enums.DatabaseType;
+import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.enums.JobStatus;
-import de.evoila.cf.openstack.OSException;
-import de.evoila.cf.openstack.SwiftClient;
+import de.evoila.cf.backup.clients.exception.SwiftClientException;
+import de.evoila.cf.backup.clients.SwiftClient;
 import de.evoila.cf.repository.BackupAgentJobRepository;
 import de.evoila.cf.repository.FileDestinationRepository;
+import de.evoila.cf.service.backup.BackupService;
 import de.evoila.cf.service.exception.BackupRequestException;
-import de.evoila.cf.service.exception.ProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +79,7 @@ public class BackupServiceManager {
             job.setBackupFile(destination);
             job.setStatus(JobStatus.FINISHED);
             jobRepository.save(job);
-        } catch (Exception | ProcessException e) {
+        } catch (Exception e) {
             String msg = String.format("An error occured (%s) : %s", job.getId(), e.getMessage());
             log.error(msg);
             job.appendLog(msg);
@@ -102,7 +102,7 @@ public class BackupServiceManager {
         jobRepository.save(job);
         Optional<BackupService> service = this.getServices().stream()
                 .filter(s -> s.getSourceType().equals(destination.getType()))
-                .filter(s -> s.getDestinationTypes().contains(DestinationType.Swift))
+                .filter(s -> s.getDestinationTypes().contains(DestinationType.SWIFT))
                 .findAny();
         if (!service.isPresent()) {
             String msg = String.format("No Backup Service found (JOB=%s) for Database %s", job.getId(), destination.getType())
@@ -126,7 +126,7 @@ public class BackupServiceManager {
             service.restore(source, destination, job);
             job.setStatus(JobStatus.FINISHED);
             jobRepository.save(job);
-        } catch (BackupException | IOException | OSException | ProcessException | InterruptedException e) {
+        } catch (BackupException | IOException | SwiftClientException | InterruptedException e) {
             e.printStackTrace();
             log.error(String.format("An error occured (%s) : [%s]   %s", job.getId(), e.getClass(), e.getMessage()));
             job.setStatus(JobStatus.FAILED);
@@ -143,7 +143,7 @@ public class BackupServiceManager {
         job.setStatus(JobStatus.STARTED);
         job.setStartDate(new Date());
         jobRepository.save(job);
-        Optional<BackupService> service = this.getBackupService(endpointCredential.getType(), DestinationType.Swift);
+        Optional<BackupService> service = this.getBackupService(endpointCredential.getType(), destination.getType());
 
         if (!service.isPresent()) {
             String msg = String.format("No Backup Service found (JOB=%s) for Database %s",
@@ -164,23 +164,17 @@ public class BackupServiceManager {
         return job;
     }
 
-    private Optional<BackupService> getBackupService(DatabaseType sourceType, DestinationType destType) {
+    private Optional<BackupService> getBackupService(BackupType sourceType, DestinationType destType) {
         Optional<BackupService> service = this.getServices()
                 .stream()
                 .filter(s -> s.getSourceType().equals(sourceType))
                 .filter(s -> s.getDestinationTypes().contains(destType))
                 .findFirst();
-        if (!service.isPresent()) {
-            for (BackupService service1 : this.getServices()) {
-                if (service1.getSourceType().equals(sourceType)) {
-                    service = Optional.of(service1);
-                }
-            }
-        }
+
         return service;
     }
 
-    public void removeOldBackupFiles(BackupPlan plan) throws IOException, OSException {
+    public void removeOldBackupFiles(BackupPlan plan) throws IOException, SwiftClientException {
         switch (plan.getRetentionStyle()) {
             case FILES:
                 removeOldBackupByFiles(plan);
@@ -196,7 +190,7 @@ public class BackupServiceManager {
         }
     }
 
-    private void removeOldBackupByFiles(BackupPlan plan) throws IOException, OSException {
+    private void removeOldBackupByFiles(BackupPlan plan) throws IOException, SwiftClientException {
         List<BackupJob> jobs = getJobs(plan);
         FileDestination destination = destRepoisitory.findById(plan.getDestinationId()).orElse(null);
         while (jobs.size() > plan.getRetentionPeriod()) {
@@ -220,20 +214,20 @@ public class BackupServiceManager {
     }
 
 
-    private void removeOldBackupByTime(BackupPlan plan, TemporalUnit unit) throws IOException, OSException {
+    private void removeOldBackupByTime(BackupPlan plan, TemporalUnit unit) throws IOException, SwiftClientException {
         FileDestination destination = destRepoisitory.findById(plan.getDestinationId()).orElse(null);
 
         List<BackupJob> jobs = getJobs(plan).stream()
                 .filter(j -> Instant.now().isAfter(j.getStartDate().toInstant().plus(plan.getRetentionPeriod(),
                         unit)))
                 .collect(Collectors.toList());
+
         for (BackupJob job : jobs) {
             delete(job, destination);
         }
     }
 
-    public void delete(BackupJob job, FileDestination destination) throws IOException, OSException {
-
+    public void delete(BackupJob job, FileDestination destination) throws IOException, SwiftClientException {
         SwiftClient swiftClient = new SwiftClient(destination.getAuthUrl(),
                 destination.getUsername(),
                 destination.getPassword(),
@@ -243,15 +237,12 @@ public class BackupServiceManager {
 
         for (Map.Entry<String, String> filename : destination.getFilenames().entrySet()) {
             try {
-                swiftClient.delete(job.getDestination().getContainer(), filename.getValue());
+                //swiftClient.delete(job.getDestination().getContainer(), filename.getValue());
                 jobRepository.deleteById(job.getId());
-            } catch (OSException e) {
+            } catch (Exception e) {
                 log.error(String.format("Could not remove old Backups [File %s] : %s", filename.getValue(), e.getMessage()));
-
             }
         }
-
-
     }
 
 }

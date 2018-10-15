@@ -27,12 +27,13 @@ public class JobMessageListener implements MessageListener{
     public JobMessageListener(){
         messageConverter = new Jackson2JsonMessageConverter();
         DefaultClassMapper classMapper = new DefaultClassMapper();
+        classMapper.setTrustedPackages("de.evoila.cf.model");
         classMapper.setDefaultType(BackupRequest.class);
         messageConverter.setClassMapper(classMapper);
     }
 
     @Override
-    public void onMessage (Message message) {
+    public void onMessage(Message message) {
         Object request =  messageConverter.fromMessage(message);
         try {
             if (request instanceof BackupRequest) {

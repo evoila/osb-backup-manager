@@ -4,16 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.Executor;
 
 /**
@@ -23,26 +21,18 @@ import java.util.concurrent.Executor;
  */
 @EnableAsync
 @SpringBootApplication
-public class Application {
+@ComponentScan(basePackages = "de.evoila.cf",
+        excludeFilters = { @ComponentScan.Filter(type = FilterType.REGEX,
+        pattern="de\\.evoila\\.cf\\.broker\\.service\\..*"),
+                @ComponentScan.Filter(type = FilterType.REGEX,
+                        pattern="de\\.evoila\\.cf\\.broker\\.controller\\..*") }
+)
+public class Application implements WebMvcConfigurer {
 
     static Logger logger = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) {
-		loadBinaries();
 		SpringApplication.run(Application.class, args);
-	}
-
-	private static void loadBinaries () {
-		File f = new File(Application.class.getResource("/startup.sh").getFile());
-		try {
-			logger.info("Downloading binaries");
-			Runtime.getRuntime().exec("chmod +x "+ f.getAbsolutePath());
-			ProcessBuilder pb = new ProcessBuilder(f.getAbsolutePath(), "/home/vcap/app/");
-			Process process = pb.start();
-
-		} catch (IOException e) {
-			logger.info("An error occured downloading the backup binaries");
-		}
 	}
 
 	@Bean
@@ -56,15 +46,21 @@ public class Application {
 		return executor;
 	}
 
-	@Bean
-	public CorsFilter corsFilter() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-		config.addAllowedOrigin("*");
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("*");
-		source.registerCorsConfiguration("/**", config);
-		return new CorsFilter(source);
-	}
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedHeaders("*")
+                .exposedHeaders("WWW-Authenticate",
+                        "Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Headers"
+                )
+                .allowedMethods("OPTIONS", "HEAD",
+                        "GET", "POST",
+                        "PUT", "PATCH",
+                        "DELETE", "HEAD")
+                .allowCredentials(true);
+    }
 
 }

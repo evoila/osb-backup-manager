@@ -6,7 +6,7 @@ import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.JobStatus;
-import de.evoila.cf.openstack.OSException;
+import de.evoila.cf.backup.clients.exception.SwiftClientException;
 import de.evoila.cf.repository.BackupPlanRepository;
 import de.evoila.cf.repository.FileDestinationRepository;
 import de.evoila.cf.service.exception.BackupRequestException;
@@ -57,12 +57,16 @@ public class BackupSchedulingService {
         threadPoolTaskScheduler.setPoolSize(5);
         threadPoolTaskScheduler.setThreadNamePrefix("BackupThreadPoolTaskScheduler");
         threadPoolTaskScheduler().initialize();
-        StreamSupport.stream(repository.findAll().spliterator(),true).forEach(plan -> addTask(plan));
+
+        StreamSupport.stream(repository.findAll()
+                .spliterator(),true)
+                .forEach(plan -> addTask(plan));
     }
 
     @Bean(destroyMethod = "shutdown")
     public Executor taskExecutor() {
-        return Executors.newScheduledThreadPool(10);
+        return Executors
+                .newScheduledThreadPool(10);
     }
 
     public void addTask(BackupPlan job) {
@@ -102,7 +106,7 @@ public class BackupSchedulingService {
 
             BackupJob job = null;
             try {
-                FileDestination destination = destinationRepository.findById(plan.getDestinationId())..orElse(null)
+                FileDestination destination = destinationRepository.findById(plan.getDestinationId()).orElse(null);
                 if (destination == null) {
                     throw new BackupException("Destination can not be found");
                 }
@@ -119,7 +123,7 @@ public class BackupSchedulingService {
             } finally {
                 try {
                     backupServiceManager.removeOldBackupFiles(plan);
-                } catch(IOException | OSException ex) {
+                } catch(IOException | SwiftClientException ex) {
                     logger.error("Could not remove execute removeOldBackupFiles", ex);
                 }
                 repository.save(plan);

@@ -1,10 +1,9 @@
-package de.evoila.cf.service;
+package de.evoila.cf.service.backup;
 
 import de.evoila.cf.controller.exception.BackupException;
+import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
-import de.evoila.cf.service.extension.ProcessRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.evoila.cf.service.BackupServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URL;
@@ -13,13 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by yremmet on 06.07.17.
+ * @author Yannic Remmet, Johannes Hiemer
  */
-public abstract class AbstractBackupService implements BackupService, ProcessRunner {
+public abstract class AbstractBackupService implements BackupService {
 
     protected static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected List<DestinationType> destinationTypes = new ArrayList<DestinationType>();
 
@@ -28,6 +25,8 @@ public abstract class AbstractBackupService implements BackupService, ProcessRun
     public List<DestinationType> getDestinationTypes() {
         return this.destinationTypes;
     }
+
+    public BackupType getSourceType() { return BackupType.AGENT; }
 
     public BackupServiceManager getServiceManager() {
         return serviceManager;

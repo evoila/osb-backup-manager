@@ -2,7 +2,7 @@ package de.evoila.cf.controller;
 
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.FileDestination;
-import de.evoila.cf.openstack.OSException;
+import de.evoila.cf.backup.clients.exception.SwiftClientException;
 import de.evoila.cf.repository.BackupAgentJobRepository;
 import de.evoila.cf.service.BackupServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class JobController {
 
     @RequestMapping(value = "/jobs/{jobId}/file", method = RequestMethod.DELETE)
     public ResponseEntity getJobUpdate(@PathVariable String jobId, @RequestBody FileDestination destination)
-          throws IOException, OSException {
+          throws IOException, SwiftClientException {
         BackupJob job = jobRepository.findById(jobId).orElse(null);
         if (job == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);

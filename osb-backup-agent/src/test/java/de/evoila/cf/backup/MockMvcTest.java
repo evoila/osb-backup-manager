@@ -6,7 +6,7 @@ import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
-import de.evoila.cf.model.enums.DatabaseType;
+import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.RetentionStyle;
@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +44,7 @@ public abstract class MockMvcTest {
     static final String FREQUENCY = "* * 14 * * *";
     static final String PASSWORD = "PASSWORD";
     static final String USERNAME = "USERNAME";
-    static final DatabaseType DATABASE_TYPE = DatabaseType.MYSQL;
+    static final BackupType DATABASE_TYPE = BackupType.AGENT;
     static final String HOSTNAME = "127.0.0.1";
     static final int PORT = 3306;
     static final String DATABASE_NAME = "database_1";
@@ -93,7 +92,7 @@ public abstract class MockMvcTest {
         destination.setFilenames(filenames);
         destination.setContainer(TEST_CONTAINER);
         destination.setProject(TEST_PROJECT);
-        destination.setType(DestinationType.Swift);
+        destination.setType(DestinationType.SWIFT);
         return destination;
     }
 
@@ -118,7 +117,7 @@ public abstract class MockMvcTest {
         destination.setUsername(USERNAME);
         destination.setPassword(PASSWORD);
         destination.setProjectName(TEST_PROJECT);
-        destination.setType(DestinationType.Swift);
+        destination.setType(DestinationType.SWIFT);
         return destination;
     }
 

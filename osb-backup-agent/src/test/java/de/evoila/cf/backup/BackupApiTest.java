@@ -2,7 +2,6 @@ package de.evoila.cf.backup;
 
 import de.evoila.cf.model.BackupRequest;
 import de.evoila.cf.model.RestoreRequest;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.FieldDescriptor;
@@ -21,7 +20,7 @@ public class BackupApiTest extends MockMvcTest {
         request.setPlan(createDummyPlan());
 
         FieldDescriptor[] responseDescriptors = getDestinationDescriptors();
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, getSoruceDestinationDescriptor());
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, getSoruceDestinationDescriptor());
 
         mvc.perform(post("/backup")
                           .contentType(MediaType.APPLICATION_JSON)
@@ -39,7 +38,7 @@ public class BackupApiTest extends MockMvcTest {
         request.setSource(createDummyDestination());
 
         FieldDescriptor[] responseDescriptors = restoreSource();
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, restoreDest());
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, restoreDest());
 
         mvc.perform(post("/restore")
                           .contentType(MediaType.APPLICATION_JSON)

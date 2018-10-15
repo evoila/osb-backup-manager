@@ -25,7 +25,7 @@ public class BackupPlanController {
     BackupPlanService backupPlanService;
 
     @RequestMapping(value = "/plans/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<Page<BackupPlan>> getPlans (@PathVariable() String serviceInstanceId,
+    public ResponseEntity<Page<BackupPlan>> getPlans(@PathVariable() String serviceInstanceId,
                                                       @PageableDefault(size = 50, page = 0) Pageable pageable) {
         Page<BackupPlan> response = backupPlanService.getPlans(serviceInstanceId, pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);

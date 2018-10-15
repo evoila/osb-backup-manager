@@ -1,8 +1,7 @@
 package de.evoila.cf.controller;
 
+import de.evoila.cf.backup.clients.SwiftClient;
 import de.evoila.cf.model.FileDestination;
-import de.evoila.cf.openstack.OSException;
-import de.evoila.cf.openstack.SwiftClient;
 import de.evoila.cf.repository.FileDestinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.io.IOException;
 
 @Controller
 public class DestinationController extends BaseController {
@@ -68,7 +65,7 @@ public class DestinationController extends BaseController {
         try {
             SwiftClient client = new SwiftClient(dest.getAuthUrl(),dest.getUsername(),dest.getPassword(),dest.getDomain(),dest.getProjectName());
             return new ResponseEntity<>(dest, HttpStatus.OK);
-        } catch (OSException|IOException e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(dest, HttpStatus.BAD_REQUEST);
         }
 

@@ -3,7 +3,6 @@ package de.evoila.cf.backup;
 import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.enums.RetentionStyle;
 import de.evoila.cf.repository.BackupPlanRepository;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +42,11 @@ public class PlansApiTest extends MockMvcTest{
               fieldWithPath("retentionStyle").description(""),
               fieldWithPath("retentionPeriod").description("")
         };
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, dest);
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, src);
-        requestDescriptors = ArrayUtils.addAll(requestDescriptors, src);
-        requestDescriptors = ArrayUtils.addAll(requestDescriptors, dest);
+
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, dest);
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, src);
+        requestDescriptors = TestUtils.concatenate(requestDescriptors, src);
+        requestDescriptors = TestUtils.concatenate(requestDescriptors, dest);
 
 
         mvc.perform(post("/plans")
@@ -98,8 +98,8 @@ public class PlansApiTest extends MockMvcTest{
         FieldDescriptor[] src = getSoruceDestinationDescriptor();
         FieldDescriptor[] responseDescriptors = getPlanDescriptors();
 
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, dest);
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, src);
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, dest);
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, src);
 
 
 
@@ -128,10 +128,8 @@ public class PlansApiTest extends MockMvcTest{
         FieldDescriptor[] src = getSoruceDestinationDescriptor();
         FieldDescriptor[] responseDescriptors = getPlanDescriptors();
 
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, dest);
-        responseDescriptors = ArrayUtils.addAll(responseDescriptors, src);
-
-
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, dest);
+        responseDescriptors = TestUtils.concatenate(responseDescriptors, src);
 
         mvc.perform(delete("/plan/"+plan.getId())
                           .contentType(MediaType.APPLICATION_JSON)
@@ -142,9 +140,10 @@ public class PlansApiTest extends MockMvcTest{
               .andExpect(jsonPath("retentionPeriod").value(RETENTION_PERIOD))
               .andExpect(jsonPath("frequency").value(FREQUENCY))
               .andDo(document("delete-plan", responseFields(responseDescriptors)))
-              .andDo(document("delete-plan", requestFields(responseDescriptors)))
-        ;
+              .andDo(document("delete-plan", requestFields(responseDescriptors)));
 
     }
+
+
 
 }
