@@ -74,4 +74,5 @@ public abstract class FileDestination {
         this.filename = filename;
     }
 
+    public abstract String getBucket();
 }

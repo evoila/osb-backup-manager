@@ -73,9 +73,7 @@ public class BackupServiceManager {
         try {
             job.setStatus(JobStatus.IN_PROGRESS);
             jobRepository.save(job);
-            Map<String, String> fileNames = service.backup(plan, destination, job);
-            destination.setFilenames(fileNames);
-            job.setBackupFile(destination);
+            job.setFileDestination(destination);
             job.setStatus(JobStatus.FINISHED);
             jobRepository.save(job);
         } catch (Exception e) {
@@ -227,21 +225,26 @@ public class BackupServiceManager {
     }
 
     public void delete(BackupJob job, FileDestination destination) throws IOException, SwiftClientException {
+        if (destination.getType().equals(DestinationType.SWIFT))
+            deleteSwift((SwiftFileDestination) destination);
+        if (destination.getType().equals(DestinationType.S3))
+            deleteS3((S3FileDestination) destination);
+        jobRepository.deleteById(job.getId());
+
+    }
+
+    private void deleteS3(S3FileDestination destination) {
+        // TODO: Implement
+    }
+
+    private void deleteSwift(SwiftFileDestination destination) {
         SwiftClient swiftClient = new SwiftClient(destination.getAuthUrl(),
                 destination.getUsername(),
                 destination.getPassword(),
                 destination.getDomain(),
                 destination.getProjectName()
         );
-
-        for (Map.Entry<String, String> filename : destination.getFilenames().entrySet()) {
-            try {
-                //swiftClient.delete(job.getDestination().getContainer(), filename.getValue());
-                jobRepository.deleteById(job.getId());
-            } catch (Exception e) {
-                log.error(String.format("Could not remove old Backups [File %s] : %s", filename.getValue(), e.getMessage()));
-            }
-        }
+        swiftClient.delete(destination.getContainerName(), destination.getFilename());
     }
 
 }

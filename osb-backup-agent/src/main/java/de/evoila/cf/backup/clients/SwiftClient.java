@@ -89,7 +89,9 @@ public class SwiftClient implements FileClient {
     @Override
     public void delete(String containerName, String identifier, String extension) {
         String filename = FileClient.concatIdentifier(identifier, extension);
-
+        delete(containerName,filename);
+    }
+    public void delete(String containerName, String filename) {
         os.objectStorage().objects().delete(containerName, filename);
     }
 

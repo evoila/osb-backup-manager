@@ -77,6 +77,8 @@ public class AgentBasedBackupService extends AbstractBackupService {
             ));
 
             HttpEntity entity = new HttpEntity(plan, headers);
+
+            // TODO WHAT?
             //restTemplate.exchange(backupConfiguration.getUri() + "/plans",
             //        HttpMethod.POST, entity, BackupPlan.class
             //);
@@ -92,18 +94,7 @@ public class AgentBasedBackupService extends AbstractBackupService {
     @Override
     public void restore(EndpointCredential destination, FileDestination source, BackupJob job) {
         long s_time = System.currentTimeMillis();
-
-        for (Map.Entry<String, String> filename : source.getFilenames().entrySet()) {
-            log.info(String.format("Starting restore process to %s:%d/%s",
-                    destination.getHostname(),
-                    destination.getPort(),
-                    filename.getKey()
-            ));
-
-            log.info("Calling Backup Run");
-
-            //backup.getParentFile().delete();
-        }
+        // TODO: ???? Implement Restore
     }
 
 }
