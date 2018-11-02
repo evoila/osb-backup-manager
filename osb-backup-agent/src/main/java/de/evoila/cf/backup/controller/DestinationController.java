@@ -3,6 +3,8 @@ package de.evoila.cf.backup.controller;
 import de.evoila.cf.backup.clients.SwiftClient;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
+import de.evoila.cf.model.S3FileDestination;
+import de.evoila.cf.model.SwiftFileDestination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +63,8 @@ public class DestinationController extends BaseController {
     }
 
     @RequestMapping(value = "/destinations/validate", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> updateDestination(@RequestBody FileDestination dest) {
+    public ResponseEntity<FileDestination> updateDestination(@RequestBody SwiftFileDestination dest) {
+        // TODO Implement S3 Stuff
         try {
             SwiftClient client = new SwiftClient(dest.getAuthUrl(),dest.getUsername(),dest.getPassword(),dest.getDomain(),dest.getProjectName());
             return new ResponseEntity<>(dest, HttpStatus.OK);
@@ -73,7 +76,7 @@ public class DestinationController extends BaseController {
 
     public void setName (FileDestination dest) {
         if(dest.getName() == null){
-            dest.setName(String.format("%s - %s - %s", dest.getDomain(), dest.getProjectName(), dest.getContainerName()));
+            dest.setName(String.format("%s - %s", dest.getType(), dest.getBucket()));
         }
     }
 }

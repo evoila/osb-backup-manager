@@ -28,7 +28,7 @@ public class BackupJob {
 
     private String jobType;
 
-    private BackupDestination destination;
+    private FileDestination destination;
 
     private List<String> logs;
 
@@ -84,87 +84,16 @@ public class BackupJob {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public BackupDestination getDestination() {
+    public FileDestination getDestination() {
         return destination;
     }
 
-    public void setDestination(BackupDestination destination) {
-        this.destination = destination;
-    }
-
-    public void setBackupFile(FileDestination fileDestination) {
-        this.destination = new BackupDestination(fileDestination);
+    public void setFileDestination(FileDestination fileDestination) {
+        this.destination = fileDestination;
     }
 
     public synchronized void appendLog(String msg) {
         this.getLogs().add(msg);
     }
 
-    public static class BackupDestination {
-        private String type;
-
-        private String project;
-
-        private String container;
-
-        private Map<String, String> filenames;
-
-        private String authUrl;
-
-        public BackupDestination() {
-            super();
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public void setType(DestinationType type) {
-            this.type = type.toString();
-        }
-
-        public void setProject(String project) {
-            this.project = project;
-        }
-
-        public void setContainer(String container) {
-            this.container = container;
-        }
-
-        public void setFilenames(Map<String, String> filenames) {
-            this.filenames = filenames;
-        }
-
-        private BackupDestination(FileDestination destination) {
-            setType(DestinationType.SWIFT);
-            setProject(destination.getProjectName());
-            setContainer(destination.getContainerName());
-            setFilenames(destination.getFilenames());
-            setAuthUrl(destination.getAuthUrl());
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getProject() {
-            return project;
-        }
-
-        public String getContainer() {
-            return container;
-        }
-
-        public Map<String, String> getFilenames() {
-            return filenames;
-        }
-
-        public void setAuthUrl(String authUrl) {
-            this.authUrl = authUrl;
-        }
-
-        public String getAuthUrl() {
-            return authUrl;
-        }
-    }
 }

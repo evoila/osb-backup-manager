@@ -21,4 +21,5 @@ public class S3FileDestination extends FileDestination {
     public void setBucket(String bucket) {
         this.bucket = bucket;
     }
+
 }

@@ -51,4 +51,6 @@ public class SwiftFileDestination extends FileDestination {
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
+
 }
+
