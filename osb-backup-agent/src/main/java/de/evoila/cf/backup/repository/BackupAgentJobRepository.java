@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface  BackupAgentJobRepository extends MongoRepository<BackupJob, String> {
 
-    Page<BackupJob> findByInstanceId(String instanceId , Pageable pageable);
-    List<BackupJob> findByInstanceId(String instanceId);
+    Page<BackupJob> findByServiceInstanceId(String serviceInstanceId , Pageable pageable);
+    List<BackupJob> findByServiceInstanceId(String serviceInstanceId);
 
 }

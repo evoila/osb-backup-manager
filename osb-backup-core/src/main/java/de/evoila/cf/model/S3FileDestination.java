@@ -2,6 +2,10 @@ package de.evoila.cf.model;
 
 public class S3FileDestination extends FileDestination {
 
+    public S3FileDestination() {
+        super();
+    }
+
     private String region;
 
     private String bucket;

@@ -26,36 +26,36 @@ public class BackupPlanController {
         this.backupPlanService = backupPlanService;
     }
 
-    @RequestMapping(value = "/plans/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<Page<BackupPlan>> getPlans(@PathVariable() String serviceInstanceId,
+    @RequestMapping(value = "/plans/byInstance/{instanceId}", method = RequestMethod.GET)
+    public ResponseEntity<Page<BackupPlan>> all(@PathVariable() String instanceId,
                                                       @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        Page<BackupPlan> response = backupPlanService.getPlans(serviceInstanceId, pageable);
+        Page<BackupPlan> response = backupPlanService.getPlans(instanceId, pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/plans", method = RequestMethod.POST)
-    public ResponseEntity<BackupPlan> createPlan(@RequestBody BackupPlan plan) throws BackupException {
+    public ResponseEntity<BackupPlan> create(@RequestBody BackupPlan plan) throws BackupException {
 
         BackupPlan response = backupPlanService.createPlan(plan);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/plans/{planId}", method = RequestMethod.GET)
-    public ResponseEntity<BackupPlan> getPlan(@PathVariable() String planId) {
+    public ResponseEntity<BackupPlan> get(@PathVariable() String planId) {
 
         BackupPlan response = backupPlanService.getPlan(planId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/plans/{planId}", method = RequestMethod.DELETE)
-    public ResponseEntity<BackupPlan> deletePlan(@PathVariable() String planId) {
+    public ResponseEntity<BackupPlan> delete(@PathVariable() String planId) {
 
         BackupPlan response = backupPlanService.deletePlan(planId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/plans/{planId}", method = RequestMethod.PUT)
-    public ResponseEntity<BackupPlan> updatePlan(@PathVariable() String planId, @RequestBody BackupPlan plan)
+    public ResponseEntity<BackupPlan> update(@PathVariable() String planId, @RequestBody BackupPlan plan)
           throws BackupException {
 
         BackupPlan response = backupPlanService.updatePlan(planId, plan);

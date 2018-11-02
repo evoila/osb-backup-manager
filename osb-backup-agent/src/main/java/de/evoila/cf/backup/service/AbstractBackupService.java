@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author Yannic Remmet, Johannes Hiemer
  */
-public abstract class AbstractBackupService implements BackupService {
+public abstract class AbstractBackupService implements BackupExecutorService {
 
     protected static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
 

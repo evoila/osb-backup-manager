@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface FileDestinationRepository extends MongoRepository<FileDestination, String> {
 
-    Page<FileDestination> findByInstanceId(String instanceId, Pageable pageable);
+    Page<FileDestination> findByServiceInstanceId(String serviceInstanceId, Pageable pageable);
 
 }

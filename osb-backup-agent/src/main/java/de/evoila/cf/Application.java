@@ -5,30 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 
  * @author Johannes Hiemer.
- *
  */
 @EnableAsync
 @SpringBootApplication
-@ComponentScan(basePackages = "de.evoila.cf",
-        excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.REGEX,
-            pattern="de\\.evoila\\.cf\\.broker\\.service\\..*"),
-        @ComponentScan.Filter(type = FilterType.REGEX,
-            pattern="de\\.evoila\\.cf\\.broker\\.controller\\..*"),
-        @ComponentScan.Filter(type = FilterType.REGEX,
-            pattern="de\\.evoila\\.cf\\.config\\.security\\..*")
-})
+@ComponentScan(basePackages = "de.evoila.cf")
 public class Application implements WebMvcConfigurer {
 
-    static Logger logger = LoggerFactory.getLogger(Application.class);
+    static Logger log = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

@@ -119,10 +119,16 @@ public class S3Client extends AbstractAmazonS3 implements FileClient {
     }
 
     @Override
-    public void delete(String bucket, String identifier, String extension){
+    public void delete(String bucket, String identifier, String extension) {
 
         String filename = FileClient.concatIdentifier(identifier, extension);
 
+        client.deleteObject(bucket, filename);
+
+        log.info("File deleted: " + bucket + "/" + filename);
+    }
+
+    public void delete(String bucket, String filename) {
         client.deleteObject(bucket, filename);
 
         log.info("File deleted: " + bucket + "/" + filename);

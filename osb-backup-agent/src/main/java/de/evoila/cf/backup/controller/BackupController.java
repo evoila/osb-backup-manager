@@ -34,7 +34,7 @@ public class BackupController {
 	@RequestMapping(value = "/backup", method = RequestMethod.POST)
 	public ResponseEntity backup(@RequestBody BackupRequest backupRequest) {
         rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
-                messagingConfiguration .getRoutingKey(),
+                messagingConfiguration.getRoutingKey(),
                 backupRequest);
 		return new ResponseEntity<>(backupRequest, HttpStatus.CREATED);
 	}
@@ -42,7 +42,7 @@ public class BackupController {
 	@RequestMapping(value = "/restore", method = RequestMethod.POST)
 	public ResponseEntity restore(@RequestBody RestoreRequest restoreRequest) {
         rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
-                messagingConfiguration .getRoutingKey(),
+                messagingConfiguration.getRoutingKey(),
                 restoreRequest);
 		return new ResponseEntity<>(restoreRequest, HttpStatus.CREATED);
 	}

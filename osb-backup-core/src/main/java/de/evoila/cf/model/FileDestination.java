@@ -1,22 +1,26 @@
 package de.evoila.cf.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import de.evoila.cf.model.enums.DestinationType;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = S3FileDestination.class, name = "S3"),
+        @JsonSubTypes.Type(value = SwiftFileDestination.class, name = "SWIFT")
+})
 public abstract class FileDestination {
 
     private String id;
+
+    private String serviceInstanceId;
 
     private String name;
 
     private String username;
 
-    @JsonProperty()
     private String password;
 
     private DestinationType type;
@@ -30,6 +34,14 @@ public abstract class FileDestination {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getServiceInstanceId() {
+        return serviceInstanceId;
+    }
+
+    public void setServiceInstanceId(String serviceInstanceId) {
+        this.serviceInstanceId = serviceInstanceId;
     }
 
     public String getName() {

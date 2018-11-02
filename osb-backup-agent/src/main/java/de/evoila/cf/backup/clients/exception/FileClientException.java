@@ -6,13 +6,13 @@ package de.evoila.cf.backup.clients.exception;
 /**
  * @author Johannes Hiemer.
  */
-public class S3ClientException extends Exception {
+public class FileClientException extends Exception {
 
-    public S3ClientException(Exception e) {
+    public FileClientException(Exception e) {
         super(e);
     }
 
-    public S3ClientException(String s) {
+    public FileClientException(String s) {
         super(s);
     }
 

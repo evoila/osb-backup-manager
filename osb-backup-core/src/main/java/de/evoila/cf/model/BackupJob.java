@@ -1,16 +1,14 @@
 package de.evoila.cf.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.enums.JobStatus;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Created by yremmet on 06.07.17.
+ * @author Yannic Remmet, Johannes Hiemer.
  */
 public class BackupJob {
 
@@ -22,7 +20,7 @@ public class BackupJob {
 
     private Date startDate;
 
-    private String instanceId;
+    private String serviceInstanceId;
 
     private JobStatus status;
 
@@ -31,6 +29,13 @@ public class BackupJob {
     private FileDestination destination;
 
     private List<String> logs;
+
+    public BackupJob(String jobType, String serviceInstanceId, JobStatus status) {
+        this.jobType = jobType;
+        this.serviceInstanceId = serviceInstanceId;
+        this.status = status;
+        this.startDate = new Date();
+    }
 
     public String getId() {
         return id;
@@ -44,12 +49,12 @@ public class BackupJob {
         return startDate;
     }
 
-    public String getInstanceId() {
-        return instanceId;
+    public String getServiceInstanceId() {
+        return serviceInstanceId;
     }
 
-    public void setInstanceId(String instance) {
-        this.instanceId = instance;
+    public void setServiceInstanceId(String serviceInstanceId) {
+        this.serviceInstanceId = serviceInstanceId;
     }
 
     public JobStatus getStatus() {

@@ -1,13 +1,13 @@
 package de.evoila.cf.backup.service;
 
 
-import de.evoila.cf.config.security.AcceptSelfSignedClientHttpRequestFactory;
 import de.evoila.cf.model.BackupJob;
 import de.evoila.cf.model.BackupPlan;
 import de.evoila.cf.model.EndpointCredential;
 import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
+import de.evoila.cf.security.AcceptSelfSignedClientHttpRequestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ import java.util.Map;
  * @author Yannic Remmet, Johannes Hiemer.
  */
 @Service
-public class AgentBasedBackupService extends AbstractBackupService {
+public class AgentBasedBackupExecutorService extends AbstractBackupService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private RestTemplate restTemplate;
     private HttpHeaders headers;
 
-    public AgentBasedBackupService() {
+    public AgentBasedBackupExecutorService() {
         this.restTemplate = new RestTemplate();
     }
 

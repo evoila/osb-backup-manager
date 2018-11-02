@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by yremmet on 18.07.17.
+ * @author Yanic Remmet, Johannes Hiemer.
  */
 public class BackupPlan {
 

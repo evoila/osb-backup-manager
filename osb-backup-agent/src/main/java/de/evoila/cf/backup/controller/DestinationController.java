@@ -1,11 +1,12 @@
 package de.evoila.cf.backup.controller;
 
+import de.evoila.cf.backup.clients.S3Client;
 import de.evoila.cf.backup.clients.SwiftClient;
-import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
+import de.evoila.cf.model.FileDestination;
 import de.evoila.cf.model.S3FileDestination;
 import de.evoila.cf.model.SwiftFileDestination;
-import org.springframework.beans.factory.annotation.Autowired;
+import de.evoila.cf.model.enums.DestinationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,63 +21,71 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class DestinationController extends BaseController {
 
-    @Autowired
-    FileDestinationRepository desinationRepository;
+    FileDestinationRepository destinationRepository;
 
-    @RequestMapping(value = "/destinations/{destId}", method = RequestMethod.GET)
-    public ResponseEntity<FileDestination> getDestinationUpdate(@PathVariable String destId) {
-        FileDestination job = desinationRepository.findById(destId).orElse(null);
+    public DestinationController(FileDestinationRepository destinationRepository) {
+        this.destinationRepository = destinationRepository;
+    }
+
+    @RequestMapping(value = "/destinations/{destinationId}", method = RequestMethod.GET)
+    public ResponseEntity<FileDestination> get(@PathVariable String destinationId) {
+        FileDestination job = destinationRepository.findById(destinationId).orElse(null);
         return new ResponseEntity<FileDestination>(job, HttpStatus.OK);
     }
 
-    @RequestMapping("/destinations/byInstance/{instance}")
-    public ResponseEntity<Page<FileDestination>> getByInstance(@PathVariable String instance,
+    @RequestMapping("/destinations/byInstance/{instanceId}")
+    public ResponseEntity<Page<FileDestination>> all(@PathVariable String instanceId,
                                                                @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        Page<FileDestination> dest = desinationRepository.findByInstanceId(instance, pageable);
+        Page<FileDestination> dest = destinationRepository.findByServiceInstanceId(instanceId, pageable);
         return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/destinations/{jobid}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteDestination(@PathVariable String jobid) {
-        FileDestination job = desinationRepository.findById(jobid).orElse(null);
-        if (job == null) {
+    @RequestMapping(value = "/destinations/{destinationId}", method = RequestMethod.DELETE)
+    public ResponseEntity delete(@PathVariable String destinationId) {
+        FileDestination fileDestination = destinationRepository.findById(destinationId).orElse(null);
+        if (fileDestination == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        desinationRepository.delete(job);
+        destinationRepository.delete(fileDestination);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/destinations", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> createDestination(@RequestBody FileDestination dest) {
-        setName(dest);
-        FileDestination response = desinationRepository.save(dest);
+    public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
+        setName(destination);
+        FileDestination response = destinationRepository.save(destination);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/destinations/{destId}", method = RequestMethod.PUT)
-    public ResponseEntity<FileDestination> updateDestination(@PathVariable() String destId,
+    @RequestMapping(value = "/destinations/{destinationId}", method = RequestMethod.PUT)
+    public ResponseEntity<FileDestination> update(@PathVariable() String destinationId,
                                                   @RequestBody FileDestination dest) {
         setName(dest);
-        desinationRepository.deleteById(destId);
-        desinationRepository.save(dest);
+        destinationRepository.deleteById(destinationId);
+        destinationRepository.save(dest);
         return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/destinations/validate", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> updateDestination(@RequestBody SwiftFileDestination dest) {
-        // TODO Implement S3 Stuff
+    public ResponseEntity<FileDestination> validate(@RequestBody FileDestination destination) {
         try {
-            SwiftClient client = new SwiftClient(dest.getAuthUrl(),dest.getUsername(),dest.getPassword(),dest.getDomain(),dest.getProjectName());
-            return new ResponseEntity<>(dest, HttpStatus.OK);
+            if (destination.getType().equals(DestinationType.SWIFT)) {
+                SwiftFileDestination swiftFileDestination = (SwiftFileDestination) destination;
+                new SwiftClient(swiftFileDestination.getAuthUrl(), swiftFileDestination.getUsername(),
+                        swiftFileDestination.getPassword(), swiftFileDestination.getDomain(), swiftFileDestination.getProjectName());
+            } else if (destination.getType().equals(DestinationType.S3)) {
+                S3FileDestination s3FileDestination = (S3FileDestination) destination;
+                new S3Client(s3FileDestination.getRegion(), s3FileDestination.getUsername(), s3FileDestination.getPassword());
+            }
+            return new ResponseEntity<>(destination, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(dest, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(destination, HttpStatus.BAD_REQUEST);
         }
 
     }
 
-    public void setName (FileDestination dest) {
-        if(dest.getName() == null){
-            dest.setName(String.format("%s - %s", dest.getType(), dest.getBucket()));
-        }
+    public void setName(FileDestination dest) {
+        if(dest.getName() == null)
+            dest.setName(String.format("%s - %s", dest.getType(), dest.getServiceInstanceId()));
     }
 }

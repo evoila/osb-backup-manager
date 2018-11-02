@@ -2,7 +2,9 @@ package de.evoila.cf.model;
 
 public class SwiftFileDestination extends FileDestination {
 
-    private String instanceId;
+    public SwiftFileDestination() {
+        super();
+    }
 
     private String authUrl;
 
@@ -11,14 +13,6 @@ public class SwiftFileDestination extends FileDestination {
     private String containerName;
 
     private String projectName;
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
 
     public String getAuthUrl() {
         return authUrl;

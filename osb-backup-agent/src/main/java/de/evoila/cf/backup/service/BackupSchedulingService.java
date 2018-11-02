@@ -107,7 +107,6 @@ public class BackupSchedulingService {
             log.debug(String.format("Scheduling Plan [%s] frequency:", plan.getId(), plan.getFrequency()));
 
             BackupRequest backupRequest = new BackupRequest();
-            backupRequest.setDestinationId(plan.getDestinationId());
             backupRequest.setPlan(plan);
 
             rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
