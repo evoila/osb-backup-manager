@@ -9,10 +9,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.7" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.amqp:spring-amqp:1.7.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:4.3.7.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.8" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.5" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.amqp:spring-amqp:1.7.1.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:5.0.6.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-jcl:5.0.6.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.6" level="project" />
   </component>
 </module>
