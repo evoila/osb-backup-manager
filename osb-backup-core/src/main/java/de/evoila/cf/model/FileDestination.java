@@ -4,39 +4,25 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.evoila.cf.model.enums.DestinationType;
-import de.evoila.cf.model.interfaces.SwiftConfig;
 
-import java.util.Map;
-
-public class FileDestination implements SwiftConfig {
-
-    private String authUrl;
-
-    private String username;
-
-    @JsonProperty
-    private String password;
-
-    private String domain;
-
-    private String containerName;
-
-    private String projectName;
-
-    private DestinationType type;
-
-    private String name;
-
-    private String instanceId;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Map<String, String> filenames;
+/**
+ * @author Yannic Remmet, Johannes Hiemer
+ */
+public abstract class FileDestination {
 
     private String id;
 
-    public String getInstanceId() {
-        return instanceId;
-    }
+    private String name;
+
+    private String username;
+
+    @JsonProperty()
+    private String password;
+
+    private DestinationType type;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String filename;
 
     public String getId() {
         return id;
@@ -46,32 +32,12 @@ public class FileDestination implements SwiftConfig {
         this.id = id;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Map<String, String> getFilenames() {
-        return filenames;
-    }
-
-    public void setFilenames(Map<String, String> filenames) {
-        this.filenames = filenames;
-    }
-
-    public String getAuthUrl() {
-        return authUrl;
-    }
-
-    public void setAuthUrl(String authUrl) {
-        this.authUrl = authUrl;
     }
 
     public String getUsername() {
@@ -92,30 +58,6 @@ public class FileDestination implements SwiftConfig {
         this.password = password;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getContainerName() {
-        return containerName;
-    }
-
-    public void setContainerName(String containerName) {
-        this.containerName = containerName;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public DestinationType getType() {
         return type;
     }
@@ -123,4 +65,13 @@ public class FileDestination implements SwiftConfig {
     public void setType(DestinationType type) {
         this.type = type;
     }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
 }
