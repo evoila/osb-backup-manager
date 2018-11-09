@@ -1,5 +1,8 @@
 package de.evoila.cf.model.enums;
 
-public enum  DestinationType {
-    Swift
+/**
+ * @author Yannic Remmet, Johannes Hiemer.
+ */
+public enum DestinationType {
+    SWIFT, S3;
 }
