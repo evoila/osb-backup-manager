@@ -1,10 +1,9 @@
-package de.evoila.cf.model;
+package de.evoila.cf.model.agent.response;
 
-public class S3FileDestination extends FileDestination {
-
-    public S3FileDestination() {
-        super();
-    }
+/**
+ * @author Johannes Hiemer.
+ */
+public class S3AgentBackupResponse extends AgentBackupResponse {
 
     private String region;
 
@@ -25,5 +24,4 @@ public class S3FileDestination extends FileDestination {
     public void setBucket(String bucket) {
         this.bucket = bucket;
     }
-
 }

@@ -55,7 +55,7 @@ public class JobQueueConfigurer {
 
     @Bean
     public Binding jobBinding() {
-        Binding b =BindingBuilder.bind(jobQueue()).to(jobDirectExchange()).with(config.getRoutingKey());
+        Binding b = BindingBuilder.bind(jobQueue()).to(jobDirectExchange()).with(config.getRoutingKey());
         this.amqpAdmin.declareBinding(b);
         return b;
     }

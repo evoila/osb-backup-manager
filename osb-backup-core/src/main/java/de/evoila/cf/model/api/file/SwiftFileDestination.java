@@ -1,5 +1,11 @@
-package de.evoila.cf.model;
+package de.evoila.cf.model.api.file;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+/**
+ * @author Yannic Remmet, Johannes Hiemer
+ */
+@Document(collection = "fileDestination")
 public class SwiftFileDestination extends FileDestination {
 
     public SwiftFileDestination() {

@@ -1,47 +1,44 @@
-package de.evoila.cf.model;
+package de.evoila.cf.model.api.file;
 
 import com.fasterxml.jackson.annotation.*;
+import de.evoila.cf.model.AbstractEntity;
+import de.evoila.cf.model.ServiceInstance;
 import de.evoila.cf.model.enums.DestinationType;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer
  */
+@Document(collection = "fileDestination")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = S3FileDestination.class, name = "S3"),
         @JsonSubTypes.Type(value = SwiftFileDestination.class, name = "SWIFT")
 })
-public abstract class FileDestination {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public abstract class FileDestination extends AbstractEntity {
 
-    private String id;
+    @DBRef
+    protected ServiceInstance serviceInstance;
 
-    private String serviceInstanceId;
+    protected String name;
 
-    private String name;
+    protected String username;
 
-    private String username;
+    protected String password;
 
-    private String password;
-
-    private DestinationType type;
+    protected DestinationType type;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String filename;
+    protected String filename;
 
-    public String getId() {
-        return id;
+    public ServiceInstance getServiceInstance() {
+        return serviceInstance;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getServiceInstanceId() {
-        return serviceInstanceId;
-    }
-
-    public void setServiceInstanceId(String serviceInstanceId) {
-        this.serviceInstanceId = serviceInstanceId;
+    public void setServiceInstance(ServiceInstance serviceInstance) {
+        this.serviceInstance = serviceInstance;
     }
 
     public String getName() {

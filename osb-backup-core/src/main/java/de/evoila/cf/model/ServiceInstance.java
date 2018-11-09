@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import de.evoila.cf.model.api.endpoint.ServerAddress;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.model;
+package de.evoila.cf.model.api.endpoint;
 
 /**
  * @author Christian Brinker, evoila.

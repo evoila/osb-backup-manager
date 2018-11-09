@@ -5,7 +5,7 @@
 :sectanchors:
 :sectlinks:
 :toclevels: 4
-:source-highlighter: highlightjs
+:endpointCredential-highlighter: highlightjs
 
 [[overview]]
 = Overview
@@ -22,7 +22,7 @@ include::{snippets}/backup/http-response.adoc[]
 include::{snippets}/backup/response-fields.adoc[]
 
 = Restore
-A `POST` request will start a restoring the data of the given source to the destination databse.
+A `POST` request will start a restoring the data of the given endpointCredential to the destination databse.
 
 === Request
 include::{snippets}/restore/http-request.adoc[]
@@ -80,34 +80,34 @@ include::{snippets}/plans-by-instance/http-response.adoc[]
 include::{snippets}/plans-by-instance/response-fields.adoc[]
 
 == Create Plan
-A `POST` request will create a new backup plan that backups a database periodically.
+A `POST` request will create a new backup backupPlan that backups a database periodically.
 
 === Request
-include::{snippets}/update-plan/http-request.adoc[]
-include::{snippets}/update-plan/request-fields.adoc[]
+include::{snippets}/update-backupPlan/http-request.adoc[]
+include::{snippets}/update-backupPlan/request-fields.adoc[]
 
 === Response
-include::{snippets}/update-plan/http-response.adoc[]
-include::{snippets}/update-plan/response-fields.adoc[]
+include::{snippets}/update-backupPlan/http-response.adoc[]
+include::{snippets}/update-backupPlan/response-fields.adoc[]
 
 == Update Plan
-A `PATCH` request will let you update an backup plan.
+A `PATCH` request will let you update an backup backupPlan.
 
 === Request
-include::{snippets}/update-plan/http-request.adoc[]
-include::{snippets}/update-plan/request-fields.adoc[]
+include::{snippets}/update-backupPlan/http-request.adoc[]
+include::{snippets}/update-backupPlan/request-fields.adoc[]
 
 === Response
-include::{snippets}/update-plan/http-response.adoc[]
-include::{snippets}/update-plan/response-fields.adoc[]
+include::{snippets}/update-backupPlan/http-response.adoc[]
+include::{snippets}/update-backupPlan/response-fields.adoc[]
 
 == Delete Plan
 A `DELTE` will stop automated backups but leaves the files.
 
 === Request
-include::{snippets}/delete-plan/http-request.adoc[]
-include::{snippets}/delete-plan/request-fields.adoc[]
+include::{snippets}/delete-backupPlan/http-request.adoc[]
+include::{snippets}/delete-backupPlan/request-fields.adoc[]
 
 === Response
-include::{snippets}/delete-plan/http-response.adoc[]
+include::{snippets}/delete-backupPlan/http-response.adoc[]
 

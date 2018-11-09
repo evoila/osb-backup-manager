@@ -1,8 +1,8 @@
 package de.evoila.cf.backup.controller;
 
 import de.evoila.cf.backup.config.MessagingConfiguration;
-import de.evoila.cf.model.BackupRequest;
-import de.evoila.cf.model.RestoreRequest;
+import de.evoila.cf.model.api.request.BackupRequest;
+import de.evoila.cf.model.api.request.RestoreRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

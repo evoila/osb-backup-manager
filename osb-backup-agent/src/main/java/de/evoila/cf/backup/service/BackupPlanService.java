@@ -4,10 +4,8 @@ import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
 import de.evoila.cf.backup.repository.ServiceInstanceRepository;
-import de.evoila.cf.model.BackupPlan;
-import de.evoila.cf.model.EndpointCredential;
-import de.evoila.cf.model.ServiceInstance;
-import de.evoila.cf.model.enums.BackupType;
+import de.evoila.cf.model.api.BackupPlan;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,30 +38,33 @@ public class BackupPlanService {
         return backupPlanRepository.findByServiceInstanceId(serviceInstanceId, pageable);
     }
 
-    public BackupPlan createPlan(BackupPlan plan) throws BackupException {
-        if(plan.getDestinationId() != null && !fileDestinationRepository.findById(plan.getDestinationId()).isPresent())
-            throw new BackupException("Backup Destination does not exists ID = " + plan.getId());
+    public BackupPlan createPlan(BackupPlan backupPlan) throws BackupException {
+        if(backupPlan.getFileDestination() == null)
+            throw new BackupException("Backup Destination does not exists ID = " + backupPlan.getId());
 
         try {
-            plan.setSource(getCredentials(plan.getServiceInstanceId()));
-            plan = backupPlanRepository.save(plan);
-            backupSchedulingService.addTask(plan);
+            backupPlan = backupPlanRepository.save(backupPlan);
+            backupSchedulingService.addTask(backupPlan);
         } catch (Exception ex) {
-            backupPlanRepository.delete(plan);
+            backupPlanRepository.delete(backupPlan);
             throw new BackupException("Could not create Plan", ex);
         }
-        return plan;
+        return backupPlan;
     }
 
-    public BackupPlan deletePlan(String planId) {
-        BackupPlan plan = backupPlanRepository.findById(planId).orElse(null);
-        backupSchedulingService.removeTask(plan);
-        backupPlanRepository.deleteById(planId);
-        return plan;
+    public BackupPlan deletePlan(ObjectId planId) {
+        BackupPlan backupPlan = backupPlanRepository.findById(planId)
+                .orElse(null);
+        if (backupPlan != null) {
+            backupSchedulingService.removeTask(backupPlan);
+            backupPlanRepository.delete(backupPlan);
+        }
+        return backupPlan;
     }
 
-    public BackupPlan updatePlan(String planId, BackupPlan plan) throws BackupException {
-        BackupPlan backupPlan = backupPlanRepository.findById(planId).orElse(null);
+    public BackupPlan updatePlan(ObjectId planId, BackupPlan plan) throws BackupException {
+        BackupPlan backupPlan = backupPlanRepository.findById(planId)
+                .orElse(null);
 
         if(backupPlan == null)
             throw new BackupException("Backup plan not found" + planId);
@@ -71,7 +72,6 @@ public class BackupPlanService {
             throw new BackupException("Backup Destination does not exists ID = " + plan.getId());
 
         try {
-            plan.setSource(getCredentials(plan.getServiceInstanceId()));
             backupPlan.update(plan);
             backupSchedulingService.updateTask(backupPlan);
             backupPlanRepository.save(backupPlan);
@@ -82,26 +82,8 @@ public class BackupPlanService {
         return plan;
     }
 
-    public BackupPlan getPlan(String planId) {
+    public BackupPlan getPlan(ObjectId planId) {
         return backupPlanRepository.findById(planId).orElse(null);
-    }
-
-    public EndpointCredential getCredentials(String serviceInstanceId) throws BackupException {
-        ServiceInstance instance = serviceInstanceRepository.findById(serviceInstanceId).orElse(null);
-
-        if(instance == null || instance.getHosts().size() <= 0) {
-            throw new BackupException("Could not find Service Instance: " + serviceInstanceId);
-        }
-
-        EndpointCredential credential = new EndpointCredential();
-        credential.setServiceInstanceId(instance.getId());
-        credential.setUsername(instance.getUsername());
-        credential.setPassword(instance.getPassword());
-        credential.setHostname(instance.getHosts().get(0).getIp());
-        credential.setPort(instance.getHosts().get(0).getPort());
-        credential.setType(BackupType.AGENT);
-
-        return credential;
     }
 
 }

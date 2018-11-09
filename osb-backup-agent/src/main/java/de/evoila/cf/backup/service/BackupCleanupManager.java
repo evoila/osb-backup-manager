@@ -2,11 +2,16 @@ package de.evoila.cf.backup.service;
 
 import de.evoila.cf.backup.clients.S3Client;
 import de.evoila.cf.backup.clients.SwiftClient;
-import de.evoila.cf.backup.repository.BackupAgentJobRepository;
+import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
-import de.evoila.cf.model.*;
+import de.evoila.cf.model.api.AbstractJob;
+import de.evoila.cf.model.api.BackupPlan;
+import de.evoila.cf.model.api.file.FileDestination;
+import de.evoila.cf.model.api.file.S3FileDestination;
+import de.evoila.cf.model.api.file.SwiftFileDestination;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.enums.JobStatus;
+import de.evoila.cf.model.enums.JobType;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -22,12 +27,12 @@ import java.util.stream.StreamSupport;
 @Service
 public class BackupCleanupManager {
 
-    private BackupAgentJobRepository backupAgentJobRepository;
+    private AbstractJobRepository abstractJobRepository;
 
     private FileDestinationRepository fileDestinationRepository;
 
-    public BackupCleanupManager(BackupAgentJobRepository jobRepository, FileDestinationRepository destRepoisitory) {
-        this.backupAgentJobRepository = jobRepository;
+    public BackupCleanupManager(AbstractJobRepository abstractJobRepository, FileDestinationRepository destRepoisitory) {
+        this.abstractJobRepository = abstractJobRepository;
         this.fileDestinationRepository = destRepoisitory;
     }
 
@@ -47,50 +52,49 @@ public class BackupCleanupManager {
         }
     }
 
-    private void removeOldBackupByFiles(BackupPlan plan) {
-        List<BackupJob> jobs = getJobs(plan);
-        FileDestination destination = fileDestinationRepository.findById(plan.getDestinationId()).orElse(null);
-        while (jobs.size() > plan.getRetentionPeriod()) {
-            BackupJob job = jobs.get(0);
-            jobs.remove(job);
-            plan.getJobIds().remove(job.getId());
+    private void removeOldBackupByFiles(BackupPlan backupPlan) {
+        List<AbstractJob> jobs = this.getJobs(backupPlan);
+        FileDestination destination = backupPlan.getFileDestination();
 
+        while (jobs.size() > backupPlan.getRetentionPeriod()) {
+            AbstractJob job = jobs.get(0);;
             delete(job, destination);
         }
     }
 
-    private List<BackupJob> getJobs(BackupPlan plan) {
-        List<String> jobIds = plan.getJobIds();
-        Iterable<BackupJob> jobsIterator = backupAgentJobRepository.findAllById(jobIds);
-        List<BackupJob> jobs = StreamSupport.stream(jobsIterator.spliterator(), false)
-                .filter(job -> job.getStatus().equals(JobStatus.FINISHED))
-                .filter(job -> job.getJobType().equals(BackupJob.BACKUP_JOB))
+    private List<AbstractJob> getJobs(BackupPlan backupPlan) {
+        List<AbstractJob> jobsIterator = abstractJobRepository.findByBackupPlan(backupPlan);
+        List<AbstractJob> jobs = StreamSupport.stream(jobsIterator.spliterator(), false)
+                .filter(job -> job.getStatus().equals(JobStatus.SUCCEEDED))
+                .filter(job -> job.getJobType().equals(JobType.BACKUP))
                 .sorted((o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()))
                 .collect(Collectors.toList());
         return jobs;
     }
 
 
-    private void removeOldBackupByTime(BackupPlan plan, TemporalUnit unit) {
-        FileDestination destination = fileDestinationRepository.findById(plan.getDestinationId()).orElse(null);
+    private void removeOldBackupByTime(BackupPlan backupPlan, TemporalUnit unit) {
+        FileDestination destination = backupPlan.getFileDestination();
 
-        List<BackupJob> jobs = getJobs(plan).stream()
-                .filter(j -> Instant.now().isAfter(j.getStartDate().toInstant().plus(plan.getRetentionPeriod(),
-                        unit)))
+        List<AbstractJob> jobs = getJobs(backupPlan).stream()
+                .filter(j -> Instant.now()
+                .isAfter(j.getStartDate().toInstant()
+                .plus(backupPlan.getRetentionPeriod(), unit)))
                 .collect(Collectors.toList());
 
-        for (BackupJob job : jobs) {
+        for (AbstractJob job : jobs) {
             delete(job, destination);
         }
     }
 
-    public void delete(BackupJob job, FileDestination destination) {
+    public void delete(AbstractJob job, FileDestination destination) {
         if (destination.getType().equals(DestinationType.SWIFT))
             deleteSwift((SwiftFileDestination) destination);
 
         if (destination.getType().equals(DestinationType.S3))
             deleteS3((S3FileDestination) destination);
-        backupAgentJobRepository.deleteById(job.getId());
+
+        abstractJobRepository.delete(job);
 
     }
 

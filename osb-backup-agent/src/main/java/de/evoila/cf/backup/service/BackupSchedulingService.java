@@ -3,8 +3,8 @@ package de.evoila.cf.backup.service;
 
 import de.evoila.cf.backup.config.MessagingConfiguration;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
-import de.evoila.cf.model.BackupPlan;
-import de.evoila.cf.model.BackupRequest;
+import de.evoila.cf.model.api.BackupPlan;
+import de.evoila.cf.model.api.request.BackupRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -73,41 +73,45 @@ public class BackupSchedulingService {
                 .newScheduledThreadPool(10);
     }
 
-    public void addTask(BackupPlan job) {
-        log.debug(String.format("Starting Plan [%s] frequency:", job.getId(), job.getFrequency()));
-        BackupTask task = new BackupTask(job);
+    public void addTask(BackupPlan backupPlan) {
+        log.debug(String.format("Starting Plan [%s] frequency:", backupPlan.getIdAsString(),
+                backupPlan.getFrequency()));
+        BackupTask task = new BackupTask(backupPlan);
         ScheduledFuture scheduledFuture = threadPoolTaskScheduler()
-                .schedule(task, new CronTrigger(job.getFrequency()));
-        scheduledTasks.put(job.getId(), scheduledFuture);
+                .schedule(task, new CronTrigger(backupPlan.getFrequency()));
+        scheduledTasks.put(backupPlan.getIdAsString(), scheduledFuture);
 
     }
 
-    public void removeTask(BackupPlan job) {
-        log.debug(String.format("Removing Plan [%s] frequency:", job.getId(), job.getFrequency()));
-        ScheduledFuture scheduledFuture = scheduledTasks.get(job.getId());
+    public void removeTask(BackupPlan backupPlan) {
+        log.debug(String.format("Removing Plan [%s] frequency:", backupPlan.getIdAsString(),
+                backupPlan.getFrequency()));
+        ScheduledFuture scheduledFuture = scheduledTasks.get(backupPlan.getIdAsString());
         if (scheduledFuture != null)
             scheduledFuture.cancel(false);
     }
 
-    public void updateTask(BackupPlan job) {
-        log.debug(String.format("Updating Plan [%s] frequency:", job.getId(), job.getFrequency()));
-        this.removeTask(job);
-        this.addTask(job);
+    public void updateTask(BackupPlan backupPlan) {
+        log.debug(String.format("Updating Plan [%s] frequency:", backupPlan.getIdAsString(),
+                backupPlan.getFrequency()));
+        this.removeTask(backupPlan);
+        this.addTask(backupPlan);
     }
 
     private class BackupTask implements Runnable {
-        BackupPlan plan;
+        BackupPlan backupPlan;
 
-        public BackupTask(BackupPlan plan) {
-            this.plan = plan;
+        public BackupTask(BackupPlan backupPlan) {
+            this.backupPlan = backupPlan;
         }
 
         @Override
         public void run() {
-            log.debug(String.format("Scheduling Plan [%s] frequency:", plan.getId(), plan.getFrequency()));
+            log.debug(String.format("Scheduling Plan [%s] frequency:", backupPlan.getId(),
+                    backupPlan.getFrequency()));
 
             BackupRequest backupRequest = new BackupRequest();
-            backupRequest.setPlan(plan);
+            backupRequest.setBackupPlan(backupPlan);
 
             rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
                     messagingConfiguration .getRoutingKey(),
