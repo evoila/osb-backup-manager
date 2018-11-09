@@ -4,7 +4,7 @@
 
     <groupId>de.evoila.cf.broker</groupId>
     <artifactId>osb-backup-manager</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>osb-backup-agent</name>
