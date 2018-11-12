@@ -2,6 +2,7 @@ package de.evoila.cf.backup.repository;
 
 import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.api.BackupPlan;
+import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.JobType;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,9 @@ public interface AbstractJobRepository extends MongoRepository<AbstractJob, Obje
 
     Page<AbstractJob> findByServiceInstanceIdAndJobType(String serviceInstanceId,
                                                      JobType type, Pageable pageable);
+
+    Page<AbstractJob> findByServiceInstanceIdAndJobTypeAndStatus(String serviceInstanceId,
+                                                                    JobType type, JobStatus status, Pageable pageable);
 
     List<AbstractJob> findByBackupPlan(BackupPlan plan);
 

@@ -4,6 +4,7 @@ import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.service.BackupCleanupManager;
 import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.api.file.FileDestination;
+import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.JobType;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -12,10 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -43,6 +41,15 @@ public class BackupJobController {
                                                @PageableDefault(size = 50, page = 0) Pageable pageable) {
         Page<AbstractJob> jobs = abstractJobRepository.findByServiceInstanceIdAndJobType(instanceId,
                 JobType.BACKUP, pageable);
+        return new ResponseEntity<>(jobs, HttpStatus.OK);
+    }
+
+    @RequestMapping("/backupJobs/byInstance/{instanceId}/filtered")
+    public ResponseEntity<Page<AbstractJob>> allFiltered(@PathVariable String instanceId,
+                                                 @RequestParam JobStatus jobStatus,
+                                                 @PageableDefault(size = 50, page = 0) Pageable pageable) {
+        Page<AbstractJob> jobs = abstractJobRepository.findByServiceInstanceIdAndJobTypeAndStatus(instanceId,
+                JobType.BACKUP, jobStatus, pageable);
         return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
 
