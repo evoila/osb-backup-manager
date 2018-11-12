@@ -23,6 +23,8 @@ public class BackupPlan extends AbstractEntity {
 
     private boolean paused;
 
+    private boolean compression;
+
     private String frequency;
 
     private RetentionStyle retentionStyle;
@@ -61,6 +63,14 @@ public class BackupPlan extends AbstractEntity {
 
     public void setPaused(boolean paused) {
         this.paused = paused;
+    }
+
+    public boolean isCompression() {
+        return compression;
+    }
+
+    public void setCompression(boolean compression) {
+        this.compression = compression;
     }
 
     public String getFrequency() {
@@ -105,6 +115,9 @@ public class BackupPlan extends AbstractEntity {
 
         if (plan.getFileDestination() != null)
             this.fileDestination = plan.getFileDestination();
+
+        this.paused = plan.isPaused();
+        this.compression = plan.isCompression();
     }
 
     public List<String> getItems() {

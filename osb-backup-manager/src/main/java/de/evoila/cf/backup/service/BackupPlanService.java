@@ -44,20 +44,11 @@ public class BackupPlanService {
 
         try {
             backupPlan = backupPlanRepository.save(backupPlan);
-            backupSchedulingService.addTask(backupPlan);
+            if (!backupPlan.isPaused())
+                backupSchedulingService.addTask(backupPlan);
         } catch (Exception ex) {
             backupPlanRepository.delete(backupPlan);
             throw new BackupException("Could not create Plan", ex);
-        }
-        return backupPlan;
-    }
-
-    public BackupPlan deletePlan(ObjectId planId) {
-        BackupPlan backupPlan = backupPlanRepository.findById(planId)
-                .orElse(null);
-        if (backupPlan != null) {
-            backupSchedulingService.removeTask(backupPlan);
-            backupPlanRepository.delete(backupPlan);
         }
         return backupPlan;
     }
@@ -73,13 +64,26 @@ public class BackupPlanService {
 
         try {
             backupPlan.update(plan);
-            backupSchedulingService.updateTask(backupPlan);
+            if (backupPlan.isPaused())
+                backupSchedulingService.removeTask(backupPlan);
+            else
+                backupSchedulingService.updateTask(backupPlan);
             backupPlanRepository.save(backupPlan);
         } catch (Exception ex) {
             throw new BackupException("Could not update plan", ex);
         }
 
         return plan;
+    }
+
+    public BackupPlan deletePlan(ObjectId planId) {
+        BackupPlan backupPlan = backupPlanRepository.findById(planId)
+                .orElse(null);
+        if (backupPlan != null) {
+            backupSchedulingService.removeTask(backupPlan);
+            backupPlanRepository.delete(backupPlan);
+        }
+        return backupPlan;
     }
 
     public BackupPlan getPlan(ObjectId planId) {
