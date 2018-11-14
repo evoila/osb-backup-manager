@@ -1,5 +1,6 @@
 package de.evoila.cf.model.api.file;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -16,8 +17,10 @@ public class SwiftFileDestination extends FileDestination {
 
     private String domain;
 
+    @JsonProperty("container_name")
     private String containerName;
 
+    @JsonProperty("project_name")
     private String projectName;
 
     public String getAuthUrl() {

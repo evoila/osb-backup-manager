@@ -57,12 +57,10 @@ public abstract class FileDestination extends AbstractEntity {
         this.username = username;
     }
 
-    @JsonIgnore
     public String getPassword() {
         return password;
     }
 
-    @JsonProperty("password")
     public void setPassword(String password) {
         this.password = password;
     }
