@@ -14,10 +14,13 @@ public class AgentRestoreRequest extends AbstractRequest {
 
     public AgentRestoreRequest() {}
 
-    public AgentRestoreRequest(String id, FileDestination destination, EndpointCredential restore) {
+    public AgentRestoreRequest(String id, boolean compression, String privateKey,
+                               FileDestination destination, EndpointCredential restore) {
         this.id = id;
         this.destination = destination;
         this.restore = restore;
+        this.compression = compression;
+        this.encryptionKey = privateKey;
     }
 
     public FileDestination getDestination() {

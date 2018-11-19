@@ -88,10 +88,13 @@ public class BackupServiceManager extends AbstractServiceManager {
             log.info("Starting execution of Backup Job");
             updateState(backupJob, JobStatus.RUNNING);
 
+            int i = 0;
             for (String item : items) {
-                String id = backupJob.getIdAsString() + "-" + item;
+                String id = backupJob.getIdAsString() + i;
 
-                backupExecutorService.backup(endpointCredential, destination, id, item);
+                BackupPlan backupPlan = backupJob.getBackupPlan();
+                backupExecutorService.backup(endpointCredential, destination, id, item,
+                        backupPlan.isCompression(), backupPlan.getPublicKey());
                 backupJob.setDestination(destination);
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -122,6 +125,7 @@ public class BackupServiceManager extends AbstractServiceManager {
                     checkFuture.cancel(true);
                     log.info("Finished execution of Backup Job");
                 });
+                i++;
             }
 
         } catch (Exception e) {

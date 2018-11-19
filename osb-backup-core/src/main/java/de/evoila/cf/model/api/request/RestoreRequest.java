@@ -1,6 +1,7 @@
 package de.evoila.cf.model.api.request;
 
 import de.evoila.cf.model.api.BackupJob;
+import de.evoila.cf.model.api.RestoreJob;
 
 import java.util.List;
 

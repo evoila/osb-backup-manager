@@ -4,47 +4,54 @@
 package de.evoila.cf.model.api.endpoint;
 
 /**
- * @author Christian Brinker, evoila.
- *
+ * @author Christian Brinker, evoila.*
  */
 public class ServerAddress {
-	
 
-	private String name;
+    private String name;
 
-	private String ip;
+    private String ip;
 
-	private int port;
+    private int port;
 
-	public ServerAddress() {
-		super();
-	}
+    private boolean backup;
 
+    public ServerAddress() {
+        super();
+    }
 
-	public ServerAddress(String name) {
-		super();
-		this.name = name;
-	}
+    public ServerAddress(String name) {
+        super();
+        this.name = name;
+    }
 
-	public ServerAddress(String name, String ip) {
-		super();
-		this.name = name;
-		this.ip = ip;
-	}
+    public ServerAddress(String name, String ip) {
+        super();
+        this.name = name;
+        this.ip = ip;
+    }
 
-	public ServerAddress(String name, String ip, int port) {
-		super();
-		this.name = name;
-		this.ip = ip;
-		this.port = port;
-	}
+    public ServerAddress(String name, String ip, int port) {
+        super();
+        this.name = name;
+        this.ip = ip;
+        this.port = port;
+    }
 
-	public ServerAddress(ServerAddress address) {
-		super();
-		this.name = address.name;
-		this.ip = address.ip;
-		this.port = address.port;
-	}
+    public ServerAddress(String name, String ip, int port, boolean backup) {
+        super();
+        this.name = name;
+        this.ip = ip;
+        this.port = port;
+        this.backup = backup;
+    }
+
+    public ServerAddress(ServerAddress address) {
+        super();
+        this.name = address.name;
+        this.ip = address.ip;
+        this.port = address.port;
+    }
 
     public String getName() {
         return name;
@@ -70,4 +77,11 @@ public class ServerAddress {
         this.port = port;
     }
 
+    public boolean isBackup() {
+        return backup;
+    }
+
+    public void setBackup(boolean backup) {
+        this.backup = backup;
+    }
 }

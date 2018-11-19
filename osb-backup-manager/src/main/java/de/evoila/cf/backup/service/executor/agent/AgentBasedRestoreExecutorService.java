@@ -21,7 +21,7 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
 
     @Override
     public void restore(EndpointCredential endpointCredential, FileDestination destination,
-                        RequestDetails requestDetails, String id) throws BackupException {
+                        RequestDetails requestDetails, String id, boolean compression, String privateKey) throws BackupException {
         endpointCredential.setDatabase(requestDetails.getItem());
         destination.setFilename(requestDetails.getFilename());
 
@@ -32,7 +32,7 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
         ));
 
         log.info("Calling Agent to run Restore Process");
-        AgentRestoreRequest agentRestoreRequest = new AgentRestoreRequest(id,
+        AgentRestoreRequest agentRestoreRequest = new AgentRestoreRequest(id, compression, privateKey,
                 destination, endpointCredential);
         headers.add("Authorization", "Basic YmFja3VwOnJ1bGV6");
         HttpEntity entity = new HttpEntity(agentRestoreRequest, headers);

@@ -10,6 +10,7 @@ import de.evoila.cf.model.api.file.FileDestination;
  */
 public interface BackupExecutorService extends BaseExecutorService {
 
-    void backup(EndpointCredential endpointCredential, FileDestination destination, String id, String item) throws BackupException;
+    void backup(EndpointCredential endpointCredential, FileDestination destination, String id,
+                String item, boolean compression, String encryptionKey) throws BackupException;
 
 }

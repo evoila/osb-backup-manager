@@ -14,10 +14,13 @@ public class AgentBackupRequest extends AbstractRequest {
 
     public AgentBackupRequest() {}
 
-    public AgentBackupRequest(String id, FileDestination destination, EndpointCredential backup) {
+    public AgentBackupRequest(String id, boolean compression, String privateKey,
+                              FileDestination destination, EndpointCredential backup) {
         this.id = id;
         this.destination = destination;
         this.backup = backup;
+        this.compression = compression;
+        this.encryptionKey = privateKey;
     }
 
     public FileDestination getDestination() {

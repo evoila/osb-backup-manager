@@ -33,6 +33,10 @@ public class BackupPlan extends AbstractEntity {
 
     List<String> items;
 
+    private String privateKey;
+
+    private String publicKey;
+
     public String getName() {
         return name;
     }
@@ -126,5 +130,26 @@ public class BackupPlan extends AbstractEntity {
 
     public void setItems(List<String> items) {
         this.items = items;
+    }
+
+    public String getPrivateKey() {
+        if (privateKey == null)
+            return "none";
+
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public String getPublicKey() {
+        if (publicKey == null)
+            return "none";
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }

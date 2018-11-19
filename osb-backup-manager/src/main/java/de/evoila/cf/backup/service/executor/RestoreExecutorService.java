@@ -12,6 +12,6 @@ import de.evoila.cf.model.api.request.RequestDetails;
 public interface RestoreExecutorService extends BaseExecutorService {
 
     void restore(EndpointCredential endpointCredential, FileDestination destination,
-                 RequestDetails requestDetails, String id) throws BackupException;
+                 RequestDetails requestDetails, String id, boolean compression, String encryptionKey) throws BackupException;
 
 }

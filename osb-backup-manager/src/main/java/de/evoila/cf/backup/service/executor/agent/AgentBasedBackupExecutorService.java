@@ -20,7 +20,8 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
     public AgentBasedBackupExecutorService() {}
 
     @Override
-    public void backup(EndpointCredential endpointCredential, FileDestination destination, String id, String item) throws BackupException {
+    public void backup(EndpointCredential endpointCredential, FileDestination destination, String id,
+                       String item, boolean compression, String publicKey) throws BackupException {
         endpointCredential.setDatabase(item);
 
         log.info(String.format("Starting backup process to %s:%d/%s",
@@ -30,7 +31,7 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
         ));
 
         log.info("Calling Agent to run Backup Process");
-        AgentBackupRequest agentBackupRequest = new AgentBackupRequest(id,
+        AgentBackupRequest agentBackupRequest = new AgentBackupRequest(id, compression, publicKey,
                 destination, endpointCredential);
 
         HttpEntity entity = new HttpEntity(agentBackupRequest, headers);

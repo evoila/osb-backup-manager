@@ -6,6 +6,7 @@ import de.evoila.cf.model.enums.JobType;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,8 @@ public class RestoreJobController {
 
     @RequestMapping("/restoreJobs/byInstance/{instanceId}")
     public ResponseEntity<Page<AbstractJob>> all(@PathVariable String instanceId,
-                                               @PageableDefault(size = 50, page = 0) Pageable pageable) {
+                                                 @PageableDefault(size = 10,sort = {"startDate"},
+                                                     direction = Sort.Direction.DESC) Pageable pageable) {
         Page<AbstractJob> jobs = abstractJobRepository.findByServiceInstanceIdAndJobType(instanceId,
                 JobType.RESTORE, pageable);
         return new ResponseEntity<>(jobs, HttpStatus.OK);

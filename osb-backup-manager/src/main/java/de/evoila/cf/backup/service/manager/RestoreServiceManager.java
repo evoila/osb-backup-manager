@@ -7,6 +7,7 @@ import de.evoila.cf.backup.service.exception.BackupRequestException;
 import de.evoila.cf.backup.service.executor.RestoreExecutorService;
 import de.evoila.cf.model.agent.response.AgentRestoreResponse;
 import de.evoila.cf.model.api.BackupJob;
+import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.RestoreJob;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
 import de.evoila.cf.model.api.file.FileDestination;
@@ -59,11 +60,13 @@ public class RestoreServiceManager extends AbstractServiceManager {
         if (endpointCredential == null)
             throw new BackupRequestException("Did not find Service Instance");
 
-        return restore(endpointCredential, backupJob.getDestination(), restoreRequest.getItems());
+        return restore(backupJob.getBackupPlan(), endpointCredential, backupJob.getDestination(), restoreRequest.getItems());
     }
 
-    public RestoreJob restore(EndpointCredential endpointCredential, FileDestination destination, List<RequestDetails> items) throws BackupRequestException {
+    public RestoreJob restore(BackupPlan backupPlan, EndpointCredential endpointCredential, FileDestination destination,
+                              List<RequestDetails> items) throws BackupRequestException {
         RestoreJob restoreJob = new RestoreJob(JobType.RESTORE, endpointCredential.getServiceInstance(), JobStatus.STARTED);
+        restoreJob.setBackupPlan(backupPlan);
         abstractJobRepository.save(restoreJob);
 
         Optional<RestoreExecutorService> restoreExecutorService = this
@@ -90,10 +93,13 @@ public class RestoreServiceManager extends AbstractServiceManager {
             log.info("Starting execution of Restore Job");
             updateState(restoreJob, JobStatus.RUNNING);
 
+            int i = 0;
             for (RequestDetails requestDetails : items) {
-                String id = restoreJob.getIdAsString() + "-" + requestDetails.getItem();
+                String id = restoreJob.getIdAsString() + i;
 
-                restoreExecutorService.restore(endpointCredential, destination, requestDetails, id);
+                BackupPlan backupPlan = restoreJob.getBackupPlan();
+                restoreExecutorService.restore(endpointCredential, destination, requestDetails, id,
+                        backupPlan.isCompression(), backupPlan.getPrivateKey());
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentRestoreResponse> completionFuture = new CompletableFuture<>();
@@ -119,6 +125,7 @@ public class RestoreServiceManager extends AbstractServiceManager {
                     checkFuture.cancel(true);
                     log.info("Finished execution of Restore Job");
                 });
+                i++;
             }
         } catch (BackupException e) {
             log.error("Exception during restore execution", e);

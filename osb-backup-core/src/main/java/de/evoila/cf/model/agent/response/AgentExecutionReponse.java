@@ -14,6 +14,9 @@ public class AgentExecutionReponse {
 
     protected String message;
 
+    @JsonProperty("error_message")
+    protected String errorMessage;
+
     @JsonProperty("start_time")
     protected Date startTime;
 
@@ -37,6 +40,14 @@ public class AgentExecutionReponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public Date getStartTime() {
