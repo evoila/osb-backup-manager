@@ -7,7 +7,7 @@ import de.evoila.cf.model.api.endpoint.EndpointCredential;
 import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.enums.JobStatus;
-import de.evoila.cf.security.AcceptSelfSignedClientHttpRequestFactory;
+import de.evoila.cf.security.utils.AcceptSelfSignedClientHttpRequestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * @author Yannic Remmet, Johannes Hiemer.
+ * @authorYannic Remmet, Johannes Hiemer.
  */
 public class AgentBasedExecutorService extends AbstractBackupService {
 
