@@ -16,6 +16,7 @@
     </parent>
 
 	<modules>
+        <module>osb-core</module>
 		<module>osb-backup-core</module>
 		<module>osb-backup-manager</module>
 	</modules>
