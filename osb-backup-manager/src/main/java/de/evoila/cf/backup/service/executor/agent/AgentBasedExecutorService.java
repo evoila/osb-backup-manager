@@ -71,6 +71,7 @@ public class AgentBasedExecutorService extends AbstractBackupService {
                             HttpMethod.GET, entity, type);
             agentExecutionResponse = agentExecutionResponseEntity.getBody();
         } catch (Exception ex) {
+            log.error("Failed to poll task", ex);
             agentExecutionResponse.setStatus(JobStatus.FAILED);
             // we don't need to here anything.
         }
