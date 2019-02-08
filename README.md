@@ -81,7 +81,7 @@ osb-backup-agent [GitHub](https://github.com/evoila/osb-backup-agent)
 # Contribution
 
 # Authors
-Yannic Remmet, evoila GmbH [GitHub Profile](https://github.com/yremmet)
-Marius Berger, evoila GmbH [GitHub Profile](https://github.com/mberger2015)
-Johannes Hiemer, evoila GmbH [GitHub Profile](https://github.com/jhiemer)
+Yannic Remmet, evoila GmbH [GitHub Profile](https://github.com/yremmet).  
+Marius Berger, evoila GmbH [GitHub Profile](https://github.com/mberger2015).  
+Johannes Hiemer, evoila GmbH [GitHub Profile](https://github.com/jhiemer). 
 
