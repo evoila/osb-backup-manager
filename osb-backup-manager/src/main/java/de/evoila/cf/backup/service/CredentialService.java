@@ -2,19 +2,29 @@ package de.evoila.cf.backup.service;
 
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.ServiceInstanceRepository;
-import de.evoila.cf.model.ServiceInstance;
+import de.evoila.cf.backup.service.exception.BackupRequestException;
+import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.catalog.ServerAddress;
+import de.evoila.cf.broker.model.credential.UsernamePasswordCredential;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
-import de.evoila.cf.model.api.endpoint.ServerAddress;
 import de.evoila.cf.model.enums.BackupType;
+import de.evoila.cf.security.credentials.CredentialStore;
+import de.evoila.cf.security.credentials.DefaultCredentialConstants;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Johannes Hiemer.
+ */
 @Component
 public class CredentialService {
 
     private ServiceInstanceRepository serviceInstanceRepository;
 
-    public CredentialService(ServiceInstanceRepository serviceInstanceRepository) {
+    private CredentialStore credentialStore;
+
+    public CredentialService(ServiceInstanceRepository serviceInstanceRepository, CredentialStore credentialStore) {
         this.serviceInstanceRepository = serviceInstanceRepository;
+        this.credentialStore = credentialStore;
     }
 
     public EndpointCredential getCredentials(ServiceInstance serviceInstance) throws BackupException {
@@ -30,18 +40,34 @@ public class CredentialService {
             return false;
         }).findFirst().orElse(null);
 
-        EndpointCredential credential = new EndpointCredential();
+        EndpointCredential endpointCredential = new EndpointCredential();
         if (backupEndpoint != null) {
-            credential.setServiceInstance(fullServiceInstance);
-            credential.setUsername(fullServiceInstance.getUsername());
-            credential.setPassword(fullServiceInstance.getPassword());
-            credential.setHost(backupEndpoint.getIp());
-            credential.setPort(backupEndpoint.getPort());
-            credential.setType(BackupType.AGENT);
+            endpointCredential.setServiceInstance(fullServiceInstance);
+            UsernamePasswordCredential usernamePasswordCredential = credentialStore.getUser(serviceInstance,
+                    DefaultCredentialConstants.BACKUP_CREDENTIALS);
+
+            if (usernamePasswordCredential == null)
+                throw new BackupException("Could not load endpoint credentials for Backup User (see DefaultCredentialsConstants)");
+
+            endpointCredential.setUsername(usernamePasswordCredential.getUsername());
+            endpointCredential.setPassword(usernamePasswordCredential.getPassword());
+
+            UsernamePasswordCredential backupUsernamePasswordCredential = credentialStore.getUser(serviceInstance,
+                    DefaultCredentialConstants.BACKUP_AGENT_CREDENTIALS);
+
+            if (backupUsernamePasswordCredential == null)
+                throw new BackupException("Could not load backup agent credentials for Backup User (see DefaultCredentialsConstants)");
+
+            endpointCredential.setBackupUsername(backupUsernamePasswordCredential.getUsername());
+            endpointCredential.setBackupPassword(backupUsernamePasswordCredential.getPassword());
+
+            endpointCredential.setHost(backupEndpoint.getIp());
+            endpointCredential.setPort(backupEndpoint.getPort());
+            endpointCredential.setType(BackupType.AGENT);
         } else
             throw new BackupException("Could not find valid Backup Endpoint in Hosts of Service Instances");
 
-        return credential;
+        return endpointCredential;
     }
 
 }

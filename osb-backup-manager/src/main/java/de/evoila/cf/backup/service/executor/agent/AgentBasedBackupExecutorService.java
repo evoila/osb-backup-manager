@@ -1,6 +1,5 @@
 package de.evoila.cf.backup.service.executor.agent;
 
-
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.service.executor.BackupExecutorService;
 import de.evoila.cf.model.agent.AgentBackupRequest;
@@ -34,7 +33,10 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
         AgentBackupRequest agentBackupRequest = new AgentBackupRequest(id, compression, publicKey,
                 destination, endpointCredential);
 
+        this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+                endpointCredential.getBackupPassword());
         HttpEntity entity = new HttpEntity(agentBackupRequest, headers);
+
         try {
             restTemplate
                     .exchange("http://" + endpointCredential.getHost() + ":8000/backup",

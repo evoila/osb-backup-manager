@@ -1,6 +1,5 @@
 package de.evoila.cf.backup.service.executor.agent;
 
-
 import de.evoila.cf.backup.service.AbstractBackupService;
 import de.evoila.cf.model.agent.response.AgentExecutionReponse;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
@@ -17,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -51,7 +51,6 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         this.headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/json");
-        headers.add("Authorization", "Basic YmFja3VwOnJ1bGV6");
     }
 
     @ConditionalOnBean(AcceptSelfSignedClientHttpRequestFactory.class)
@@ -60,12 +59,21 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         restTemplate.setRequestFactory(requestFactory);
     }
 
+    public void setAuthenticationHeader(String username, String password) {
+        String token = new String(Base64Utils.encode((username + ":" + password).getBytes()));
+        headers.add("Authorization", "Basic " + token);
+    }
+
     public <T extends AgentExecutionReponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,
                                                                   ParameterizedTypeReference<T> type) {
         T agentExecutionResponse = null;
         try {
             log.info("Polling state of Backup Process for " + id);
+
+            this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+                    endpointCredential.getBackupPassword());
             HttpEntity entity = new HttpEntity(headers);
+
             ResponseEntity<T> agentExecutionResponseEntity = restTemplate
                     .exchange("http://" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id,
                             HttpMethod.GET, entity, type);

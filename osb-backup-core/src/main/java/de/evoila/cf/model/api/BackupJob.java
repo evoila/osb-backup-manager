@@ -1,6 +1,6 @@
 package de.evoila.cf.model.api;
 
-import de.evoila.cf.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.JobType;
 import org.springframework.data.mongodb.core.mapping.Document;

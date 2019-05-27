@@ -1,7 +1,7 @@
 package de.evoila.cf.model.api;
 
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.model.AbstractEntity;
-import de.evoila.cf.model.ServiceInstance;
 import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.enums.RetentionStyle;
 import org.springframework.data.mongodb.core.mapping.DBRef;

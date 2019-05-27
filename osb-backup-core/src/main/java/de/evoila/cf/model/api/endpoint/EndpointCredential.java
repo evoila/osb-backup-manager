@@ -1,11 +1,14 @@
 package de.evoila.cf.model.api.endpoint;
 
-import de.evoila.cf.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.model.enums.BackupType;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.Map;
 
+/**
+ * @author Johannes Hiemer.
+ */
 public class EndpointCredential {
 
     @DBRef
@@ -18,6 +21,10 @@ public class EndpointCredential {
     private String username;
 
     private String password;
+
+    private String backupUsername;
+
+    private String backupPassword;
 
     private String database;
 
@@ -63,6 +70,22 @@ public class EndpointCredential {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getBackupUsername() {
+        return backupUsername;
+    }
+
+    public void setBackupUsername(String backupUsername) {
+        this.backupUsername = backupUsername;
+    }
+
+    public String getBackupPassword() {
+        return backupPassword;
+    }
+
+    public void setBackupPassword(String backupPassword) {
+        this.backupPassword = backupPassword;
     }
 
     public String getDatabase() {

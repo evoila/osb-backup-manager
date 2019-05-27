@@ -17,6 +17,7 @@
 
 	<modules>
         <module>osb-core</module>
+        <module>osb-persistence</module>
 		<module>osb-backup-core</module>
 		<module>osb-backup-manager</module>
 	</modules>
@@ -138,6 +139,10 @@
             <id>st-snapshots</id>
             <name>sonatype-snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 

@@ -1,3 +1,6 @@
 [submodule "osb-core"]
 	path = osb-core
 	url = https://github.com/evoila/osb-core
+[submodule "osb-persistence"]
+	path = osb-persistence
+	url = git@github.com:evoila/osb-persistence.git

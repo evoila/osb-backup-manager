@@ -1,6 +1,5 @@
 package de.evoila.cf.backup.service.executor.agent;
 
-
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.service.executor.RestoreExecutorService;
 import de.evoila.cf.model.agent.AgentRestoreRequest;
@@ -34,7 +33,9 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
         log.info("Calling Agent to run Restore Process");
         AgentRestoreRequest agentRestoreRequest = new AgentRestoreRequest(id, compression, privateKey,
                 destination, endpointCredential);
-        headers.add("Authorization", "Basic YmFja3VwOnJ1bGV6");
+
+        this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+                endpointCredential.getBackupPassword());
         HttpEntity entity = new HttpEntity(agentRestoreRequest, headers);
 
         try {
@@ -42,7 +43,7 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
                 .exchange("http://" + endpointCredential.getHost() + ":8000/restore",
                         HttpMethod.PUT, entity, AgentRestoreResponse.class);
         } catch (Exception ex) {
-            throw new BackupException("Error during Backup Process Run Call", ex);
+            throw new BackupException("Error during Restore Process Run Call", ex);
             // we don't need to here anything.
         }
     }

@@ -1,8 +1,8 @@
 package de.evoila.cf.model.api.file;
 
 import com.fasterxml.jackson.annotation.*;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.model.AbstractEntity;
-import de.evoila.cf.model.ServiceInstance;
 import de.evoila.cf.model.enums.DestinationType;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
