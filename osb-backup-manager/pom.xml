@@ -7,7 +7,7 @@
     <version>1.2.0</version>
     <packaging>jar</packaging>
 
-    <name>osb-backup-agent</name>
+    <name>osb-backup-manager</name>
     <url>http://maven.apache.org</url>
     <properties>
         <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>de.evoila.cf.broker</groupId>
-            <artifactId>backup-model</artifactId>
+            <artifactId>osb-backup-model</artifactId>
             <version>${core.version}</version>
         </dependency>
 
