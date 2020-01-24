@@ -33,7 +33,7 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
         AgentBackupRequest agentBackupRequest = new AgentBackupRequest(id, compression, publicKey,
                 destination, endpointCredential);
 
-        log.info(String.format("Credentials are %s:%d",
+        log.info(String.format("Credentials are %s:%s",
                 endpointCredential.getBackupUsername(),
                 endpointCredential.getBackupPassword()
         ));
