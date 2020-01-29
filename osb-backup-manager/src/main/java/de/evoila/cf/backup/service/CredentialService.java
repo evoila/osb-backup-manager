@@ -11,6 +11,8 @@ import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.security.credentials.CredentialStore;
 import de.evoila.cf.security.credentials.DefaultCredentialConstants;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Johannes Hiemer.
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CredentialService {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
     private ServiceInstanceRepository serviceInstanceRepository;
 
     private CredentialStore credentialStore;
@@ -60,6 +64,7 @@ public class CredentialService {
 
             endpointCredential.setBackupUsername(backupUsernamePasswordCredential.getUsername());
             endpointCredential.setBackupPassword(backupUsernamePasswordCredential.getPassword());
+            log.debug(String.format("Agent Credentials for Service [%s] are %s:%s:", serviceInstance.getId(), backupUsernamePasswordCredential.getUsername(),backupUsernamePasswordCredential.getPassword()));
 
             endpointCredential.setHost(backupEndpoint.getIp());
             endpointCredential.setPort(backupEndpoint.getPort());

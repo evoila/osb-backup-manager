@@ -47,21 +47,19 @@ public class AgentBasedExecutorService extends AbstractBackupService {
     private void postConstruct () {
         destinationTypes.add(DestinationType.SWIFT);
         destinationTypes.add(DestinationType.S3);
-
-        this.headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("Accept", "application/json");
     }
-
     @ConditionalOnBean(AcceptSelfSignedClientHttpRequestFactory.class)
     @Autowired(required = false)
     private void selfSignedRestTemplate(AcceptSelfSignedClientHttpRequestFactory requestFactory) {
         restTemplate.setRequestFactory(requestFactory);
     }
-
-    public void setAuthenticationHeader(String username, String password) {
+    public HttpHeaders setAuthenticationHeader(String username, String password) {
+        this.headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Accept", "application/json");
         String token = new String(Base64Utils.encode((username + ":" + password).getBytes()));
         headers.add("Authorization", "Basic " + token);
+        return headers;
     }
 
     public <T extends AgentExecutionReponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,

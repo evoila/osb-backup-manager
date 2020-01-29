@@ -7,6 +7,7 @@ import de.evoila.cf.model.agent.response.AgentBackupResponse;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
 import de.evoila.cf.model.api.file.FileDestination;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,10 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
         ));
         this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
                 endpointCredential.getBackupPassword());
-        HttpEntity entity = new HttpEntity(agentBackupRequest, headers);
+        HttpHeaders httpHeaders = this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+                endpointCredential.getBackupPassword());
+        HttpEntity entity = new HttpEntity(agentBackupRequest, httpHeaders);
+
 
         try {
             restTemplate
