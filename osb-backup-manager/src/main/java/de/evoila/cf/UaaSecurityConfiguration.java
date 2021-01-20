@@ -1,3 +1,4 @@
+/*
 package de.evoila.cf;
 
 import de.evoila.cf.security.uaa.UaaRelyingPartyFilter;
@@ -61,3 +62,4 @@ public class UaaSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return entryPoint;
     }
 }
+*/
