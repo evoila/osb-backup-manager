@@ -12,6 +12,8 @@ public class S3FileDestination extends FileDestination {
 
     private String authSecret;
 
+    private String endpoint;
+
     private String region;
 
     private String bucket;
@@ -34,6 +36,14 @@ public class S3FileDestination extends FileDestination {
 
     public void setAuthSecret(String authSecret) {
         this.authSecret = authSecret;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     public String getRegion() {

@@ -73,7 +73,10 @@ public class DestinationController extends BaseController {
                         swiftFileDestination.getPassword(), swiftFileDestination.getDomain(), swiftFileDestination.getProjectName());
             } else if (destination.getType().equals(DestinationType.S3)) {
                 S3FileDestination s3FileDestination = (S3FileDestination) destination;
-                new S3Client(s3FileDestination.getRegion(), s3FileDestination.getAuthKey(), s3FileDestination.getAuthSecret());
+                S3Client s3client = new S3Client(s3FileDestination.getEndpoint(), s3FileDestination.getRegion(), s3FileDestination.getAuthKey(),
+                        s3FileDestination.getAuthSecret());
+                //Simply creating a client won't throw an exception in case the data is false. Therefore we need an explicit validation for writing data
+                s3client.validate(s3FileDestination.getBucket());
             }
             return new ResponseEntity<>(destination, HttpStatus.OK);
         } catch (Exception e) {

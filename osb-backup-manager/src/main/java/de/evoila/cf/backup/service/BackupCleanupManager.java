@@ -99,7 +99,8 @@ public class BackupCleanupManager {
     }
 
     private void deleteS3(S3FileDestination destination) {
-        S3Client s3Client = new S3Client(destination.getRegion(),
+        S3Client s3Client = new S3Client(destination.getEndpoint(),
+                destination.getRegion(),
                 destination.getUsername(),
                 destination.getPassword());
         s3Client.delete(destination.getBucket(), destination.getFilename());

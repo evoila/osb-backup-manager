@@ -3,8 +3,10 @@
  */
 package de.evoila.cf.backup.clients;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AbstractAmazonS3;
 import com.amazonaws.services.s3.AmazonS3;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
@@ -44,15 +47,41 @@ public class S3Client extends AbstractAmazonS3 implements FileClient {
 
     private static final Logger log = LoggerFactory.getLogger(S3Client.class);
 
+    private static final String s3ValidationFileName = "s3_validation_testfile.txt";
+
     private AmazonS3 client;
 
-    public S3Client(String region, String awsId, String awsKey) {
-        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(awsId, awsKey);
+    public S3Client(String endpoint, String region, String awsId, String awsKey) {
+        AWSCredentials awsCredentials = new BasicAWSCredentials(awsId, awsKey);
 
-        this.client = AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.fromName(region))
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .build();
+        if(endpoint.isEmpty()) {
+            this.client = AmazonS3ClientBuilder.standard()
+                    .withRegion(Regions.fromName(region))
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .build();
+        } else {
+            this.client = AmazonS3ClientBuilder
+                    .standard()
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, !region.isEmpty() ? Regions.fromName(region).getName() : ""))
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .build();
+        }
+    }
+
+    /**
+     * Checks whether the created Client is able to write data to the specified endpoint & bucket
+     * @param bucket
+     * @throws URISyntaxException
+     */
+    public void validate(String bucket) throws URISyntaxException {
+        log.info("Starting validation for " + client.getUrl(bucket, ""));
+
+        URL resouce = getClass().getClassLoader().getResource(s3ValidationFileName);
+        File file = new File(resouce.toURI());
+
+        upload(file, bucket, "s3_validation_testfile", "txt");
+
+        delete(bucket, "s3_validation_testfile", "txt");
     }
 
     @Override
