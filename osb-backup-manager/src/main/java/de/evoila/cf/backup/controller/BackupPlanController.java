@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.validation.Valid;
+
 /**
  * @author Yannic Remmet, Johannes Hiemer.
  */
@@ -29,14 +31,13 @@ public class BackupPlanController {
 
     @RequestMapping(value = "/backupPlans/byInstance/{instanceId}", method = RequestMethod.GET)
     public ResponseEntity<Page<BackupPlan>> all(@PathVariable() String instanceId,
-                                                      @PageableDefault(size = 50, page = 0) Pageable pageable) {
+                                                @PageableDefault(size = 50, page = 0) Pageable pageable) {
         Page<BackupPlan> response = backupPlanService.getPlans(instanceId, pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/backupPlans", method = RequestMethod.POST)
-    public ResponseEntity<BackupPlan> create(@RequestBody BackupPlan plan) throws BackupException {
-
+    public ResponseEntity<BackupPlan> create(@Valid @RequestBody BackupPlan plan) throws BackupException {
         BackupPlan response = backupPlanService.createPlan(plan);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
