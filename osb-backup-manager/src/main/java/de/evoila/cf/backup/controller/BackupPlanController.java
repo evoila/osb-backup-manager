@@ -57,7 +57,7 @@ public class BackupPlanController {
     }
 
     @RequestMapping(value = "/backupPlans/{planId}", method = RequestMethod.PATCH)
-    public ResponseEntity<BackupPlan> update(@PathVariable() ObjectId planId, @RequestBody BackupPlan plan)
+    public ResponseEntity<BackupPlan> update(@PathVariable() ObjectId planId, @Valid @RequestBody BackupPlan plan)
           throws BackupException {
 
         BackupPlan response = backupPlanService.updatePlan(planId, plan);

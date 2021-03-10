@@ -59,7 +59,7 @@ public class BackupPlanService {
 
         if(backupPlan == null)
             throw new BackupException("Backup plan not found" + planId);
-        if(fileDestinationRepository.findById(plan.getId()).isPresent())
+        if(!fileDestinationRepository.findById(plan.getFileDestination().getId()).isPresent())
             throw new BackupException("Backup Destination does not exists ID = " + plan.getId());
 
         try {
