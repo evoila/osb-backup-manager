@@ -76,8 +76,8 @@ public class S3Client extends AbstractAmazonS3 implements FileClient {
     public void validate(String bucket) throws URISyntaxException {
         log.info("Starting validation for " + client.getUrl(bucket, ""));
 
-        URL resouce = getClass().getClassLoader().getResource(s3ValidationFileName);
-        File file = new File(resouce.toURI());
+        URL resource = getClass().getClassLoader().getResource(s3ValidationFileName);
+        File file = new File(resource.toURI());
 
         upload(file, bucket, "s3_validation_testfile", "txt");
 
