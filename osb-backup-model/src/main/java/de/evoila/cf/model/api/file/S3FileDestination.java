@@ -18,6 +18,8 @@ public class S3FileDestination extends FileDestination {
 
     private String bucket;
 
+    private boolean skipSSL;
+
     public S3FileDestination() {
         super();
     }
@@ -62,4 +64,18 @@ public class S3FileDestination extends FileDestination {
         this.bucket = bucket;
     }
 
+    public boolean isSkipSSL() {
+        return skipSSL;
+    }
+
+    public void setSkipSSL(boolean skipSSL) {
+        this.skipSSL = skipSSL;
+    }
+
+    public void evaluateSkipSSL() {
+        if(endpoint.startsWith("http"))
+            setSkipSSL(true);
+
+        setSkipSSL(false);
+    }
 }

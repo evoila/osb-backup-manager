@@ -8,6 +8,8 @@ import de.evoila.cf.model.api.file.S3FileDestination;
 import de.evoila.cf.model.api.file.SwiftFileDestination;
 import de.evoila.cf.model.enums.DestinationType;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class DestinationController extends BaseController {
+
+    Logger log = LoggerFactory.getLogger(DestinationController.class);
 
     FileDestinationRepository destinationRepository;
 
@@ -53,19 +57,23 @@ public class DestinationController extends BaseController {
 
     @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
-        FileDestination response = destinationRepository.save(destination);
+        S3FileDestination s3FileDestination = (S3FileDestination) destination;
+        s3FileDestination.evaluateSkipSSL();
+        FileDestination response = destinationRepository.save(s3FileDestination);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.PATCH)
     public ResponseEntity<FileDestination> update(@PathVariable() ObjectId destinationId,
                                                   @RequestBody FileDestination destination) {
-        destinationRepository.save(destination);
+        S3FileDestination s3FileDestination = (S3FileDestination) destination;
+        s3FileDestination.evaluateSkipSSL();
+        destinationRepository.save(s3FileDestination);
         return new ResponseEntity<>(destination, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> validate(@RequestBody FileDestination destination) {
+    public ResponseEntity validate(@RequestBody FileDestination destination) {
         try {
             if (destination.getType().equals(DestinationType.SWIFT)) {
                 SwiftFileDestination swiftFileDestination = (SwiftFileDestination) destination;
@@ -80,7 +88,8 @@ public class DestinationController extends BaseController {
             }
             return new ResponseEntity<>(destination, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(destination, HttpStatus.BAD_REQUEST);
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
     }
