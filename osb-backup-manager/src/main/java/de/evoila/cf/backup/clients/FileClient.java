@@ -1,11 +1,13 @@
 package de.evoila.cf.backup.clients;
 
+import io.minio.errors.*;
 import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public interface FileClient {
 
@@ -16,12 +18,12 @@ public interface FileClient {
         return identifier + "." + extension;
     }
 
-    String upload(File file, String bucket, String identifier, String extension) throws MalformedURLException;
+    String upload(File file, String bucket, String identifier, String extension) throws IOException, ServerException, InsufficientDataException, InternalException, InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException, XmlParserException, ErrorResponseException;
 
-    URL generateUrl(String bucket, String identifier, String extension) throws MalformedURLException;
+    URL generateUrl(String bucket, String identifier, String extension) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException;
 
     File download(String bucket, String identifier, String extension, String path)
-            throws IOException, IllegalArgumentException;
+            throws IOException, IllegalArgumentException, ServerException, InsufficientDataException, InvalidKeyException, InvalidResponseException, NoSuchAlgorithmException, InternalException, XmlParserException, ErrorResponseException;
 
-    void delete(String bucket, String identifier, String extension);
+    void delete(String bucket, String identifier, String extension) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException;
 }
