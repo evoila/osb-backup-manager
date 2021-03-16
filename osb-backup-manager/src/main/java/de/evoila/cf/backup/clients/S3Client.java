@@ -148,12 +148,7 @@ public class S3Client implements FileClient {
 
         String filename = FileClient.concatIdentifier(identifier, extension);
 
-        client.removeObject(RemoveObjectArgs.builder()
-                .bucket(bucket)
-                .object(filename)
-                .build());
-
-        log.info("File deleted: " + bucket + "/" + filename);
+        delete(bucket, filename);
     }
 
     public void delete(String bucket, String filename) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
