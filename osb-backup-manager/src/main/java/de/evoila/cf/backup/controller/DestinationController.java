@@ -2,6 +2,7 @@ package de.evoila.cf.backup.controller;
 
 import de.evoila.cf.backup.clients.S3Client;
 import de.evoila.cf.backup.clients.SwiftClient;
+import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
 import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.api.file.S3FileDestination;
@@ -28,8 +29,11 @@ public class DestinationController extends BaseController {
 
     FileDestinationRepository destinationRepository;
 
-    public DestinationController(FileDestinationRepository destinationRepository) {
+    BackupPlanRepository backupPlanRepository;
+
+    public DestinationController(FileDestinationRepository destinationRepository, BackupPlanRepository backupPlanRepository) {
         this.destinationRepository = destinationRepository;
+        this.backupPlanRepository = backupPlanRepository;
     }
 
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.GET)
@@ -50,6 +54,9 @@ public class DestinationController extends BaseController {
         FileDestination fileDestination = destinationRepository.findById(destinationId).orElse(null);
         if (fileDestination == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        if(!isDestinationDeletable(fileDestination)) {
+            return new ResponseEntity(HttpStatus.CONFLICT);
         }
         destinationRepository.delete(fileDestination);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -92,5 +99,17 @@ public class DestinationController extends BaseController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    /**
+     * Checks if a file destination that should be deleted is still used in one or more plans.
+     * @param destination The destination the user wants to delete
+     * @return True if the destination is not used in any plans, false if it is
+     */
+    private boolean isDestinationDeletable(FileDestination destination) {
+        if(backupPlanRepository.findByFileDestinationId(destination.getId()).isEmpty())
+            return true;
+
+        return false;
     }
 }
