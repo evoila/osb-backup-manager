@@ -73,9 +73,9 @@ public class S3FileDestination extends FileDestination {
     }
 
     public void evaluateSkipSSL() {
-        if(endpoint.startsWith("http"))
-            setSkipSSL(true);
+        if(endpoint.startsWith("https"))
+            setSkipSSL(false);
 
-        setSkipSSL(false);
+        setSkipSSL(true);
     }
 }
