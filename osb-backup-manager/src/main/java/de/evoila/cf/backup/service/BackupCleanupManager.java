@@ -4,6 +4,7 @@ import de.evoila.cf.backup.clients.S3Client;
 import de.evoila.cf.backup.clients.SwiftClient;
 import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
+import de.evoila.cf.model.agent.response.AgentBackupResponse;
 import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.file.FileDestination;
@@ -95,20 +96,21 @@ public class BackupCleanupManager {
         if (destination.getType().equals(DestinationType.SWIFT))
             deleteSwift((SwiftFileDestination) destination);
 
-        if (destination.getType().equals(DestinationType.S3))
-            deleteS3((S3FileDestination) destination);
+        if (destination.getType().equals(DestinationType.S3)) {
+            job.getAgentExecutionReponses().entrySet().forEach(entry ->
+                    deleteS3((S3FileDestination) destination, ((AgentBackupResponse) entry.getValue()).getFilename()));
+        }
 
         abstractJobRepository.delete(job);
-
     }
 
-    private void deleteS3(S3FileDestination destination) {
+    private void deleteS3(S3FileDestination destination, String filename) {
         S3Client s3Client = new S3Client(destination.getEndpoint(),
                 destination.getRegion(),
-                destination.getUsername(),
-                destination.getPassword());
+                destination.getAuthKey(),
+                destination.getAuthSecret());
         try {
-            s3Client.delete(destination.getBucket(), destination.getFilename());
+            s3Client.delete(destination.getBucket(), filename);
         } catch (IOException | InvalidKeyException | InvalidResponseException | InsufficientDataException |
                  NoSuchAlgorithmException | ServerException | InternalException | XmlParserException |
                  ErrorResponseException e) {
