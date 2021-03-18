@@ -66,6 +66,13 @@ public class BackupJobController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    @RequestMapping(value = "/backupJobs/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
+    public ResponseEntity delete(@PathVariable String serviceInstanceId) {
+        abstractJobRepository.deleteByServiceInstanceId(serviceInstanceId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @RequestMapping(value = "/backupJobs/{jobId}/file", method = RequestMethod.DELETE)
     public ResponseEntity deleteFile(@PathVariable ObjectId jobId, @RequestBody FileDestination destination) {
         AbstractJob job = abstractJobRepository.findById(jobId).orElse(null);

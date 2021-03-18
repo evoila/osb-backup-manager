@@ -1,6 +1,7 @@
 package de.evoila.cf.backup.controller;
 
 import de.evoila.cf.backup.controller.exception.BackupException;
+import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.service.BackupPlanService;
 import de.evoila.cf.model.api.BackupPlan;
 import org.bson.types.ObjectId;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -25,8 +27,11 @@ public class BackupPlanController {
 
     BackupPlanService backupPlanService;
 
-    public BackupPlanController(BackupPlanService backupPlanService) {
+    BackupPlanRepository backupPlanRepository;
+
+    public BackupPlanController(BackupPlanService backupPlanService, BackupPlanRepository backupPlanRepository) {
         this.backupPlanService = backupPlanService;
+        this.backupPlanRepository = backupPlanRepository;
     }
 
     @RequestMapping(value = "/backupPlans/byInstance/{instanceId}", method = RequestMethod.GET)
@@ -54,6 +59,17 @@ public class BackupPlanController {
 
         BackupPlan response = backupPlanService.deletePlan(planId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/backupPlans/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
+    public ResponseEntity delete(@PathVariable String serviceInstanceId) {
+        List<BackupPlan> plansToDelete = backupPlanRepository.findByServiceInstanceId(serviceInstanceId);
+
+        for(BackupPlan plan : plansToDelete) {
+            backupPlanService.deletePlan(plan.getId());
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/backupPlans/{planId}", method = RequestMethod.PATCH)

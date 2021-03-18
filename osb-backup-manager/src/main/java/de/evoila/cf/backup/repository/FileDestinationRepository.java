@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.List;
+
 /**
  * @author Yanic Remmet, Johannes Hiemer.
  */
@@ -13,4 +15,5 @@ public interface FileDestinationRepository extends MongoRepository<FileDestinati
 
     Page<FileDestination> findByServiceInstanceId(String serviceInstanceId, Pageable pageable);
 
+    List<FileDestination> deleteByServiceInstanceId(String serviceInstanceId);
 }

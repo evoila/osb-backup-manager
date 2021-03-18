@@ -24,4 +24,6 @@ public interface AbstractJobRepository extends MongoRepository<AbstractJob, Obje
 
     List<AbstractJob> findByBackupPlan(BackupPlan plan);
 
+    List<AbstractJob> deleteByServiceInstanceId(String serviceInstanceId);
+
 }

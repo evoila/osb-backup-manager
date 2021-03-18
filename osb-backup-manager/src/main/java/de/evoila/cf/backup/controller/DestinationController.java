@@ -62,6 +62,13 @@ public class DestinationController extends BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
+    public ResponseEntity delete(@PathVariable String serviceInstanceId) {
+        destinationRepository.deleteByServiceInstanceId(serviceInstanceId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
         S3FileDestination s3FileDestination = (S3FileDestination) destination;

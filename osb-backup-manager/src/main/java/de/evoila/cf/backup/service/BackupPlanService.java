@@ -22,8 +22,6 @@ public class BackupPlanService {
 
     FileDestinationRepository fileDestinationRepository;
 
-    ServiceInstanceRepository serviceInstanceRepository;
-
     public BackupPlanService(BackupPlanRepository backupPlanRepository,
                              BackupSchedulingService backupSchedulingService,
                              FileDestinationRepository fileDestinationRepository,
@@ -31,7 +29,6 @@ public class BackupPlanService {
         this.backupPlanRepository = backupPlanRepository;
         this.backupSchedulingService = backupSchedulingService;
         this.fileDestinationRepository = fileDestinationRepository;
-        this.serviceInstanceRepository = serviceInstanceRepository;
     }
 
     public Page<BackupPlan> getPlans(String serviceInstanceId, Pageable pageable) {
