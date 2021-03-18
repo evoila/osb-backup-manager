@@ -2,12 +2,15 @@ package de.evoila.cf.backup.controller;
 
 import de.evoila.cf.backup.clients.S3Client;
 import de.evoila.cf.backup.clients.SwiftClient;
+import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
 import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.api.file.S3FileDestination;
 import de.evoila.cf.model.api.file.SwiftFileDestination;
 import de.evoila.cf.model.enums.DestinationType;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,10 +25,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class DestinationController extends BaseController {
 
+    Logger log = LoggerFactory.getLogger(DestinationController.class);
+
     FileDestinationRepository destinationRepository;
 
-    public DestinationController(FileDestinationRepository destinationRepository) {
+    BackupPlanRepository backupPlanRepository;
+
+    public DestinationController(FileDestinationRepository destinationRepository, BackupPlanRepository backupPlanRepository) {
         this.destinationRepository = destinationRepository;
+        this.backupPlanRepository = backupPlanRepository;
     }
 
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.GET)
@@ -47,25 +55,32 @@ public class DestinationController extends BaseController {
         if (fileDestination == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
+        if(!isDestinationDeletable(fileDestination)) {
+            return new ResponseEntity(HttpStatus.CONFLICT);
+        }
         destinationRepository.delete(fileDestination);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
-        FileDestination response = destinationRepository.save(destination);
+        S3FileDestination s3FileDestination = (S3FileDestination) destination;
+        s3FileDestination.evaluateSkipSSL();
+        FileDestination response = destinationRepository.save(s3FileDestination);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.PATCH)
     public ResponseEntity<FileDestination> update(@PathVariable() ObjectId destinationId,
                                                   @RequestBody FileDestination destination) {
-        destinationRepository.save(destination);
+        S3FileDestination s3FileDestination = (S3FileDestination) destination;
+        s3FileDestination.evaluateSkipSSL();
+        destinationRepository.save(s3FileDestination);
         return new ResponseEntity<>(destination, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> validate(@RequestBody FileDestination destination) {
+    public ResponseEntity validate(@RequestBody FileDestination destination) {
         try {
             if (destination.getType().equals(DestinationType.SWIFT)) {
                 SwiftFileDestination swiftFileDestination = (SwiftFileDestination) destination;
@@ -73,12 +88,28 @@ public class DestinationController extends BaseController {
                         swiftFileDestination.getPassword(), swiftFileDestination.getDomain(), swiftFileDestination.getProjectName());
             } else if (destination.getType().equals(DestinationType.S3)) {
                 S3FileDestination s3FileDestination = (S3FileDestination) destination;
-                new S3Client(s3FileDestination.getRegion(), s3FileDestination.getAuthKey(), s3FileDestination.getAuthSecret());
+                S3Client s3client = new S3Client(s3FileDestination.getEndpoint(), s3FileDestination.getRegion(), s3FileDestination.getAuthKey(),
+                        s3FileDestination.getAuthSecret());
+                //Simply creating a client won't throw an exception in case the data is false. Therefore we need an explicit validation for writing data
+                s3client.validate(s3FileDestination.getBucket());
             }
             return new ResponseEntity<>(destination, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(destination, HttpStatus.BAD_REQUEST);
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    /**
+     * Checks if a file destination that should be deleted is still used in one or more plans.
+     * @param destination The destination the user wants to delete
+     * @return True if the destination is not used in any plans, false if it is
+     */
+    private boolean isDestinationDeletable(FileDestination destination) {
+        if(backupPlanRepository.findByFileDestinationId(destination.getId()).isEmpty())
+            return true;
+
+        return false;
     }
 }

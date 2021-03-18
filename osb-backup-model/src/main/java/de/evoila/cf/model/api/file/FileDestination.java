@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @author Yannic Remmet, Johannes Hiemer
  */
 @Document(collection = "fileDestination")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = S3FileDestination.class, name = "S3"),
         @JsonSubTypes.Type(value = SwiftFileDestination.class, name = "SWIFT")

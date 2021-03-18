@@ -29,7 +29,6 @@ public class JobQueueConfigurer {
     @Bean
     public SimpleMessageListenerContainer jobMessageContainer() {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setMessageConverter(new Jackson2JsonMessageConverter());
         container.setConnectionFactory(connectionFactory);
         container.setQueues(jobQueue());
         container.setMessageListener(jobMessageLister);

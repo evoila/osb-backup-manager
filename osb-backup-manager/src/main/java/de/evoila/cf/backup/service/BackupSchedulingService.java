@@ -16,6 +16,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -78,7 +79,7 @@ public class BackupSchedulingService {
                 backupPlan.getFrequency()));
         BackupTask task = new BackupTask(backupPlan);
         ScheduledFuture scheduledFuture = threadPoolTaskScheduler()
-                .schedule(task, new CronTrigger(backupPlan.getFrequency()));
+                .schedule(task, new CronTrigger(backupPlan.getFrequency(), Calendar.getInstance().getTimeZone()));
         scheduledTasks.put(backupPlan.getIdAsString(), scheduledFuture);
 
     }

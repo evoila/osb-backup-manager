@@ -12,9 +12,13 @@ public class S3FileDestination extends FileDestination {
 
     private String authSecret;
 
+    private String endpoint;
+
     private String region;
 
     private String bucket;
+
+    private boolean skipSSL;
 
     public S3FileDestination() {
         super();
@@ -36,6 +40,14 @@ public class S3FileDestination extends FileDestination {
         this.authSecret = authSecret;
     }
 
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
     public String getRegion() {
         return region;
     }
@@ -52,4 +64,19 @@ public class S3FileDestination extends FileDestination {
         this.bucket = bucket;
     }
 
+    public boolean isSkipSSL() {
+        return skipSSL;
+    }
+
+    public void setSkipSSL(boolean skipSSL) {
+        this.skipSSL = skipSSL;
+    }
+
+    public void evaluateSkipSSL() {
+        if(endpoint.startsWith("https")) {
+            setSkipSSL(false);
+        } else {
+            setSkipSSL(true);
+        }
+    }
 }

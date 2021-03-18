@@ -12,8 +12,12 @@ import de.evoila.cf.model.api.file.SwiftFileDestination;
 import de.evoila.cf.model.enums.DestinationType;
 import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.JobType;
+import io.minio.errors.*;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -99,10 +103,17 @@ public class BackupCleanupManager {
     }
 
     private void deleteS3(S3FileDestination destination) {
-        S3Client s3Client = new S3Client(destination.getRegion(),
+        S3Client s3Client = new S3Client(destination.getEndpoint(),
+                destination.getRegion(),
                 destination.getUsername(),
                 destination.getPassword());
-        s3Client.delete(destination.getBucket(), destination.getFilename());
+        try {
+            s3Client.delete(destination.getBucket(), destination.getFilename());
+        } catch (IOException | InvalidKeyException | InvalidResponseException | InsufficientDataException |
+                 NoSuchAlgorithmException | ServerException | InternalException | XmlParserException |
+                 ErrorResponseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void deleteSwift(SwiftFileDestination destination) {

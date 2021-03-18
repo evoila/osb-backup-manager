@@ -10,7 +10,6 @@
     <name>osb-backup-manager</name>
     <url>http://maven.apache.org</url>
     <properties>
-        <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -74,11 +73,11 @@
             <version>1.0.2-SNAPSHOT</version>
         </dependency>
 
-        <!-- Storage Adapter -->
+        <!-- https://mvnrepository.com/artifact/io.minio/minio -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.427</version>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.1.0</version>
         </dependency>
 
         <dependency>
