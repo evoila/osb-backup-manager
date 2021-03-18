@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Johannes Hiemer.
  */
-public class AgentRestoreResponse extends AgentExecutionReponse {
+public class AgentRestoreResponse extends AgentExecutionResponse {
 
     @JsonProperty("pre_restore_lock_log")
     private String preRestoreLockLog;

@@ -1,7 +1,7 @@
 package de.evoila.cf.backup.service.executor.agent;
 
 import de.evoila.cf.backup.service.AbstractBackupService;
-import de.evoila.cf.model.agent.response.AgentExecutionReponse;
+import de.evoila.cf.model.agent.response.AgentExecutionResponse;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
 import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
@@ -62,8 +62,8 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         return headers;
     }
 
-    public <T extends AgentExecutionReponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,
-                                                                  ParameterizedTypeReference<T> type) {
+    public <T extends AgentExecutionResponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,
+                                                                   ParameterizedTypeReference<T> type) {
         T agentExecutionResponse = null;
         try {
             log.info("Polling state of Backup Process for " + id);

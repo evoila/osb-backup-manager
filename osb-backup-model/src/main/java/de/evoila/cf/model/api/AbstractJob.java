@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.model.AbstractEntity;
-import de.evoila.cf.model.agent.response.AgentExecutionReponse;
+import de.evoila.cf.model.agent.response.AgentExecutionResponse;
 import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.JobType;
@@ -42,7 +42,7 @@ public abstract class AbstractJob extends AbstractEntity {
 
     protected List<String> jobLogs = new ArrayList<>();
 
-    protected Map<String, AgentExecutionReponse> agentExecutionReponses = new HashMap<>();
+    protected Map<String, AgentExecutionResponse> agentExecutionReponses = new HashMap<>();
 
     @DBRef
     protected BackupPlan backupPlan;
@@ -103,11 +103,11 @@ public abstract class AbstractJob extends AbstractEntity {
         this.jobLogs = jobLogs;
     }
 
-    public Map<String, AgentExecutionReponse> getAgentExecutionReponses() {
+    public Map<String, AgentExecutionResponse> getAgentExecutionReponses() {
         return agentExecutionReponses;
     }
 
-    public void setAgentExecutionReponses(Map<String, AgentExecutionReponse> agentExecutionReponses) {
+    public void setAgentExecutionReponses(Map<String, AgentExecutionResponse> agentExecutionReponses) {
         this.agentExecutionReponses = agentExecutionReponses;
     }
 

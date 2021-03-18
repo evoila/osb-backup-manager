@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * @author Johannes Hiemer.
  */
-public class AgentExecutionReponse {
+public class AgentExecutionResponse {
 
     protected JobStatus status;
 
