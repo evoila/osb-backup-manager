@@ -3,7 +3,7 @@ package de.evoila.cf.backup.service;
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
-import de.evoila.cf.backup.repository.ServiceInstanceRepository;
+import de.evoila.cf.backup.service.manager.BackupServiceManager;
 import de.evoila.cf.model.api.BackupPlan;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -22,13 +22,16 @@ public class BackupPlanService {
 
     FileDestinationRepository fileDestinationRepository;
 
+    BackupServiceManager backupServiceManager;
+
     public BackupPlanService(BackupPlanRepository backupPlanRepository,
                              BackupSchedulingService backupSchedulingService,
                              FileDestinationRepository fileDestinationRepository,
-                             ServiceInstanceRepository serviceInstanceRepository) {
+                             BackupServiceManager backupServiceManager) {
         this.backupPlanRepository = backupPlanRepository;
         this.backupSchedulingService = backupSchedulingService;
         this.fileDestinationRepository = fileDestinationRepository;
+        this.backupServiceManager = backupServiceManager;
     }
 
     public Page<BackupPlan> getPlans(String serviceInstanceId, Pageable pageable) {
@@ -65,6 +68,7 @@ public class BackupPlanService {
                 backupSchedulingService.removeTask(backupPlan);
             else
                 backupSchedulingService.updateTask(backupPlan);
+            backupServiceManager.deleteIfDataRetentionIsReached(backupPlan);
             backupPlanRepository.save(backupPlan);
         } catch (Exception ex) {
             throw new BackupException("Could not update plan", ex);

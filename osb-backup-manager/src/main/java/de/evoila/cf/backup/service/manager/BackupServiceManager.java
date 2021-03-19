@@ -84,6 +84,7 @@ public class BackupServiceManager extends AbstractServiceManager {
 
         taskExecutor.execute(() -> executeBackup(backupExecutorService.get(), endpointCredential,
                 backupJob, destination, backupPlan.getItems()));
+
         return backupJob;
     }
 
@@ -92,6 +93,8 @@ public class BackupServiceManager extends AbstractServiceManager {
         try {
             log.info("Starting execution of Backup Job");
             updateState(backupJob, JobStatus.RUNNING);
+
+            List<CompletableFuture<AgentBackupResponse>> completionFutures = new ArrayList<>();
 
             int i = 0;
             for (String item : items) {
@@ -104,6 +107,7 @@ public class BackupServiceManager extends AbstractServiceManager {
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentBackupResponse> completionFuture = new CompletableFuture<>();
+                completionFutures.add(completionFuture);
                 ScheduledFuture checkFuture = executor.scheduleAtFixedRate(() -> {
                     try {
                         AgentBackupResponse agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
@@ -133,12 +137,13 @@ public class BackupServiceManager extends AbstractServiceManager {
                 i++;
             }
 
-            while(backupJob.getStatus().equals(JobStatus.STARTED) ||
-                    backupJob.getStatus().equals(JobStatus.RUNNING)) {
-                Thread.sleep(1000);
+            for(CompletableFuture completionFuture : completionFutures) {
+                completionFuture.get();
             }
 
-            deleteIfDataRetentionIsReached(backupJob.getBackupPlan());
+            if(!backupJob.getStatus().equals(JobStatus.FAILED)) {
+                deleteIfDataRetentionIsReached(backupJob.getBackupPlan());
+            }
 
         } catch (Exception e) {
             log.error("Exception during backup execution", e);
@@ -146,7 +151,7 @@ public class BackupServiceManager extends AbstractServiceManager {
         }
     }
 
-    private void deleteIfDataRetentionIsReached(BackupPlan backupPlan) {
+    public void deleteIfDataRetentionIsReached(BackupPlan backupPlan) {
         List<AbstractJob> jobs = abstractJobRepository.findByBackupPlan(backupPlan);
         List<BackupJob> backupJobs = new ArrayList<>();
 
@@ -162,7 +167,9 @@ public class BackupServiceManager extends AbstractServiceManager {
             log.info("Retention limit of " + backupPlan.getRetentionPeriod() + " reached");
             log.info("Deleting oldest backup files related to plan " + backupPlan.getName());
 
-            backupCleanupManager.delete(backupJobs.get(0), backupPlan.getFileDestination());
+            while(backupJobs.size() > backupPlan.getRetentionPeriod()) {
+                backupCleanupManager.delete(backupJobs.remove(0), backupPlan.getFileDestination());
+            }
         }
     }
 }
