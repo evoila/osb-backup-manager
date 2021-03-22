@@ -1,7 +1,7 @@
 package de.evoila.cf.backup.service.executor;
 
 import de.evoila.cf.backup.controller.exception.BackupException;
-import de.evoila.cf.model.agent.response.AgentExecutionReponse;
+import de.evoila.cf.model.agent.response.AgentExecutionResponse;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
 import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
@@ -18,7 +18,7 @@ public interface BaseExecutorService {
 
     List<DestinationType> getDestinationTypes();
 
-    <T extends AgentExecutionReponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,
-                                             ParameterizedTypeReference<T> type) throws BackupException;
+    <T extends AgentExecutionResponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,
+                                                            ParameterizedTypeReference<T> type) throws BackupException;
 
 }

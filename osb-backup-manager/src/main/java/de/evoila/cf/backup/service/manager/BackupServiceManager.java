@@ -2,10 +2,12 @@ package de.evoila.cf.backup.service.manager;
 
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.AbstractJobRepository;
+import de.evoila.cf.backup.service.BackupCleanupManager;
 import de.evoila.cf.backup.service.CredentialService;
 import de.evoila.cf.backup.service.exception.BackupRequestException;
 import de.evoila.cf.backup.service.executor.BackupExecutorService;
 import de.evoila.cf.model.agent.response.AgentBackupResponse;
+import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.api.BackupJob;
 import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
@@ -16,8 +18,7 @@ import de.evoila.cf.model.enums.JobType;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -27,13 +28,17 @@ import java.util.stream.Collectors;
 @Component
 public class BackupServiceManager extends AbstractServiceManager {
 
+    BackupCleanupManager backupCleanupManager;
+
     public BackupServiceManager(AbstractJobRepository abstractJobRepository,
                                 CredentialService credentialService,
-                                List<BackupExecutorService> backupExecutorServices) {
+                                List<BackupExecutorService> backupExecutorServices,
+                                BackupCleanupManager backupCleanupManager) {
         for (BackupExecutorService backupExecutorService : backupExecutorServices)
             this.addBackupExecutorService(backupExecutorService);
         this.abstractJobRepository = abstractJobRepository;
         this.credentialService = credentialService;
+        this.backupCleanupManager = backupCleanupManager;
     }
 
 
@@ -79,6 +84,7 @@ public class BackupServiceManager extends AbstractServiceManager {
 
         taskExecutor.execute(() -> executeBackup(backupExecutorService.get(), endpointCredential,
                 backupJob, destination, backupPlan.getItems()));
+
         return backupJob;
     }
 
@@ -87,6 +93,8 @@ public class BackupServiceManager extends AbstractServiceManager {
         try {
             log.info("Starting execution of Backup Job");
             updateState(backupJob, JobStatus.RUNNING);
+
+            List<CompletableFuture<AgentBackupResponse>> completionFutures = new ArrayList<>();
 
             int i = 0;
             for (String item : items) {
@@ -99,6 +107,7 @@ public class BackupServiceManager extends AbstractServiceManager {
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentBackupResponse> completionFuture = new CompletableFuture<>();
+                completionFutures.add(completionFuture);
                 ScheduledFuture checkFuture = executor.scheduleAtFixedRate(() -> {
                     try {
                         AgentBackupResponse agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
@@ -128,9 +137,39 @@ public class BackupServiceManager extends AbstractServiceManager {
                 i++;
             }
 
+            for(CompletableFuture completionFuture : completionFutures) {
+                completionFuture.get();
+            }
+
+            if(!backupJob.getStatus().equals(JobStatus.FAILED)) {
+                deleteIfDataRetentionIsReached(backupJob.getBackupPlan());
+            }
+
         } catch (Exception e) {
             log.error("Exception during backup execution", e);
             updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
+        }
+    }
+
+    public void deleteIfDataRetentionIsReached(BackupPlan backupPlan) {
+        List<AbstractJob> jobs = abstractJobRepository.findByBackupPlan(backupPlan);
+        List<BackupJob> backupJobs = new ArrayList<>();
+
+        for(AbstractJob job : jobs) {
+            if(job.getJobType().equals(JobType.BACKUP) && job.getStatus().equals(JobStatus.SUCCEEDED)) {
+                backupJobs.add((BackupJob) job);
+            }
+        }
+
+        if(backupJobs.size() > backupPlan.getRetentionPeriod()) {
+            Collections.sort(backupJobs, Comparator.comparing(AbstractJob::getStartDate));
+
+            log.info("Retention limit of " + backupPlan.getRetentionPeriod() + " reached");
+            log.info("Deleting oldest backup files related to plan " + backupPlan.getName());
+
+            while(backupJobs.size() > backupPlan.getRetentionPeriod()) {
+                backupCleanupManager.delete(backupJobs.remove(0), backupPlan.getFileDestination());
+            }
         }
     }
 }

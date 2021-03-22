@@ -4,7 +4,7 @@ import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.service.CredentialService;
 import de.evoila.cf.backup.service.executor.BackupExecutorService;
 import de.evoila.cf.backup.service.executor.RestoreExecutorService;
-import de.evoila.cf.model.agent.response.AgentExecutionReponse;
+import de.evoila.cf.model.agent.response.AgentExecutionResponse;
 import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
@@ -48,9 +48,9 @@ public class AbstractServiceManager {
         abstractJobRepository.save(abstractJob);
     }
 
-    protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionReponse agentExecutionReponse) {
-        abstractJob.getAgentExecutionReponses().put(item, agentExecutionReponse);
-        this.updateState(abstractJob, agentExecutionReponse.getStatus());
+    protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
+        abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
+        this.updateState(abstractJob, agentExecutionResponse.getStatus());
     }
 
     protected void updateStateAndLog(AbstractJob abstractJob, JobStatus status, String log) {

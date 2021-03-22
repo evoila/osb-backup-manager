@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Johannes Hiemer.
  */
-public class AgentBackupResponse extends AgentExecutionReponse {
+public class AgentBackupResponse extends AgentExecutionResponse {
 
     private String filename;
 
