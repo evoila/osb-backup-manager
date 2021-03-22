@@ -30,6 +30,8 @@ public abstract class FileDestination extends AbstractEntity {
 
     protected DestinationType type;
 
+    protected String filenamePrefix;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     protected String filename;
 
@@ -71,6 +73,14 @@ public abstract class FileDestination extends AbstractEntity {
 
     public void setType(DestinationType type) {
         this.type = type;
+    }
+
+    public String getFilenamePrefix() {
+        return filenamePrefix;
+    }
+
+    public void setFilenamePrefix(String filenamePrefix) {
+        this.filenamePrefix = filenamePrefix;
     }
 
     public String getFilename() {

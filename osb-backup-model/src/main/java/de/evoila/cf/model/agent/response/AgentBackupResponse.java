@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class AgentBackupResponse extends AgentExecutionResponse {
 
+    private String filenamePrefix;
+
     private String filename;
 
     private Filesize filesize;
@@ -64,6 +66,14 @@ public class AgentBackupResponse extends AgentExecutionResponse {
         public void setUnit(String unit) {
             this.unit = unit;
         }
+    }
+
+    public String getFilenamePrefix() {
+        return filenamePrefix;
+    }
+
+    public void setFilenamePrefix(String filenamePrefix) {
+        this.filenamePrefix = filenamePrefix;
     }
 
     public String getFilename() {

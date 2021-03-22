@@ -102,7 +102,7 @@ public class BackupServiceManager extends AbstractServiceManager {
 
                 BackupPlan backupPlan = backupJob.getBackupPlan();
                 backupExecutorService.backup(endpointCredential, destination, id, item,
-                        backupPlan.isCompression(), backupPlan.getPublicKey());
+                        backupPlan.isCompression(), backupPlan.getPublicKey(), backupPlan.getIdAsString());
                 backupJob.setDestination(destination);
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
