@@ -97,8 +97,11 @@ public class BackupCleanupManager {
             deleteSwift((SwiftFileDestination) destination);
 
         if (destination.getType().equals(DestinationType.S3)) {
-            job.getAgentExecutionReponses().entrySet().forEach(entry ->
-                    deleteS3((S3FileDestination) destination, ((AgentBackupResponse) entry.getValue()).getFilename()));
+            job.getAgentExecutionReponses().entrySet().forEach(entry -> {
+                String filenamePrefix = ((AgentBackupResponse) entry.getValue()).getFilenamePrefix();
+                String filename = ((AgentBackupResponse) entry.getValue()).getFilename();
+                deleteS3((S3FileDestination) destination, filenamePrefix + filename);
+            });
         }
 
         abstractJobRepository.delete(job);

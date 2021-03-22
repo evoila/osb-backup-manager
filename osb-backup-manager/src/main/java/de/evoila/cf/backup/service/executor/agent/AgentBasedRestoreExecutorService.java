@@ -21,9 +21,11 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
 
     @Override
     public void restore(EndpointCredential endpointCredential, FileDestination destination,
-                        RequestDetails requestDetails, String id, boolean compression, String privateKey) throws BackupException {
+                        RequestDetails requestDetails, String id, boolean compression, String privateKey,
+                        String planId) throws BackupException {
         endpointCredential.setDatabase(requestDetails.getItem());
         destination.setFilename(requestDetails.getFilename());
+        destination.setFilenamePrefix(planId + "/");
 
         log.info(String.format("Starting restore process to %s:%d/%s",
                 endpointCredential.getHost(),

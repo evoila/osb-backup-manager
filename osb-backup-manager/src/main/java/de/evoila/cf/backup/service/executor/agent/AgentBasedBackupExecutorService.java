@@ -21,8 +21,9 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
 
     @Override
     public void backup(EndpointCredential endpointCredential, FileDestination destination, String id,
-                       String item, boolean compression, String publicKey) throws BackupException {
+                       String item, boolean compression, String publicKey, String planId) throws BackupException {
         endpointCredential.setDatabase(item);
+        destination.setFilenamePrefix(planId + "/");
 
         log.info(String.format("Starting backup process to %s:%d/%s",
                 endpointCredential.getHost(),

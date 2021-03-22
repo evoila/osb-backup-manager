@@ -99,7 +99,7 @@ public class RestoreServiceManager extends AbstractServiceManager {
 
                 BackupPlan backupPlan = restoreJob.getBackupPlan();
                 restoreExecutorService.restore(endpointCredential, destination, requestDetails, id,
-                        backupPlan.isCompression(), backupPlan.getPrivateKey());
+                        backupPlan.isCompression(), backupPlan.getPrivateKey(), backupPlan.getIdAsString());
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentRestoreResponse> completionFuture = new CompletableFuture<>();
