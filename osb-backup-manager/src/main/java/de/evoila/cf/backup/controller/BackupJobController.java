@@ -67,7 +67,7 @@ public class BackupJobController {
     }
 
     @RequestMapping(value = "/backupJobs/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
-    public ResponseEntity delete(@PathVariable String serviceInstanceId) {
+    public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         abstractJobRepository.deleteByServiceInstanceId(serviceInstanceId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -62,7 +62,7 @@ public class BackupPlanController {
     }
 
     @RequestMapping(value = "/backupPlans/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
-    public ResponseEntity delete(@PathVariable String serviceInstanceId) {
+    public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         List<BackupPlan> plansToDelete = backupPlanRepository.findByServiceInstanceId(serviceInstanceId);
 
         for(BackupPlan plan : plansToDelete) {

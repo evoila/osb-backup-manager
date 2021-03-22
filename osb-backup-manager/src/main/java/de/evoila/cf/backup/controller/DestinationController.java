@@ -63,7 +63,7 @@ public class DestinationController extends BaseController {
     }
 
     @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
-    public ResponseEntity delete(@PathVariable String serviceInstanceId) {
+    public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         destinationRepository.deleteByServiceInstanceId(serviceInstanceId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
