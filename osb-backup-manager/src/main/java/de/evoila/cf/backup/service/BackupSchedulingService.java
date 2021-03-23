@@ -2,6 +2,7 @@ package de.evoila.cf.backup.service;
 
 
 import de.evoila.cf.backup.config.MessagingConfiguration;
+import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.request.BackupRequest;
@@ -13,10 +14,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.DateTimeException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -65,7 +69,14 @@ public class BackupSchedulingService {
 
         StreamSupport.stream(backupPlanRepository.findAll()
                 .spliterator(),true)
-                .forEach(plan -> addTask(plan));
+                .forEach(plan -> {
+                    // only possible whne minimal backup time changed
+                    try {
+                        addTask(plan);
+                    } catch (BackupException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     @Bean(destroyMethod = "shutdown")
@@ -74,13 +85,23 @@ public class BackupSchedulingService {
                 .newScheduledThreadPool(10);
     }
 
-    public void addTask(BackupPlan backupPlan) {
+    public void addTask(BackupPlan backupPlan) throws BackupException {
         log.debug(String.format("Starting Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         BackupTask task = new BackupTask(backupPlan);
-        ScheduledFuture scheduledFuture = threadPoolTaskScheduler()
-                .schedule(task, new CronTrigger(backupPlan.getFrequency(), Calendar.getInstance().getTimeZone()));
-        scheduledTasks.put(backupPlan.getIdAsString(), scheduledFuture);
+        try {
+            CronTrigger cron = new CronTrigger(backupPlan.getFrequency(), Calendar.getInstance().getTimeZone());
+            Date firstDate = cron.nextExecutionTime(new SimpleTriggerContext());
+            Date nextDate = cron.nextExecutionTime(new SimpleTriggerContext(firstDate, firstDate, firstDate));
+            if ((nextDate.getTime() - firstDate.getTime()) < 60000) {
+                throw new BackupException("Time between backups must more then 59 seconds");
+            }
+            ScheduledFuture scheduledFuture = threadPoolTaskScheduler()
+                    .schedule(task, cron);
+            scheduledTasks.put(backupPlan.getIdAsString(), scheduledFuture);
+        }catch (NumberFormatException | DateTimeException e){
+            throw new BackupException("Cron string is not correct:" + e.getMessage());
+        }
 
     }
 
@@ -92,7 +113,7 @@ public class BackupSchedulingService {
             scheduledFuture.cancel(false);
     }
 
-    public void updateTask(BackupPlan backupPlan) {
+    public void updateTask(BackupPlan backupPlan) throws BackupException {
         log.debug(String.format("Updating Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         this.removeTask(backupPlan);
