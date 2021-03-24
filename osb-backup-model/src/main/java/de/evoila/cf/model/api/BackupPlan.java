@@ -30,6 +30,8 @@ public class BackupPlan extends AbstractEntity {
             message = "Invalid cron expression.")
     private String frequency;
 
+    private String timezone;
+
     private RetentionStyle retentionStyle;
 
     private int retentionPeriod;
@@ -86,6 +88,14 @@ public class BackupPlan extends AbstractEntity {
 
     public void setFrequency(String frequency) {
         this.frequency = frequency;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
     }
 
     public RetentionStyle getRetentionStyle() {
