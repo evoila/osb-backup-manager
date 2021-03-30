@@ -49,6 +49,7 @@ public class BackupPlanService {
 
         try {
             backupPlan = backupPlanRepository.save(backupPlan);
+            backupSchedulingService.checkIfFrequencyIsValid(backupPlan);
             if (!backupPlan.isPaused())
                 backupSchedulingService.addTask(backupPlan);
         } catch (Exception ex) {
