@@ -2,6 +2,7 @@ package de.evoila.cf.backup.service;
 
 
 import de.evoila.cf.backup.config.MessagingConfiguration;
+import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.request.BackupRequest;
@@ -13,9 +14,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -78,10 +81,25 @@ public class BackupSchedulingService {
         log.debug(String.format("Starting Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         BackupTask task = new BackupTask(backupPlan);
-        ScheduledFuture scheduledFuture = threadPoolTaskScheduler()
-                .schedule(task, new CronTrigger(backupPlan.getFrequency(), TimeZone.getTimeZone(backupPlan.getTimezone())));
-        scheduledTasks.put(backupPlan.getIdAsString(), scheduledFuture);
 
+        CronTrigger cron = new CronTrigger(backupPlan.getFrequency(), TimeZone.getTimeZone(backupPlan.getTimezone()));
+        ScheduledFuture scheduledFuture = threadPoolTaskScheduler()
+                .schedule(task, cron);
+        scheduledTasks.put(backupPlan.getIdAsString(), scheduledFuture);
+    }
+
+    /**
+     * Checks if two backups of a given plan are at least 1 hour apart
+     * @param backupPlan
+     * @throws BackupException
+     */
+    public void checkIfFrequencyIsValid(BackupPlan backupPlan) throws BackupException {
+        CronTrigger cron = new CronTrigger(backupPlan.getFrequency(), TimeZone.getTimeZone(backupPlan.getTimezone()));
+        Date firstDate = cron.nextExecutionTime(new SimpleTriggerContext());
+        Date nextDate = cron.nextExecutionTime(new SimpleTriggerContext(firstDate, firstDate, firstDate));
+        if ((nextDate.getTime() - firstDate.getTime()) < (60 * 60 * 1000)) {
+            throw new BackupException("Time between backups must be at least 1 hour");
+        }
     }
 
     public void removeTask(BackupPlan backupPlan) {
@@ -92,7 +110,7 @@ public class BackupSchedulingService {
             scheduledFuture.cancel(false);
     }
 
-    public void updateTask(BackupPlan backupPlan) {
+    public void updateTask(BackupPlan backupPlan) throws BackupException {
         log.debug(String.format("Updating Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         this.removeTask(backupPlan);

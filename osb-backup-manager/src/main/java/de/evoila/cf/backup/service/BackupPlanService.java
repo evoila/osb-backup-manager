@@ -40,15 +40,21 @@ public class BackupPlanService {
 
     public BackupPlan createPlan(BackupPlan backupPlan) throws BackupException {
         if(!fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isPresent())
-            throw new BackupException("Backup Destination does not exists ID = " + backupPlan.getFileDestination().getId());
+            throw new BackupException("Could not create Plan. Backup Destination does not exists ID = " +
+                    backupPlan.getFileDestination().getId());
+        if(backupPlan.getRetentionPeriod() <= 0) {
+            throw new BackupException("Could not create Plan. Invalid retention value \"" +
+                    backupPlan.getRetentionPeriod() + "\". Value must be greater than 0");
+        }
 
         try {
             backupPlan = backupPlanRepository.save(backupPlan);
+            backupSchedulingService.checkIfFrequencyIsValid(backupPlan);
             if (!backupPlan.isPaused())
                 backupSchedulingService.addTask(backupPlan);
         } catch (Exception ex) {
             backupPlanRepository.delete(backupPlan);
-            throw new BackupException("Could not create Plan", ex);
+            throw new BackupException("Could not create Plan. " + ex.getMessage());
         }
         return backupPlan;
     }
@@ -59,11 +65,17 @@ public class BackupPlanService {
 
         if(backupPlan == null)
             throw new BackupException("Backup plan not found" + planId);
-        if(!fileDestinationRepository.findById(plan.getFileDestination().getId()).isPresent())
-            throw new BackupException("Backup Destination does not exists ID = " + plan.getFileDestination().getId());
+        if(!fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isPresent())
+            throw new BackupException("Could not create Plan. Backup Destination does not exists ID = " +
+                    backupPlan.getFileDestination().getId());
+        if(backupPlan.getRetentionPeriod() <= 0) {
+            throw new BackupException("Could not create Plan. Invalid retention value \"" +
+                    backupPlan.getRetentionPeriod() + "\". Value must be greater than 0");
+        }
 
         try {
             backupPlan.update(plan);
+            backupSchedulingService.checkIfFrequencyIsValid(backupPlan);
             if (backupPlan.isPaused())
                 backupSchedulingService.removeTask(backupPlan);
             else
@@ -71,7 +83,7 @@ public class BackupPlanService {
             backupServiceManager.deleteIfDataRetentionIsReached(backupPlan);
             backupPlanRepository.save(backupPlan);
         } catch (Exception ex) {
-            throw new BackupException("Could not update plan", ex);
+            throw new BackupException("Could not update plan. " + ex.getMessage());
         }
 
         return plan;
