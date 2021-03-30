@@ -75,6 +75,7 @@ public class BackupPlanService {
 
         try {
             backupPlan.update(plan);
+            backupSchedulingService.checkIfFrequencyIsValid(backupPlan);
             if (backupPlan.isPaused())
                 backupSchedulingService.removeTask(backupPlan);
             else
