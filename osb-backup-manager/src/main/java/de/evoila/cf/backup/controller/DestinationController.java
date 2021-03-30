@@ -96,9 +96,9 @@ public class DestinationController extends BaseController {
             } else if (destination.getType().equals(DestinationType.S3)) {
                 S3FileDestination s3FileDestination = (S3FileDestination) destination;
                 S3Client s3client = new S3Client(s3FileDestination.getEndpoint(), s3FileDestination.getRegion(), s3FileDestination.getAuthKey(),
-                        s3FileDestination.getAuthSecret());
+                        s3FileDestination.getAuthSecret(), destinationRepository);
                 //Simply creating a client won't throw an exception in case the data is false. Therefore we need an explicit validation for writing data
-                s3client.validate(s3FileDestination.getBucket());
+                s3client.validate(s3FileDestination);
             }
             return new ResponseEntity<>(destination, HttpStatus.OK);
         } catch (Exception e) {

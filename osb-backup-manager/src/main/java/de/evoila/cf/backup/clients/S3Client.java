@@ -3,6 +3,9 @@
  */
 package de.evoila.cf.backup.clients;
 
+import de.evoila.cf.backup.controller.exception.BackupException;
+import de.evoila.cf.backup.repository.FileDestinationRepository;
+import de.evoila.cf.model.api.file.S3FileDestination;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
@@ -48,7 +51,12 @@ public class S3Client implements FileClient {
 
     private MinioClient client;
 
-    public S3Client(String endpoint, String region, String authKey, String authSecret) {
+    private FileDestinationRepository destinationRepository;
+
+    public S3Client(String endpoint, String region, String authKey, String authSecret,
+                    FileDestinationRepository destinationRepository) {
+
+        this.destinationRepository = destinationRepository;
 
         if(region.isEmpty()) {
             client = MinioClient.builder()
@@ -66,13 +74,18 @@ public class S3Client implements FileClient {
 
     /**
      * Checks whether the created Client is able to write data to the specified endpoint & bucket
-     * @param bucket
+     * @param destination
      * @throws URISyntaxException
      */
-    public void validate(String bucket) throws URISyntaxException, IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, ErrorResponseException, XmlParserException, InternalException {
+    public void validate(S3FileDestination destination) throws URISyntaxException, IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, ErrorResponseException, XmlParserException, InternalException, BackupException {
+        String bucket = destination.getBucket();
         String url = generateUrl(bucket, s3ValidationFileName, s3ValidationFileExtension).toString();
 
         log.info("Starting validation for " + url.substring(0, url.lastIndexOf("/")));
+
+        if(destinationRepository.findByNameAndServiceInstanceId(destination.getName(), destination.getServiceInstance().getId()) != null) {
+            throw new BackupException("Endpoint with name " + destination.getName() + " already exists");
+        }
 
         URL resource = getClass().getClassLoader().getResource(FileClient.concatIdentifier(s3ValidationFileName, s3ValidationFileExtension));
         File file = new File(resource.toURI());
