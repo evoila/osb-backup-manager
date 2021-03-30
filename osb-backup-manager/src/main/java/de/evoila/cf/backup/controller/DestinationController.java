@@ -102,8 +102,7 @@ public class DestinationController extends BaseController {
             }
             return new ResponseEntity<>(destination, HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Could not validate Endpoint. " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
     }
