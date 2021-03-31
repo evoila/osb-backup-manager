@@ -77,8 +77,11 @@ public class BackupPlanService {
             throw new BackupException("Could not update Plan. Invalid retention value \"" +
                     backupPlan.getRetentionPeriod() + "\". Value must be greater than 0");
         }
-        if(backupPlanRepository.findByNameAndServiceInstanceId(backupPlan.getName(),
-                backupPlan.getServiceInstance().getId()) != null) {
+
+        BackupPlan checkPlan = backupPlanRepository.findByNameAndServiceInstanceId(backupPlan.getName(),
+                backupPlan.getServiceInstance().getId());
+
+        if(checkPlan != null && !plan.getId().equals(checkPlan.getId())) {
             throw new BackupException("Could not update plan. Backup Plan with name " + backupPlan.getName() +
                     " already exists");
         }

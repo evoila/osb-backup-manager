@@ -5,6 +5,7 @@ package de.evoila.cf.backup.clients;
 
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
+import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.api.file.S3FileDestination;
 import io.minio.*;
 import io.minio.errors.*;
@@ -83,7 +84,10 @@ public class S3Client implements FileClient {
 
         log.info("Starting validation for " + url.substring(0, url.lastIndexOf("/")));
 
-        if(destinationRepository.findByNameAndServiceInstanceId(destination.getName(), destination.getServiceInstance().getId()) != null) {
+        FileDestination checkDestionation = destinationRepository.findByNameAndServiceInstanceId(destination.getName(),
+                destination.getServiceInstance().getId());
+
+        if(checkDestionation != null && !checkDestionation.getId().equals(destination.getId())) {
             throw new BackupException("Endpoint with name " + destination.getName() + " already exists");
         }
 
