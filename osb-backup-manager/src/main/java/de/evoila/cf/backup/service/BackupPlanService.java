@@ -46,6 +46,11 @@ public class BackupPlanService {
             throw new BackupException("Could not create Plan. Invalid retention value \"" +
                     backupPlan.getRetentionPeriod() + "\". Value must be greater than 0");
         }
+        if(backupPlanRepository.findByNameAndServiceInstanceId(backupPlan.getName(),
+                backupPlan.getServiceInstance().getId()) != null) {
+            throw new BackupException("Could not create plan. Backup Plan with name " + backupPlan.getName() +
+                    " already exists");
+        }
 
         try {
             backupPlan = backupPlanRepository.save(backupPlan);
@@ -66,11 +71,19 @@ public class BackupPlanService {
         if(backupPlan == null)
             throw new BackupException("Backup plan not found" + planId);
         if(!fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isPresent())
-            throw new BackupException("Could not create Plan. Backup Destination does not exists ID = " +
+            throw new BackupException("Could not update Plan. Backup Destination does not exists ID = " +
                     backupPlan.getFileDestination().getId());
         if(backupPlan.getRetentionPeriod() <= 0) {
-            throw new BackupException("Could not create Plan. Invalid retention value \"" +
+            throw new BackupException("Could not update Plan. Invalid retention value \"" +
                     backupPlan.getRetentionPeriod() + "\". Value must be greater than 0");
+        }
+
+        BackupPlan checkPlan = backupPlanRepository.findByNameAndServiceInstanceId(backupPlan.getName(),
+                backupPlan.getServiceInstance().getId());
+
+        if(checkPlan != null && !plan.getId().equals(checkPlan.getId())) {
+            throw new BackupException("Could not update plan. Backup Plan with name " + backupPlan.getName() +
+                    " already exists");
         }
 
         try {

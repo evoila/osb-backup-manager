@@ -16,4 +16,6 @@ public interface FileDestinationRepository extends MongoRepository<FileDestinati
     Page<FileDestination> findByServiceInstanceId(String serviceInstanceId, Pageable pageable);
 
     List<FileDestination> deleteByServiceInstanceId(String serviceInstanceId);
+
+    FileDestination findByNameAndServiceInstanceId(String name, String serviceInstanceId);
 }

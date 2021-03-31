@@ -19,4 +19,6 @@ public interface BackupPlanRepository extends MongoRepository<BackupPlan, Object
     List<BackupPlan> findByFileDestinationId(ObjectId fileDestinationId);
 
     List<BackupPlan> findByServiceInstanceId(String serviceInstanceId);
+
+    BackupPlan findByNameAndServiceInstanceId(String name, String serviceInstanceId);
 }

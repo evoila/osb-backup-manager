@@ -111,7 +111,8 @@ public class BackupCleanupManager {
         S3Client s3Client = new S3Client(destination.getEndpoint(),
                 destination.getRegion(),
                 destination.getAuthKey(),
-                destination.getAuthSecret());
+                destination.getAuthSecret(),
+                fileDestinationRepository);
         try {
             s3Client.delete(destination.getBucket(), filename);
         } catch (IOException | InvalidKeyException | InvalidResponseException | InsufficientDataException |
