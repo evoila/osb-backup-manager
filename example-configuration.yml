@@ -1,0 +1,58 @@
+### Backup Manager Config ###
+
+config.app.name: <app_name>
+queue.exchange: <rabbitmq_exchange_name>
+queue.queue: <rabbitmq_queue_name>
+spring.application.name: <application_name>
+security.token.name: <security_token_name>
+login.username: <backup_manager_username>
+login.password: <backup_manager_password>
+login.role: <backup_manager_role>
+security.token.default: <default_security_token>
+queue.routing-key: <rabbitmq_queue_routine_key>
+config.app.uri: <application_uri>
+spring.credhub.keystore-password: <credhub_keystore_password>
+config.site.url: <config_site_url>
+
+### MongoDB Config ###
+
+spring.data.mongodb.database: <mongodb_database>
+spring.data.mongodb.password: <mongodb_password>
+spring.data.mongodb.port: <mongodb_port>
+spring.data.mongodb.username: <mongodb_username>
+spring.data.mongodb.host: <mongodb_host>
+
+### RabbitMQ Config ###
+
+spring.rabbitmq.password: <rabbitmq_password>
+spring.rabbitmq.port: <rabbitmq_port>
+spring.rabbitmq.virtual-host: <rabbitmq_virtual_host>
+spring.rabbitmq.username: <rabbitmq_username>
+spring.rabbitmq.host: <rabbitmq_host>
+
+### Bosh Config ###
+
+bosh.password: <bosh_password>
+bosh.username: <bosh_username>
+bosh.host: <bosh_host>
+
+### Credhub Config ###
+
+spring.credhub.oauth2.client-id: <credhub_client_id>
+spring.credhub.oauth2.client-secret: <credhub_client_secret>
+spring.security.oauth2.client.registration.credhub-client.client-secret: <credhub_registration_client_secret>
+spring.credhub.url: <credhub_url>
+spring.credhub.oauth2.access-token-uri: <oauth2_access_token_uri>
+spring.security.oauth2.client.registration.credhub-client.authorization-grant-type: <authorization_grant_type>
+spring.credhub.bosh-director: <bosh_director_name>
+spring.credhub.certificate.ca: <credhub_ca>
+spring.credhub.certificate.private_key: <credhub_private_key>
+spring.credhub.certificate.certificate: <credhub_certificate> 
+spring.credhub.oauth2.registration-id: <credhub_registration_id>
+spring.security.oauth2.client.provider.uaa.token-uri: <uaa_token_uri>
+spring.security.oauth2.client.registration.credhub-client.provider: <credhub_client_provider>
+spring.security.oauth2.client.registration.credhub-client.client-id: <credhub_client_id>
+
+### Oauth2 Config ###
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri: <jwt_issuer_uri>
