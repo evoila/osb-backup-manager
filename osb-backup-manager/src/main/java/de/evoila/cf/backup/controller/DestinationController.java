@@ -8,6 +8,8 @@ import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.api.file.S3FileDestination;
 import de.evoila.cf.model.api.file.SwiftFileDestination;
 import de.evoila.cf.model.enums.DestinationType;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+@Api(value = "/fileDestinations", description = "Manage where backup files should be stored by defining destinations.")
 @Controller
 public class DestinationController extends BaseController {
 
@@ -36,12 +39,14 @@ public class DestinationController extends BaseController {
         this.backupPlanRepository = backupPlanRepository;
     }
 
+    @ApiOperation(value = "Get the specified destination from the repository.")
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.GET)
     public ResponseEntity<FileDestination> get(@PathVariable ObjectId destinationId) {
         FileDestination job = destinationRepository.findById(destinationId).orElse(null);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Get a page of destinations configured on the given instance.")
     @RequestMapping("/fileDestinations/byInstance/{instanceId}")
     public ResponseEntity<Page<FileDestination>> all(@PathVariable String instanceId,
                                                      @PageableDefault(size = 50, page = 0) Pageable pageable) {
@@ -49,6 +54,7 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Delete a destination with the given ID.")
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.DELETE)
     public ResponseEntity delete(@PathVariable ObjectId destinationId) {
         FileDestination fileDestination = destinationRepository.findById(destinationId).orElse(null);
@@ -62,6 +68,7 @@ public class DestinationController extends BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    @ApiOperation(value = "Delete all destinations configured on the given instance.")
     @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         destinationRepository.deleteByServiceInstanceId(serviceInstanceId);
@@ -69,6 +76,8 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @ApiOperation(value = "Create a new S3 destination, specifying where backups " +
+            "should be stored for a specific instance.")
     @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
         S3FileDestination s3FileDestination = (S3FileDestination) destination;
@@ -77,6 +86,7 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Update an existing destination with new configurations.")
     @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.PATCH)
     public ResponseEntity<FileDestination> update(@PathVariable() ObjectId destinationId,
                                                   @RequestBody FileDestination destination) {
@@ -86,6 +96,7 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(destination, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Check if a backup can be stored in the given destination.")
     @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
     public ResponseEntity validate(@RequestBody FileDestination destination) {
         try {
