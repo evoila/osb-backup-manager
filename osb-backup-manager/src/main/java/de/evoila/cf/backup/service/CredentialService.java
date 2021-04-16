@@ -31,6 +31,15 @@ public class CredentialService {
         this.credentialStore = credentialStore;
     }
 
+    /**
+     * Gets the credentials for given service instance, if they exist in the repository.
+     *
+     * TODO explain a little bit more
+     *
+     * @param serviceInstance object describing a service instance
+     * @return credentials for the service instance
+     * @throws BackupException
+     */
     public EndpointCredential getCredentials(ServiceInstance serviceInstance) throws BackupException {
         ServiceInstance fullServiceInstance = serviceInstanceRepository
                 .findById(serviceInstance.getId()).orElse(null);
