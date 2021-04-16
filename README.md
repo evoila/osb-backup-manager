@@ -79,7 +79,7 @@ it in the dedicated directory.
 osb-backup-agent [GitHub](https://github.com/evoila/osb-backup-agent)
 
 # Documentation
-Documentation on how to set up a local dev environment (evoila specific) and the Backup Manager can be found [here](https://github.com/evoila/osb-backup-manager/blob/documentation/md/osb-backup-manager/src/main/documentation/evoila-osb-backup-manager.md).
+Documentation on how to set up a local dev environment (evoila specific) and the Backup Manager can be found [here](./osb-backup-manager/src/main/documentation/evoila-osb-backup-manager.md).
 
 # Contribution
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with us before making a change.
