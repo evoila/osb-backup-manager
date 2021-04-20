@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
  * @author Yannic Remmet, Johannes Hiemer.
  *
  * The BackupPlanService provides methods to create, read, update and delete BackupPlans from the repository. When
- * the repository is modified, the BackupPlanService also modifies the associated tasks accordingly.
+ * the repository is modified, the BackupPlanService also modifies the associated tasks accordingly. Tasks are used
+ * to add Backup- and RestoreRequests to the queue, so that they can be further processed as jobs.
  */
 @Service
 public class BackupPlanService {

@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
+ *
+ * The BackupServiceManager provides methods for restoring backups with an implemented ExecutorService. RestoreRequests
+ * are used to trigger the restoration process and a RestoreJob will be added to the repository. During the process, the
+ * status of the RestoreJob will be updated by communicating with the ExecuterService.
  */
 @Component
 public class RestoreServiceManager extends AbstractServiceManager {
@@ -38,6 +42,15 @@ public class RestoreServiceManager extends AbstractServiceManager {
         this.credentialService = credentialService;
     }
 
+    /**
+     * Restore a backup with the information provided in the RestoreRequest. This method checks if a FileDestination
+     * has been configured, the service instance is available and credentials to access the service instance exist.
+     * When all of these operations have been successful, the backup will be executed.
+     *
+     * @param restoreRequest A RestoreRequest to be executed
+     * @return The created RestoreJob
+     * @throws BackupRequestException
+     */
     public RestoreJob restore(RestoreRequest restoreRequest) throws BackupRequestException {
         if (restoreRequest.getBackupJob() == null)
             throw new BackupRequestException("Could not find backup job");
@@ -63,6 +76,17 @@ public class RestoreServiceManager extends AbstractServiceManager {
         return restore(backupJob.getBackupPlan(), endpointCredential, backupJob.getDestination(), restoreRequest.getItems());
     }
 
+    /**
+     * Restore a backup with the information provided. Create a RestoreJob and save it in the repository.
+     * Looks up the appropriate ExecutorService for the job. Continually updates the JobStatus during the execution.
+     *
+     * @param backupPlan A BackupPlan
+     * @param endpointCredential Credentials for accessing the service instance
+     * @param destination FileDestination with the stored backup file
+     * @param items List of backup files to be restored
+     * @return The created RestoreJob
+     * @throws BackupRequestException
+     */
     public RestoreJob restore(BackupPlan backupPlan, EndpointCredential endpointCredential, FileDestination destination,
                               List<RequestDetails> items) throws BackupRequestException {
         RestoreJob restoreJob = new RestoreJob(JobType.RESTORE, endpointCredential.getServiceInstance(), JobStatus.STARTED);
@@ -87,6 +111,16 @@ public class RestoreServiceManager extends AbstractServiceManager {
         return restoreJob;
     }
 
+    /**
+     * Execute a RestoreJob. During the process, the JobStatus of the RestoreJob will be continuously updated. Backup
+     * files stored in the specified destination and database instances will be restored.
+     *
+     * @param restoreExecutorService Service with a connection to the component, which can restore backup files
+     * @param restoreJob A RestoreJob
+     * @param endpointCredential Credentials for the ServiceInstance
+     * @param destination Location to restore the backup files from
+     * @param items Database instances on the specified destination
+     */
     private void executeRestore(RestoreExecutorService restoreExecutorService, RestoreJob restoreJob, EndpointCredential endpointCredential,
                                 FileDestination destination, List<RequestDetails> items) {
         try {

@@ -43,11 +43,24 @@ public class AbstractServiceManager {
         taskExecutor.initialize();
     }
 
+    /**
+     * Update the JobStatus of a job and save it in the repository.
+     *
+     * @param abstractJob A job
+     * @param status The new status of a job
+     */
     protected void updateState(AbstractJob abstractJob, JobStatus status) {
         abstractJob.setStatus(status);
         abstractJobRepository.save(abstractJob);
     }
 
+    /**
+     *
+     *
+     * @param abstractJob
+     * @param item
+     * @param agentExecutionResponse
+     */
     protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
         abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
         this.updateState(abstractJob, agentExecutionResponse.getStatus());
