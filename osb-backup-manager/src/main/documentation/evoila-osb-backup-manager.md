@@ -15,6 +15,7 @@ Last modified: 2021-04-15
     - [Swagger](#swagger)
     - [Overview](#overview-1)
       - [BackupPlans](#backupplans)
+      - [Destination](#destination)
       - [Tasks](#tasks)
       - [Requests](#requests)
       - [Jobs](#jobs)
@@ -112,9 +113,13 @@ Defining some key words, since the implementation behind those could be replaced
 
 #### BackupPlans
 
-`BackupPlan` describe for what instance backups need to be executed, how often and where the backup-files need to be stored.
+`BackupPlan` describe for what instance backups need to be executed, how often and where the backup-files need to be stored (destinations).
 
 `BackupPlan` are added to the **repository** through the `BackupPlanController` and `BackupPlanService`, which is executed by the Dashboard. When `BackupPlan` are modified, the `BackupPlanService` also modifies the corresponding task and scheduling of those tasks within the `BackupSchedulingService`.
+
+#### Destination
+
+A storage for backup-files. This can be e.g. S3 Amazon, OpenStack Swift, etc. 
 
 #### Tasks
 
@@ -128,7 +133,7 @@ The **queue** is for requests (`BackupRequest` and `RestoreRequest`) waiting to 
 
 #### Jobs
 
-Jobs (`BackupJob`) represent single execution of backups. For each job a backup-file will be saved. 
+Jobs (`BackupJob`) represent one full execution of a single backup. A job can store / restore backup files in multiple databases on a single storage.
 
 Jobs stored in the **repository** have been sent to the Backup Agent to execute a backup. Jobs are usually added (and their `JobStatus` updated) to the **repository** by the before mentioned `BackupServiceManager` or `RestoreServiceManager`.
 
