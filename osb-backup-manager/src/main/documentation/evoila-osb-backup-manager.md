@@ -83,7 +83,7 @@ Read [Services Overview](https://docs.cloudfoundry.org/services/overview.html) o
 
 **Backup Manager**
 
-[Backup Manager](https://github.com/evoila/osb-backup-manager) read their configurations from the **MongoDB** and are used to schedule backup jobs. The jobs are saved in **RabbitMQ** and executed from an available Manager. It's mandatory to configure and connect a **Backup Agent** for the Backup Manager to work.
+[Backup Manager](https://github.com/evoila/osb-backup-manager) read their configurations from the **MongoDB** and are used to schedule backup jobs. **RabbitMQ** is a queue for jobs to be executed from an available Manager. It's mandatory to configure and connect a **Backup Agent** for the Backup Manager to work.
 
 
 
@@ -133,7 +133,7 @@ The **queue** is for requests (`BackupRequest` and `RestoreRequest`) waiting to 
 
 #### Jobs
 
-Jobs (`BackupJob`) represent one full execution of a single backup. A job can store / restore backup files in multiple databases on a single storage.
+Jobs (`BackupJob`, `RestoreJob`) represent one full execution of a single backup creation or restoration. A job contains a list of items, which can be databases or other filesystems of an service instance. Once all items have been processed (e.g. all backup files created), the job has finished.
 
 Jobs stored in the **repository** have been sent to the Backup Agent to execute a backup. Jobs are usually added (and their `JobStatus` updated) to the **repository** by the before mentioned `BackupServiceManager` or `RestoreServiceManager`.
 
