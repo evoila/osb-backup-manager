@@ -69,7 +69,7 @@ public class BackupPlanController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Delete all BackupPlans and running tasks from the repository and scheduling service.")
+    @ApiOperation(value = "Delete all BackupPlans, running tasks from the repository and scheduling service.")
     @RequestMapping(value = "/backupPlans/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         List<BackupPlan> plansToDelete = backupPlanRepository.findByServiceInstanceId(serviceInstanceId);

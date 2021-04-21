@@ -31,14 +31,14 @@ public class RestoreJobController {
         this.abstractJobRepository = abstractJobRepository;
     }
 
-    @ApiOperation(value = "TODO Gets a job with the given id from the repository.")
+    @ApiOperation(value = "Gets a job with the given id from the repository.")
     @RequestMapping(value = "/restoreJobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<AbstractJob> get(@PathVariable ObjectId jobId) {
         AbstractJob job = abstractJobRepository.findById(jobId).orElse(null);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "TODO Gets a page of configured jobs for the specified service instance.")
+    @ApiOperation(value = "Gets a page of configured jobs for the specified service instance.")
     @RequestMapping(value = "/restoreJobs/byInstance/{instanceId}", method = RequestMethod.GET)
     public ResponseEntity<Page<AbstractJob>> all(@PathVariable String instanceId,
                                                  @PageableDefault(size = 10,sort = {"startDate"},
