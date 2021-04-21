@@ -60,6 +60,15 @@ public class S3Client implements FileClient {
 
     private FileDestinationRepository destinationRepository;
 
+    /**
+     * Constructor.
+     *
+     * @param endpoint the domain
+     * @param region region of the server
+     * @param authKey key to access the S3
+     * @param authSecret secret to access the S3
+     * @param destinationRepository the repository where destinations are stored
+     */
     public S3Client(String endpoint, String region, String authKey, String authSecret,
                     FileDestinationRepository destinationRepository) {
 

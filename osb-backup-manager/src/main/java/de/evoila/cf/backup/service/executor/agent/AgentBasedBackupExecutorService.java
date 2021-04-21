@@ -27,9 +27,9 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
      * @param endpointCredential Credentials to access the ServiceInstance
      * @param destination Destination to store the backup files
      * @param id set the ID of the AgentBackupRequest
-     * @param item Database on the specified destination
-     * @param compression define if the backupfiles should be compressed TODO is this true?
-     * @param publicKey TODO for what connection is this needed?
+     * @param item a collection of data (e.g. database) on the service instance, for which to create backup files from
+     * @param compression define if the backupfiles should be compressed
+     * @param publicKey a key to access the files on the destination
      * @param planId the ID of the BackupPlan
      * @throws BackupException
      */

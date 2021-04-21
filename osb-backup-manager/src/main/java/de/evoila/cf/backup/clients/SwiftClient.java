@@ -29,6 +29,15 @@ public class SwiftClient implements FileClient {
 
     private OSClient.OSClientV3 os;
 
+    /**
+     * Constructor.
+     *
+     * @param endpoint URL to the storage
+     * @param username username
+     * @param password password
+     * @param domain the domain for identifying the user
+     * @param project the project withing the domain
+     */
     public SwiftClient(String endpoint, String username, String password, String domain, String project) {
         OSFactory.enableHttpLoggingFilter(true);
 

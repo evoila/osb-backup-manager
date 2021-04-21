@@ -44,6 +44,11 @@ public class BackupCleanupManager {
         this.fileDestinationRepository = destRepoisitory;
     }
 
+    /**
+     * Remove old backups belonging to a BackupPlan, which have exceeded the retention period.
+     *
+     * @param plan the BackupPlan to be cleaned up
+     */
     public void removeOldBackupFiles(BackupPlan plan) {
         switch (plan.getRetentionStyle()) {
             case FILES:

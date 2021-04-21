@@ -28,8 +28,8 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
      * @param destination the storage from where the backup files can be retrieved
      * @param requestDetails object containing the database and filename of the backup
      * @param id set the ID of the AgentRestoreRequest
-     * @param compression TODO compression for what?
-     * @param privateKey TODO key for the cloud storage?
+     * @param compression if the files are compressed or not
+     * @param privateKey a key to access the files on the destination
      * @param planId the ID of the BackupPlan
      * @throws BackupException
      */

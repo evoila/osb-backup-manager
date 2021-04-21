@@ -34,8 +34,6 @@ public class CredentialService {
     /**
      * Gets the credentials for given service instance, if they exist in the repository.
      *
-     * TODO explain in more detail
-     *
      * @param serviceInstance object describing a service instance
      * @return credentials for the service instance
      * @throws BackupException

@@ -120,7 +120,7 @@ public class BackupServiceManager extends AbstractServiceManager {
      * @param endpointCredential Credentials for the FileDestination
      * @param backupJob A BackupJob
      * @param destination Location to store the backup files
-     * @param items Database instances on the specified destination
+     * @param items the storage systems (e.g. database) from the service instance to be backed up
      */
     private void executeBackup(BackupExecutorService backupExecutorService, EndpointCredential endpointCredential, BackupJob backupJob,
                                FileDestination destination, List<String> items) {

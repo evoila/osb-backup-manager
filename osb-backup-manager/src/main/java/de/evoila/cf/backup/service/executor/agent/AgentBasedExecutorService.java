@@ -48,6 +48,7 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         destinationTypes.add(DestinationType.SWIFT);
         destinationTypes.add(DestinationType.S3);
     }
+
     @ConditionalOnBean(AcceptSelfSignedClientHttpRequestFactory.class)
     @Autowired(required = false)
     private void selfSignedRestTemplate(AcceptSelfSignedClientHttpRequestFactory requestFactory) {
