@@ -2,8 +2,6 @@
 
 Author: Thomas Quandt
 
-Last modified: 2021-04-15
-
 ## Table of contents
 
 - [evoila Open Service Broker Backup Manager](#evoila-open-service-broker-backup-manager)
@@ -101,7 +99,7 @@ The [Backup Agent](https://github.com/evoila/osb-backup-agent) is used to trigge
 
 ### Swagger
 
-The route for the Swagger generated json is `/v2/api-docs`. A downloaded json can be found in the swagger folder.
+The route for the Swagger generated json is `/v2/api-docs`. A downloaded version exists within the [swagger.json](./swagger.json). The documentation can be viewed with the [Swagger Editor](https://editor.swagger.io/).
 
 
 
