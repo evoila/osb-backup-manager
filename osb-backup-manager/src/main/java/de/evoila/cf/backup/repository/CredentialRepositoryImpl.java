@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Johannes Hiemer.
+ *
+ * A MongoDB repository for storing credentials of service instances?
+ * TODO this class isn't used anywhere
+ *
  */
 @Service
 public class CredentialRepositoryImpl implements CredentialRepository {

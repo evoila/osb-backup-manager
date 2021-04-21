@@ -46,8 +46,8 @@ public class AbstractServiceManager {
     /**
      * Update the JobStatus of a job and save it in the repository.
      *
-     * @param abstractJob A job
-     * @param status The new status of a job
+     * @param abstractJob a job to be updated
+     * @param status the new status of a job
      */
     protected void updateState(AbstractJob abstractJob, JobStatus status) {
         abstractJob.setStatus(status);
@@ -55,39 +55,73 @@ public class AbstractServiceManager {
     }
 
     /**
+     * Update the status of a job and the specific status on the database.
      *
-     *
-     * @param abstractJob
-     * @param item
-     * @param agentExecutionResponse
+     * @param abstractJob a job to be updated
+     * @param item a database in the destination
+     * @param agentExecutionResponse the response from an agent for the progress on the database
      */
     protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
         abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
         this.updateState(abstractJob, agentExecutionResponse.getStatus());
     }
 
+    /**
+     * Update the JobStatus of a job, save it in a repository and write a message in the log of the job.
+     *
+     * @param abstractJob a job to be updated
+     * @param status the new status of the job
+     * @param log a log message to be written in the log of the job
+     */
     protected void updateStateAndLog(AbstractJob abstractJob, JobStatus status, String log) {
         abstractJob.appendLog(log);
         abstractJob.setStatus(status);
         abstractJobRepository.save(abstractJob);
     }
 
+    /**
+     * Add a BackupExecutorService to a list of available executors.
+     *
+     * @param backupExecutorService a new BackupExecutorService to be added
+     */
     protected void addBackupExecutorService(BackupExecutorService backupExecutorService) {
         this.backupExecutorServices.add(backupExecutorService);
     }
 
+    /**
+     * Add a RestoreExecutorService to a list of available executors.
+     *
+     * @param restoreExecutorService a new RestoreExecutorService to be added
+     */
     protected void addRestoreExecutorService(RestoreExecutorService restoreExecutorService) {
         this.restoreExecutorServices.add(restoreExecutorService);
     }
 
+    /**
+     * Get all added BackupExecutorServices.
+     *
+     * @return a list of BackupExecutorService
+     */
     protected List<BackupExecutorService> getBackupExecutorServices() {
         return this.backupExecutorServices;
     }
 
+    /**
+     * Get all added RestoreExecutorServices.
+     *
+     * @return a list of RestoreExecutorService
+     */
     protected List<RestoreExecutorService> getRestoreExecutorServices() {
         return this.restoreExecutorServices;
     }
 
+    /**
+     * Get an applicable BackupExecutorService, which uses the BackupType and DestinationType.
+     *
+     * @param sourceType the type of BackupExecutorService
+     * @param destType the type of the storage
+     * @return an Optional with the response
+     */
     protected Optional<BackupExecutorService> getApplicableBackupService(BackupType sourceType, DestinationType destType) {
         Optional<BackupExecutorService> service = this.backupExecutorServices
                 .stream()
@@ -98,6 +132,13 @@ public class AbstractServiceManager {
         return service;
     }
 
+    /**
+     * Get an applicable RestoreExecutorService, which uses the BackupType and DestinationType.
+     *
+     * @param sourceType the type of RestoreExecutorService
+     * @param destType the type of the storage
+     * @return an Optional with the response
+     */
     protected Optional<RestoreExecutorService> getApplicableRestoreService(BackupType sourceType, DestinationType destType) {
         Optional<RestoreExecutorService> service = this.restoreExecutorServices
                 .stream()

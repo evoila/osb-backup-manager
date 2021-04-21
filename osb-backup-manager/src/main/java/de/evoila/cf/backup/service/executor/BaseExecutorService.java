@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * @author Johannes Hiemer, Yannic Remmet.
+ *
+ * A generic specification for a executor services.
  */
 public interface BaseExecutorService {
 

@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * @author Yanic Remmet, Johannes Hiemer.
+ *
+ * A MongoDB repository for storing ongoing or finished jobs of different types.
  */
 public interface AbstractJobRepository extends MongoRepository<AbstractJob, ObjectId> {
 

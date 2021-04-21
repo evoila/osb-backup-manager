@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
+ *
+ * OpenStack Swift implementation of the FileClient interface.
  */
 public class SwiftClient implements FileClient {
 
@@ -95,6 +97,11 @@ public class SwiftClient implements FileClient {
         os.objectStorage().objects().delete(containerName, filename);
     }
 
+    /**
+     * Generate an URL pointing to the Swift catalog endpoint, with the region specified in Dallas.
+     *
+     * @return a generated URL with
+     */
     private String endpointUrl() {
         String endpointUrl = null;
         for (Service s : os.getToken().getCatalog()) {

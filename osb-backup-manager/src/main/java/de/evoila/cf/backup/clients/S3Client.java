@@ -22,6 +22,12 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Johannes Hiemer.
+ *
+ * Amazon S3 implementation of the FileClient interface. Implements an additional validation method to check if client
+ * is able to read and write data into the storage. Communication with the S3 is done through a MinioClient.
+ *
+ * <p>
+ *
  * Create a public bucket:
  * {
  * "Version": "2008-10-17",
@@ -74,8 +80,9 @@ public class S3Client implements FileClient {
     }
 
     /**
-     * Checks whether the created Client is able to write data to the specified endpoint & bucket
-     * @param destination
+     * Checks whether the created Client is able to write data to the specified endpoint & bucket.
+     *
+     * @param destination destination of the storage
      * @throws URISyntaxException
      */
     public void validate(S3FileDestination destination) throws URISyntaxException, IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, ErrorResponseException, XmlParserException, InternalException, BackupException {
@@ -99,6 +106,7 @@ public class S3Client implements FileClient {
         delete(bucket, file.getName());
     }
 
+    @Override
     public String upload(File file, String bucket, String identifier, String extension) throws IOException, ServerException, InsufficientDataException, InternalException, InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException, XmlParserException, ErrorResponseException {
         Assert.notNull(bucket, "Bucket may not be undefined");
 
@@ -116,6 +124,23 @@ public class S3Client implements FileClient {
         return url.toString();
     }
 
+    /**
+     * Generate an url to the file location.
+     *
+     * @param bucket bucket in destination
+     * @param identifier filename
+     * @param extension filename extension
+     * @return a generated URL
+     * @throws IOException
+     * @throws InvalidKeyException
+     * @throws InvalidResponseException
+     * @throws InsufficientDataException
+     * @throws NoSuchAlgorithmException
+     * @throws ServerException
+     * @throws InternalException
+     * @throws XmlParserException
+     * @throws ErrorResponseException
+     */
     public URL generateUrl(String bucket, String identifier, String extension) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
         String filename = FileClient.concatIdentifier(identifier, extension);
 
@@ -129,6 +154,7 @@ public class S3Client implements FileClient {
         return new URL(url.split("\\?")[0]);
     }
 
+    @Override
     public File download(String bucket, String identifier, String extension, String path) throws IOException, ServerException, InsufficientDataException, InternalException, InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException, XmlParserException, ErrorResponseException {
         Assert.notNull(client, "S3 Connection may not be null");
         Assert.notNull(bucket, "Bucket may not be undefined");
@@ -161,6 +187,7 @@ public class S3Client implements FileClient {
         return downloadedFile;
     }
 
+    @Override
     public void delete(String bucket, String identifier, String extension) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
 
         String filename = FileClient.concatIdentifier(identifier, extension);
@@ -168,6 +195,21 @@ public class S3Client implements FileClient {
         delete(bucket, filename);
     }
 
+    /**
+     * Delete an file from the S3 cloud storage.
+     *
+     * @param bucket name of the bucket
+     * @param filename filename with extension
+     * @throws IOException
+     * @throws InvalidKeyException
+     * @throws InvalidResponseException
+     * @throws InsufficientDataException
+     * @throws NoSuchAlgorithmException
+     * @throws ServerException
+     * @throws InternalException
+     * @throws XmlParserException
+     * @throws ErrorResponseException
+     */
     public void delete(String bucket, String filename) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
 
         client.removeObject(RemoveObjectArgs.builder()
