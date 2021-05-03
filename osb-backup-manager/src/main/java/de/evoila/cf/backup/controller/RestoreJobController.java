@@ -11,9 +11,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -27,13 +26,13 @@ public class RestoreJobController {
         this.abstractJobRepository = abstractJobRepository;
     }
 
-    @RequestMapping(value = "/restoreJobs/{jobId}", method = RequestMethod.GET)
+    @GetMapping(value = "/restoreJobs/{jobId}")
     public ResponseEntity<AbstractJob> get(@PathVariable ObjectId jobId) {
         AbstractJob job = abstractJobRepository.findById(jobId).orElse(null);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
-    @RequestMapping("/restoreJobs/byInstance/{instanceId}")
+    @GetMapping("/restoreJobs/byInstance/{instanceId}")
     public ResponseEntity<Page<AbstractJob>> all(@PathVariable String instanceId,
                                                  @PageableDefault(size = 10,sort = {"startDate"},
                                                      direction = Sort.Direction.DESC) Pageable pageable) {

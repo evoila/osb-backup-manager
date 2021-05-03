@@ -9,9 +9,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -31,7 +30,7 @@ public class BackupController {
         this.messagingConfiguration = messagingConfiguration;
     }
 
-	@RequestMapping(value = "/backup", method = RequestMethod.POST)
+	@PostMapping(value = "/backup")
 	public ResponseEntity backup(@RequestBody BackupRequest backupRequest) {
         rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
                 messagingConfiguration.getRoutingKey(),
@@ -39,7 +38,7 @@ public class BackupController {
 		return new ResponseEntity(backupRequest, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/restore", method = RequestMethod.POST)
+	@PostMapping(value = "/restore")
 	public ResponseEntity restore(@RequestBody RestoreRequest restoreRequest) {
         rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
                 messagingConfiguration.getRoutingKey(),

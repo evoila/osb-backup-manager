@@ -17,10 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class DestinationController extends BaseController {
@@ -36,20 +33,20 @@ public class DestinationController extends BaseController {
         this.backupPlanRepository = backupPlanRepository;
     }
 
-    @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.GET)
+    @GetMapping(value = "/fileDestinations/{destinationId}")
     public ResponseEntity<FileDestination> get(@PathVariable ObjectId destinationId) {
         FileDestination job = destinationRepository.findById(destinationId).orElse(null);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
-    @RequestMapping("/fileDestinations/byInstance/{instanceId}")
+    @GetMapping("/fileDestinations/byInstance/{instanceId}")
     public ResponseEntity<Page<FileDestination>> all(@PathVariable String instanceId,
                                                      @PageableDefault(size = 50, page = 0) Pageable pageable) {
         Page<FileDestination> dest = destinationRepository.findByServiceInstanceId(instanceId, pageable);
         return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/fileDestinations/{destinationId}")
     public ResponseEntity delete(@PathVariable ObjectId destinationId) {
         FileDestination fileDestination = destinationRepository.findById(destinationId).orElse(null);
         if (fileDestination == null) {
@@ -62,14 +59,14 @@ public class DestinationController extends BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}")
     public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         destinationRepository.deleteByServiceInstanceId(serviceInstanceId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
+    @PostMapping(value = "/fileDestinations")
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
         S3FileDestination s3FileDestination = (S3FileDestination) destination;
         s3FileDestination.evaluateSkipSSL();
@@ -77,8 +74,8 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.PATCH)
-    public ResponseEntity<FileDestination> update(@PathVariable() ObjectId destinationId,
+    @PatchMapping(value = "/fileDestinations/{destinationId}")
+    public ResponseEntity<FileDestination> update(@PathVariable ObjectId destinationId,
                                                   @RequestBody FileDestination destination) {
         S3FileDestination s3FileDestination = (S3FileDestination) destination;
         s3FileDestination.evaluateSkipSSL();
@@ -86,7 +83,7 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(destination, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
+    @PostMapping(value = "/fileDestinations/validate")
     public ResponseEntity validate(@RequestBody FileDestination destination) {
         try {
             if (destination.getType().equals(DestinationType.SWIFT)) {
