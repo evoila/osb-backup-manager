@@ -35,6 +35,7 @@ Author: Thomas Quandt
       - [Configuration](#configuration)
       - [Troubleshooting](#troubleshooting)
     - [osb-backup-agent](#osb-backup-agent)
+  - [Setup (evoila cloud environment)](#setup-evoila-cloud-environment)
   - [Test with Postman](#test-with-postman)
     - [Create backup and retrieve logs](#create-backup-and-retrieve-logs)
   - [TODO](#todo)
@@ -370,10 +371,33 @@ Normally extra files are downloaded via S3 (note: this information might be fals
 
 
 ----
+## Setup (evoila cloud environment)
+
+The cloud setup is done through the CI, which is configured on the following sites: 
+
+- https://ci.rr.hob.local/
+- https://ci.rr.hob.local/teams/osb/pipelines/osb-backend
+
+When the observed branch in the git repository is pushed with new commits, then the CI automatically deploys the new version in evoila CF.
+
+The environment variables change through the process and reflect something similar as this:
+```
+JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
+JBP_CONFIG_OPEN_JDK_JRE: { jre: { version: 11.+}}
+SPRING_APPLICATION_NAME: osb-evoila-test
+SPRING_CLOUD_CONFIG_PASSWORD: PASSWORD
+SPRING_CLOUD_CONFIG_URI: https://config-server-test.system.cf.hob.local
+SPRING_CLOUD_CONFIG_USERNAME: USERNAME
+SPRING_CONFIG_IMPORT: optional:configserver:https://config-server-test.system.cf.hob.local
+SPRING_PROFILES_ACTIVE: backup,backend-mongo,bosh,credhub,oauth2,test,backup-manager,backend-rabbitmq
+```
+
+
+
+----
 ## Test with Postman
 
 Make sure to create the bucker "backup-agent-test" in the MinIO front-end first. See [osb-local](#osb-local).
-
 
 
 ### Create backup and retrieve logs
