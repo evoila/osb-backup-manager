@@ -1,7 +1,6 @@
 [submodule "osb-core"]
 	path = osb-core
 	url = https://github.com/evoila/osb-core
-	branch = feat/update-spring-2.4
 [submodule "osb-persistence"]
 	path = osb-persistence
 	url = git@github.com:evoila/osb-persistence.git
