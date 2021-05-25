@@ -83,6 +83,7 @@ public class BackupJobController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
     @ApiOperation(value = "Delete the file backed up by this job.")
     @RequestMapping(value = "/backupJobs/{jobId}/file", method = RequestMethod.DELETE)
     public ResponseEntity deleteFile(@PathVariable ObjectId jobId, @RequestBody FileDestination destination) {

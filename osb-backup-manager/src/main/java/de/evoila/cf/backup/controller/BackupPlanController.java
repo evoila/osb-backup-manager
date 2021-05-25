@@ -13,10 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -56,7 +53,6 @@ public class BackupPlanController {
     @ApiOperation(value = "Get the BackupPlan from the repository specified by its ID.")
     @RequestMapping(value = "/backupPlans/{planId}", method = RequestMethod.GET)
     public ResponseEntity<BackupPlan> get(@PathVariable() ObjectId planId) {
-
         BackupPlan response = backupPlanService.getPlan(planId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -64,7 +60,6 @@ public class BackupPlanController {
     @ApiOperation(value = "Delete the BackupPlan and running task from the repository and scheduling service.")
     @RequestMapping(value = "/backupPlans/{planId}", method = RequestMethod.DELETE)
     public ResponseEntity<BackupPlan> delete(@PathVariable() ObjectId planId) {
-
         BackupPlan response = backupPlanService.deletePlan(planId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -80,13 +75,12 @@ public class BackupPlanController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
+  
     @ApiOperation(value = "Update BackupPlan, running task and deletes old backup files & jobs exceeding the " +
             "retention period specified in the BackupPlan.")
     @RequestMapping(value = "/backupPlans/{planId}", method = RequestMethod.PATCH)
     public ResponseEntity<BackupPlan> update(@PathVariable() ObjectId planId, @Valid @RequestBody BackupPlan plan)
           throws BackupException {
-
         BackupPlan response = backupPlanService.updatePlan(planId, plan);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
