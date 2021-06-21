@@ -15,6 +15,10 @@ import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.stereotype.Service;
 
+/**
+ * The JobMessageListener is connected to the queue and listens to new BackupRequests or RestoreRequests. When
+ * a new message has been added, a backup or restore will be triggered.
+ */
 @Service
 public class JobMessageListener implements MessageListener {
 
@@ -38,6 +42,12 @@ public class JobMessageListener implements MessageListener {
         messageConverter.setClassMapper(classMapper);
     }
 
+    /**
+     * New messages that have been added to the queue are converted into BackupRequest or RestoreRequest objects
+     * and then further processed.
+     *
+     * @param message
+     */
     @Override
     public void onMessage(Message message) {
         Object request =  messageConverter.fromMessage(message);
@@ -52,6 +62,13 @@ public class JobMessageListener implements MessageListener {
         }
     }
 
+    /**
+     * Create a new BackupJob and log.
+     *
+     * @param backupRequest
+     * @throws BackupRequestException
+     * @throws BackupException
+     */
     private void handleMessage(BackupRequest backupRequest) throws BackupRequestException, BackupException {
         try {
             log.info(
@@ -65,6 +82,12 @@ public class JobMessageListener implements MessageListener {
         backupServiceManager.backup(backupRequest);
     }
 
+    /**
+     * Create a new RestoreJob and log.
+     *
+     * @param restoreRequest
+     * @throws BackupRequestException
+     */
     private void handleMessage(RestoreRequest restoreRequest) throws BackupRequestException {
         try {
             log.info(

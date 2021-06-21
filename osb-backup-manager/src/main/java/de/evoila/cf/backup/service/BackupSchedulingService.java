@@ -29,6 +29,10 @@ import java.util.stream.StreamSupport;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
+ *
+ * The BackupSchedulingService is for managing backup tasks. A ThreadPoolTaskScheduler is used to trigger tasks
+ * periodically, scheduled with a cron string. Tasks add new backup- and restore-requests to the queue, so that
+ * they can be further processed as jobs later on.
  */
 @Service
 @EnableScheduling
@@ -77,6 +81,12 @@ public class BackupSchedulingService {
                 .newScheduledThreadPool(10);
     }
 
+    /**
+     * Create a task from the BackupPlan and add it to the scheduled tasks. The task is triggered periodically
+     * in a timeframe defined by the cron string in the BackupPlan.
+     *
+     * @param backupPlan A BackupPlan
+     */
     public void addTask(BackupPlan backupPlan) {
         log.debug(String.format("Starting Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
@@ -102,6 +112,11 @@ public class BackupSchedulingService {
         }
     }
 
+    /**
+     * Remove all tasks associated with the given BackupPlan.
+     *
+     * @param backupPlan A BackupPlan
+     */
     public void removeTask(BackupPlan backupPlan) {
         log.debug(String.format("Removing Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
@@ -110,6 +125,12 @@ public class BackupSchedulingService {
             scheduledFuture.cancel(false);
     }
 
+    /**
+     * Remove previous tasks associated with the BackupPlan and create a new task with the new parameters.
+     *
+     * @param backupPlan A BackupPlan
+     * @throws BackupException
+     */
     public void updateTask(BackupPlan backupPlan) throws BackupException {
         log.debug(String.format("Updating Plan [%s] frequency:", backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
@@ -117,6 +138,9 @@ public class BackupSchedulingService {
         this.addTask(backupPlan);
     }
 
+    /**
+     * The BackupTask creates a new BackupRequests and adds it to the queue.
+     */
     private class BackupTask implements Runnable {
         BackupPlan backupPlan;
 

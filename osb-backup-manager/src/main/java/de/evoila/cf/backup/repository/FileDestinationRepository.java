@@ -10,6 +10,9 @@ import java.util.List;
 
 /**
  * @author Yanic Remmet, Johannes Hiemer.
+ *
+ * A MongoDB repository for storing file storage (cloud storage) FileDestinations. Backup files are stored in a server
+ * linked to with a FileDestination.
  */
 public interface FileDestinationRepository extends MongoRepository<FileDestination, ObjectId> {
 

@@ -36,10 +36,13 @@ public class BackupPlan extends AbstractEntity {
 
     private int retentionPeriod;
 
+    // list of data collections (e.g. databases) on the service instance, which need to be backed up, restored, etc.
     List<String> items;
 
+    // key for accessing the destination
     private String privateKey;
 
+    // key for accessing the destination
     private String publicKey;
 
     public String getName() {

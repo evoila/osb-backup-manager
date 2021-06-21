@@ -13,12 +13,26 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
+ *
+ * The AgentBasedBackupExecutorService communicates with the Backup Agent to execute backups.
  */
 @Service
 public class AgentBasedBackupExecutorService extends AgentBasedExecutorService implements BackupExecutorService {
 
     public AgentBasedBackupExecutorService() {}
 
+    /**
+     * Start a backup process with the help of the Backup Agent.
+     *
+     * @param endpointCredential Credentials to access the ServiceInstance
+     * @param destination Destination to store the backup files
+     * @param id set the ID of the AgentBackupRequest
+     * @param item a collection of data (e.g. database) on the service instance, for which to create backup files from
+     * @param compression define if the backupfiles should be compressed
+     * @param publicKey a key to access the files on the destination
+     * @param planId the ID of the BackupPlan
+     * @throws BackupException
+     */
     @Override
     public void backup(EndpointCredential endpointCredential, FileDestination destination, String id,
                        String item, boolean compression, String publicKey, String planId) throws BackupException {

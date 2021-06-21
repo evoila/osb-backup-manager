@@ -42,6 +42,7 @@ public abstract class AbstractJob extends AbstractEntity {
 
     protected List<String> jobLogs = new ArrayList<>();
 
+    // map containing status information for items, which have been sent back from the Agent
     protected Map<String, AgentExecutionResponse> agentExecutionReponses = new HashMap<>();
 
     @DBRef

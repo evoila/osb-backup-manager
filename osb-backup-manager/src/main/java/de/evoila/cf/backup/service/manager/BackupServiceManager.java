@@ -24,6 +24,10 @@ import java.util.stream.Collectors;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
+ *
+ * The BackupServiceManager provides methods for executing backups with an implemented ExecutorService. BackupRequests
+ * are used to trigger the backup process and a BackupJob will be added to the repository. During the process, the
+ * status of the BackupJob will be updated by communicating with the ExecuterService.
  */
 @Component
 public class BackupServiceManager extends AbstractServiceManager {
@@ -41,7 +45,15 @@ public class BackupServiceManager extends AbstractServiceManager {
         this.backupCleanupManager = backupCleanupManager;
     }
 
-
+    /**
+     * Execute a backup with the information provided in the BackupRequest. This method will fetch the BackupPlan
+     * and FileDestination provided with the BackupRequest for further processing.
+     *
+     * @param backupRequest Information needed for executing the backup
+     * @return The created BackupJob
+     * @throws BackupRequestException
+     * @throws BackupException
+     */
     public BackupJob backup(BackupRequest backupRequest) throws BackupRequestException, BackupException {
         if (backupRequest.getBackupPlan() == null || backupRequest.getBackupPlan().getFileDestination() == null)
             throw new BackupException("Did not find backup plan or destination");
@@ -49,6 +61,17 @@ public class BackupServiceManager extends AbstractServiceManager {
         return backup(backupRequest.getBackupPlan(), backupRequest.getBackupPlan().getFileDestination());
     }
 
+    /**
+     * Execute a backup with the information provided in the BackupPlan and FileDestination. Creates a new
+     * BackupJob in the repository, fetches the credentials to access the service instance and looks up the
+     * necessary BackupExecutorService needed to execute the backup. When all of these operations have been
+     * successful, the backup will be executed.
+     *
+     * @param backupPlan A BackupPlan
+     * @param destination A FileDestination for the backup file to be stored
+     * @return The created BackupJob
+     * @throws BackupRequestException
+     */
     public BackupJob backup(BackupPlan backupPlan, FileDestination destination) throws BackupRequestException {
         BackupJob backupJob = new BackupJob(JobType.BACKUP, backupPlan.getServiceInstance(), JobStatus.STARTED);
         backupJob.setBackupPlan(backupPlan);
@@ -88,6 +111,17 @@ public class BackupServiceManager extends AbstractServiceManager {
         return backupJob;
     }
 
+    /**
+     * Execute a BackupJob. During the process, the JobStatus of the BackupJob will be continuously updated. If a
+     * backup has been successfully executed, then old backup files which are exceeding the retention period will be
+     * automatically removed too.
+     *
+     * @param backupExecutorService Service with a connection to a component which can create backup files
+     * @param endpointCredential Credentials for the FileDestination
+     * @param backupJob A BackupJob
+     * @param destination Location to store the backup files
+     * @param items the storage systems (e.g. database) from the service instance to be backed up
+     */
     private void executeBackup(BackupExecutorService backupExecutorService, EndpointCredential endpointCredential, BackupJob backupJob,
                                FileDestination destination, List<String> items) {
         try {
@@ -151,6 +185,11 @@ public class BackupServiceManager extends AbstractServiceManager {
         }
     }
 
+    /**
+     * Delete old BackupJob and backup files which exceed the configured retention period.
+     *
+     * @param backupPlan A BackupPlan
+     */
     public void deleteIfDataRetentionIsReached(BackupPlan backupPlan) {
         List<AbstractJob> jobs = abstractJobRepository.findByBackupPlan(backupPlan);
         List<BackupJob> backupJobs = new ArrayList<>();

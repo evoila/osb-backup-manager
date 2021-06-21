@@ -48,11 +48,20 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         destinationTypes.add(DestinationType.SWIFT);
         destinationTypes.add(DestinationType.S3);
     }
+
     @ConditionalOnBean(AcceptSelfSignedClientHttpRequestFactory.class)
     @Autowired(required = false)
     private void selfSignedRestTemplate(AcceptSelfSignedClientHttpRequestFactory requestFactory) {
         restTemplate.setRequestFactory(requestFactory);
     }
+
+    /**
+     * Create a HTTPHeaders object needed to access the Agent.
+     *
+     * @param username the username
+     * @param password the password
+     * @return configured headers
+     */
     public HttpHeaders setAuthenticationHeader(String username, String password) {
         this.headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
@@ -62,6 +71,16 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         return headers;
     }
 
+    /**
+     * Send out a new http request to check for the JobStatus.
+     *
+     * @param endpointCredential Credentials for the ServiceInstance
+     * @param suffix TODO
+     * @param id TODO
+     * @param type TODO
+     * @param <T> TODO
+     * @return A AgentExecutionResponse with information on the job
+     */
     public <T extends AgentExecutionResponse> T pollExecutionState(EndpointCredential endpointCredential, String suffix, String id,
                                                                    ParameterizedTypeReference<T> type) {
         T agentExecutionResponse = null;

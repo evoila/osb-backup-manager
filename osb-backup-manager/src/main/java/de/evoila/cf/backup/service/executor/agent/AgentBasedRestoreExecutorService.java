@@ -15,10 +15,24 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
+ *
+ * The AgentBasedRestoreExecutorService communicates with the Backup Agent to execute restorations of backups.
  */
 @Service
 public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService implements RestoreExecutorService {
 
+    /**
+     * Start a restore process with the help of the Backup Agent.
+     *
+     * @param endpointCredential the credentials to access the ServiceInstance
+     * @param destination the storage from where the backup files can be retrieved
+     * @param requestDetails object containing the database and filename of the backup
+     * @param id set the ID of the AgentRestoreRequest
+     * @param compression if the files are compressed or not
+     * @param privateKey a key to access the files on the destination
+     * @param planId the ID of the BackupPlan
+     * @throws BackupException
+     */
     @Override
     public void restore(EndpointCredential endpointCredential, FileDestination destination,
                         RequestDetails requestDetails, String id, boolean compression, String privateKey,

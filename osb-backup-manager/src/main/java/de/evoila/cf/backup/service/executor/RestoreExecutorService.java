@@ -8,6 +8,8 @@ import de.evoila.cf.model.api.request.RequestDetails;
 
 /**
  * @author Johannes Hiemer, Yannic Remmet.
+ *
+ * A RestoreExecutorService provides methods to restore backup files.
  */
 public interface RestoreExecutorService extends BaseExecutorService {
 

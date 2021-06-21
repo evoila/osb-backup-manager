@@ -6,6 +6,8 @@ import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.model.enums.JobType;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 /**
  * @author Yannic Remmet, Johannes Hiemer.
  */
+@Api(value = "/backupJobs",
+        description = "Get or delete backup jobs from the job repository (MongoDB), which are or have been " +
+                "processed by the Backup Agent.")
 @Controller
 public class BackupJobController {
 
@@ -31,32 +36,36 @@ public class BackupJobController {
         this.backupCleanupManager = backupCleanupManager;
     }
 
-    @GetMapping(value = "/backupJobs/{jobId}")
+    @ApiOperation(value = "Gets a job from the repository.")
+    @RequestMapping(value = "/backupJobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<AbstractJob> get(@PathVariable ObjectId jobId) {
         AbstractJob job = abstractJobRepository.findById(jobId).orElse(null);
         return new ResponseEntity(job, HttpStatus.OK);
     }
 
-    @GetMapping("/backupJobs/byInstance/{instanceId}")
+    @ApiOperation(value = "Gets a page of jobs for the specified service instance.")
+    @RequestMapping(value = "/backupJobs/byInstance/{instanceId}", method = RequestMethod.GET)
     public ResponseEntity<Page<AbstractJob>> all(@PathVariable String instanceId,
-                                               @PageableDefault(size = 10,sort = {"startDate"},
-                                                       direction = Sort.Direction.DESC) Pageable pageable) {
+                                                 @PageableDefault(size = 10, sort = {"startDate"},
+                                                         direction = Sort.Direction.DESC) Pageable pageable) {
         Page<AbstractJob> jobs = abstractJobRepository.findByServiceInstanceIdAndJobType(instanceId,
                 JobType.BACKUP, pageable);
         return new ResponseEntity(jobs, HttpStatus.OK);
     }
 
-    @GetMapping("/backupJobs/byInstance/{instanceId}/filtered")
+    @ApiOperation(value = "Gets a page of jobs for the specified service instance, filtered by their JobStatus.")
+    @RequestMapping(value = "/backupJobs/byInstance/{instanceId}/filtered", method = RequestMethod.GET)
     public ResponseEntity<Page<AbstractJob>> allFiltered(@PathVariable String instanceId,
-                                                 @RequestParam JobStatus jobStatus,
-                                                 @PageableDefault(size = 10,sort = {"startDate"},
-                                                     direction = Sort.Direction.DESC) Pageable pageable) {
+                                                         @RequestParam JobStatus jobStatus,
+                                                         @PageableDefault(size = 10, sort = {"startDate"},
+                                                                 direction = Sort.Direction.DESC) Pageable pageable) {
         Page<AbstractJob> jobs = abstractJobRepository.findByServiceInstanceIdAndJobTypeAndStatus(instanceId,
                 JobType.BACKUP, jobStatus, pageable);
         return new ResponseEntity(jobs, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/backupJobs/{jobId}")
+    @ApiOperation(value = "Deletes a job from the repository.")
+    @RequestMapping(value = "/backupJobs/{jobId}", method = RequestMethod.DELETE)
     public ResponseEntity delete(@PathVariable ObjectId jobId) {
         AbstractJob job = abstractJobRepository.findById(jobId).orElse(null);
         if (job == null) {
@@ -66,14 +75,17 @@ public class BackupJobController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping(value = "/backupJobs/byInstance/{serviceInstanceId}")
+    @ApiOperation(value = "Deletes all jobs from the specified service instance.")
+    @RequestMapping(value = "/backupJobs/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         abstractJobRepository.deleteByServiceInstanceId(serviceInstanceId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping(value = "/backupJobs/{jobId}/file")
+
+    @ApiOperation(value = "Delete the file backed up by this job.")
+    @RequestMapping(value = "/backupJobs/{jobId}/file", method = RequestMethod.DELETE)
     public ResponseEntity deleteFile(@PathVariable ObjectId jobId, @RequestBody FileDestination destination) {
         AbstractJob job = abstractJobRepository.findById(jobId).orElse(null);
         if (job == null) {

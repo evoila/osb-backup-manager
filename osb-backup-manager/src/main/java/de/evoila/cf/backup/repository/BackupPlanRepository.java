@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * Created by yremmet on 18.07.17.
+ *
+ * A MongoDB repository for storing BackupPlans. A BackupPlan defines service instance, destinations, schedule and more.
  */
 public interface BackupPlanRepository extends MongoRepository<BackupPlan, ObjectId> {
 

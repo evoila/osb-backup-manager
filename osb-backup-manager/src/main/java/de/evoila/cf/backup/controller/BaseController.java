@@ -12,6 +12,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * A BaseController for handling exceptions and error messages.
+ */
 public abstract class BaseController {
 
     private final Logger log = LoggerFactory.getLogger(BaseController.class);

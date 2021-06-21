@@ -7,6 +7,8 @@ import de.evoila.cf.model.api.file.FileDestination;
 
 /**
  * @author Johannes Hiemer, Yannic Remmet.
+ *
+ * A BackupExecutorService provides methods for creating and storing backup files.
  */
 public interface BackupExecutorService extends BaseExecutorService {
 
