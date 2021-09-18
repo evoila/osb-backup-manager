@@ -130,6 +130,10 @@ public class BackupCleanupManager {
         if (destination.getType().equals(DestinationType.S3)) {
             job.getAgentExecutionReponses().entrySet().forEach(entry -> {
                 String filenamePrefix = ((AgentBackupResponse) entry.getValue()).getFilenamePrefix();
+                if (filenamePrefix == ""){
+                    destination.setFilenamePrefix(job.getIdAsString() + "/");
+                    filenamePrefix = job.getIdAsString() + "/";
+                }
                 String filename = ((AgentBackupResponse) entry.getValue()).getFilename();
                 deleteS3((S3FileDestination) destination, filenamePrefix + filename);
             });
