@@ -38,7 +38,7 @@ public class AbstractServiceManager {
     @PostConstruct
     private void postConstruct() {
         taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(2);
+        taskExecutor.setCorePoolSize(3);
         taskExecutor.setMaxPoolSize(10);
         taskExecutor.initialize();
     }

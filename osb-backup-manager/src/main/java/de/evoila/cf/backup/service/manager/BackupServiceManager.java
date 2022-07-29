@@ -43,6 +43,7 @@ public class BackupServiceManager extends AbstractServiceManager {
         this.abstractJobRepository = abstractJobRepository;
         this.credentialService = credentialService;
         this.backupCleanupManager = backupCleanupManager;
+        log.debug("Debug activated");
     }
 
     /**
@@ -73,6 +74,7 @@ public class BackupServiceManager extends AbstractServiceManager {
      * @throws BackupRequestException
      */
     public BackupJob backup(BackupPlan backupPlan, FileDestination destination) throws BackupRequestException {
+        log.info("(1)Now inside backup-method " + backupPlan.getIdAsString());
         BackupJob backupJob = new BackupJob(JobType.BACKUP, backupPlan.getServiceInstance(), JobStatus.STARTED);
         backupJob.setBackupPlan(backupPlan);
         abstractJobRepository.save(backupJob);
@@ -83,7 +85,7 @@ public class BackupServiceManager extends AbstractServiceManager {
         } catch (BackupException ex) {
             throw new BackupRequestException("Could not load endpoint credentials", ex);
         }
-
+        log.info("(2)Inside backup-method behind getCredentials " + backupPlan.getIdAsString());
         if (endpointCredential == null)
             throw new BackupRequestException("Did not find Service Instance");
 
@@ -104,9 +106,27 @@ public class BackupServiceManager extends AbstractServiceManager {
 
             throw new BackupRequestException("No Backup Service found");
         }
+        log.info("(3)Inside backup-method before execute() " + backupPlan.getIdAsString());
 
-        taskExecutor.execute(() -> executeBackup(backupExecutorService.get(), endpointCredential,
-                backupJob, destination, backupPlan.getItems()));
+        log.info("Task Count " + taskExecutor.getActiveCount() + " " + backupPlan.getIdAsString());
+        log.info("Pool size " + taskExecutor.getPoolSize() + " " + backupPlan.getIdAsString());
+        log.info("Max pool size " + taskExecutor.getMaxPoolSize());
+        log.info("Completed task count " + taskExecutor.getThreadPoolExecutor().getCompletedTaskCount());
+        log.info("Queue size " + taskExecutor.getThreadPoolExecutor().getQueue().size());
+        log.info("First task in queue: " + taskExecutor.getThreadPoolExecutor().getQueue().peek());
+        taskExecutor.execute(() -> {
+            log.info("(4)Inside backup-method before executeBackup " + backupPlan.getIdAsString());
+            executeBackup(backupExecutorService.get(), endpointCredential,
+                    backupJob, destination, backupPlan.getItems());
+        });
+        try {
+            taskExecutor.getThreadPoolExecutor().awaitTermination(15, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+
+
 
         return backupJob;
     }
@@ -135,14 +155,17 @@ public class BackupServiceManager extends AbstractServiceManager {
                 String id = backupJob.getIdAsString() + i;
 
                 BackupPlan backupPlan = backupJob.getBackupPlan();
+                log.info("Before backupExecutorService.backup, PlanID " + backupPlan.getIdAsString());
                 backupExecutorService.backup(endpointCredential, destination, id, item,
                         backupPlan.isCompression(), backupPlan.getPublicKey(), backupPlan.getIdAsString());
+                log.info("After backupExecutorService.backup, PlanID " + backupPlan.getIdAsString());
                 backupJob.setDestination(destination);
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentBackupResponse> completionFuture = new CompletableFuture<>();
                 completionFutures.add(completionFuture);
                 ScheduledFuture checkFuture = executor.scheduleAtFixedRate(() -> {
+                    log.info("Inside executor.scheduleAtFixedRate");
                     try {
                         AgentBackupResponse agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
                                 "backup", id, new ParameterizedTypeReference<AgentBackupResponse>() {});
@@ -164,16 +187,19 @@ public class BackupServiceManager extends AbstractServiceManager {
 
                         updateWithAgentResponse(backupJob, item, result);
                     }
-
+                    log.info("Inside executor.scheduleAtFixedRate before checkFuture.cancel");
                     checkFuture.cancel(true);
                     log.info("Finished execution of Backup Job");
                 });
+                log.info("Waiting for completionFuture.get, Item " + item + " i=" + i);
                 i++;
+                completionFuture.get();
             }
-
+            log.info("Before iteration over completionFutures (completionFuture.get())");
             for(CompletableFuture completionFuture : completionFutures) {
                 completionFuture.get();
             }
+            log.info("After iteration over completionFutures (completionFuture.get())");
 
             if(!backupJob.getStatus().equals(JobStatus.FAILED)) {
                 deleteIfDataRetentionIsReached(backupJob.getBackupPlan());
@@ -183,6 +209,7 @@ public class BackupServiceManager extends AbstractServiceManager {
             log.error("Exception during backup execution", e);
             updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
         }
+        log.info("BACKUP COMPLETED");
     }
 
     /**
