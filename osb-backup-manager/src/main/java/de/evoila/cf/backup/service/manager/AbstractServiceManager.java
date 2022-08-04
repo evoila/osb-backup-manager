@@ -63,7 +63,6 @@ public class AbstractServiceManager {
      */
     protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
         abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
-        this.updateState(abstractJob, agentExecutionResponse.getStatus());
     }
 
     /**
