@@ -210,7 +210,7 @@ public class BackupServiceManager extends AbstractServiceManager {
             log.error("Exception during backup execution", e);
             updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
         }
-        log.info("BACKUP COMPLETED");
+        updateStateAndLog(backupJob, JobStatus.SUCCEEDED, String.format("BACKUP COMPLETED (%s)", backupJob.getId()));
     }
 
     /**
