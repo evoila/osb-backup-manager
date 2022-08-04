@@ -205,12 +205,13 @@ public class BackupServiceManager extends AbstractServiceManager {
             if(!backupJob.getStatus().equals(JobStatus.FAILED)) {
                 deleteIfDataRetentionIsReached(backupJob.getBackupPlan());
             }
+            
+            updateStateAndLog(backupJob, JobStatus.SUCCEEDED, String.format("BACKUP COMPLETED (%s)", backupJob.getId()));
 
         } catch (Exception e) {
             log.error("Exception during backup execution", e);
             updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
         }
-        updateStateAndLog(backupJob, JobStatus.SUCCEEDED, String.format("BACKUP COMPLETED (%s)", backupJob.getId()));
     }
 
     /**
