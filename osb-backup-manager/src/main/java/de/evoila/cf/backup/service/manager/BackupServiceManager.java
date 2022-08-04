@@ -163,7 +163,6 @@ public class BackupServiceManager extends AbstractServiceManager {
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentBackupResponse> completionFuture = new CompletableFuture<>();
-                completionFutures.add(completionFuture);
                 ScheduledFuture checkFuture = executor.scheduleAtFixedRate(() -> {
                     log.info("Inside executor.scheduleAtFixedRate");
                     try {
@@ -179,7 +178,9 @@ public class BackupServiceManager extends AbstractServiceManager {
                     }
 
                 }, 0, 5, TimeUnit.SECONDS);
-                completionFuture.whenComplete((result, thrown) -> {
+                log.info("Waiting for completionFuture.get, Item " + item + " i=" + i);
+                i++;
+                CompletableFuture<> completionFutureWithCheck = completionFuture.whenComplete((result, thrown) -> {
                     if (result != null) {
                         if (result.getStatus().equals(JobStatus.SUCCEEDED)) {
                             backupJob.getFiles().put(item, result.getFilename());
@@ -190,10 +191,10 @@ public class BackupServiceManager extends AbstractServiceManager {
                     log.info("Inside executor.scheduleAtFixedRate before checkFuture.cancel");
                     checkFuture.cancel(true);
                     log.info("Finished execution of Backup Job");
-                });
-                log.info("Waiting for completionFuture.get, Item " + item + " i=" + i);
-                i++;
-                completionFuture.get();
+                })
+                    
+                completionFutures.add(completionFutureWithCheck);
+                completionFutureWithCheck.get();
             }
             log.info("Before iteration over completionFutures (completionFuture.get())");
             for(CompletableFuture completionFuture : completionFutures) {
