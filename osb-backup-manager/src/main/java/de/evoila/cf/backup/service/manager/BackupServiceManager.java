@@ -197,7 +197,7 @@ public class BackupServiceManager extends AbstractServiceManager {
                 completionFutureWithCheck.get();
             }
             log.info("Before iteration over completionFutures (completionFuture.get())");
-            for(CompletableFuture completionFuture : completionFutures) {
+            for(CompletableFuture<?> completionFuture : completionFutures) {
                 completionFuture.get();
             }
             log.info("After iteration over completionFutures (completionFuture.get())");
@@ -209,6 +209,9 @@ public class BackupServiceManager extends AbstractServiceManager {
         } catch (Exception e) {
             log.error("Exception during backup execution", e);
             updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
+            if(e instanceof InterruptedException){
+                Thread.currentThread().interrupt();
+            }
         }
         log.info("BACKUP COMPLETED");
     }

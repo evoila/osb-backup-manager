@@ -18,8 +18,7 @@ import de.evoila.cf.model.enums.JobType;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -127,6 +126,8 @@ public class RestoreServiceManager extends AbstractServiceManager {
             log.info("Starting execution of Restore Job");
             updateState(restoreJob, JobStatus.RUNNING);
 
+            List<CompletableFuture<AgentRestoreResponse>> completionFutures = new ArrayList<>();
+
             int i = 0;
             for (RequestDetails requestDetails : items) {
                 String id = restoreJob.getIdAsString() + i;
@@ -137,7 +138,7 @@ public class RestoreServiceManager extends AbstractServiceManager {
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentRestoreResponse> completionFuture = new CompletableFuture<>();
-                ScheduledFuture checkFuture = executor.scheduleAtFixedRate(() -> {
+                ScheduledFuture<?> checkFuture = executor.scheduleAtFixedRate(() -> {
                     try {
                         AgentRestoreResponse agentRestoreResponse = restoreExecutorService.pollExecutionState(endpointCredential,
                                 "restore", id, new ParameterizedTypeReference<AgentRestoreResponse>() {});
@@ -151,19 +152,26 @@ public class RestoreServiceManager extends AbstractServiceManager {
                     }
 
                 }, 0, 5, TimeUnit.SECONDS);
-                completionFuture.whenComplete((result, thrown) -> {
+
+                completionFutures.add(completionFuture.whenComplete((result, thrown) -> {
                     if (result != null) {
                         updateWithAgentResponse(restoreJob, requestDetails.getItem(), result);
                     }
 
                     checkFuture.cancel(true);
                     log.info("Finished execution of Restore Job");
-                });
+                }));
                 i++;
             }
-        } catch (BackupException e) {
+            for(CompletableFuture<?> completionFuture : completionFutures) {
+                completionFuture.get();
+            }
+        } catch (BackupException | InterruptedException | ExecutionException e) {
             log.error("Exception during restore execution", e);
             updateStateAndLog(restoreJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", restoreJob.getId(), e.getMessage()));
+            if(e instanceof InterruptedException){
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }
