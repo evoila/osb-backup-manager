@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -63,6 +61,34 @@ public class AbstractServiceManager {
      */
     protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
         abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
+
+        JobStatus status = abstractJob.getAgentExecutionReponses()
+                .values()
+                .stream()
+                .map(AgentExecutionResponse::getStatus)
+                .max(Comparator.comparingInt(jobStatus -> {
+                    int priority = 10;
+                    switch (jobStatus) {
+                        case UNKNOWN:
+                            priority = 5;
+                            break;
+                        case RUNNING:
+                            priority = 4;
+                            break;
+                        case STARTED:
+                            priority= 3;
+                            break;
+                        case FAILED:
+                            priority = 2;
+                            break;
+                        case SUCCEEDED:
+                            priority = 1;
+                            break;
+                    }
+                    return priority;
+                }))
+                .orElse(JobStatus.UNKNOWN);
+        updateState(abstractJob, status);
     }
 
     /**
