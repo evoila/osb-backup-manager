@@ -15,6 +15,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -29,6 +31,8 @@ public class AbstractServiceManager {
 
     protected ThreadPoolTaskExecutor taskExecutor;
 
+    protected ScheduledExecutorService scheduledExcecutor;
+
     protected AbstractJobRepository abstractJobRepository;
 
     protected CredentialService credentialService;
@@ -39,6 +43,8 @@ public class AbstractServiceManager {
         taskExecutor.setCorePoolSize(3);
         taskExecutor.setMaxPoolSize(10);
         taskExecutor.initialize();
+
+        scheduledExcecutor = Executors.newScheduledThreadPool(1);
     }
 
     /**

@@ -136,9 +136,8 @@ public class RestoreServiceManager extends AbstractServiceManager {
                 restoreExecutorService.restore(endpointCredential, destination, requestDetails, id,
                         backupPlan.isCompression(), backupPlan.getPrivateKey(), backupPlan.getIdAsString());
 
-                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentRestoreResponse> completionFuture = new CompletableFuture<>();
-                ScheduledFuture<?> checkFuture = executor.scheduleAtFixedRate(() -> {
+                ScheduledFuture<?> checkFuture = scheduledExcecutor.scheduleAtFixedRate(() -> {
                     try {
                         AgentRestoreResponse agentRestoreResponse = restoreExecutorService.pollExecutionState(endpointCredential,
                                 "restore", id, new ParameterizedTypeReference<AgentRestoreResponse>() {});

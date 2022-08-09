@@ -161,9 +161,8 @@ public class BackupServiceManager extends AbstractServiceManager {
                 log.info("After backupExecutorService.backup, PlanID " + backupPlan.getIdAsString());
                 backupJob.setDestination(destination);
 
-                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CompletableFuture<AgentBackupResponse> completionFuture = new CompletableFuture<>();
-                ScheduledFuture checkFuture = executor.scheduleAtFixedRate(() -> {
+                ScheduledFuture checkFuture = scheduledExcecutor.scheduleAtFixedRate(() -> {
                     log.info("Inside executor.scheduleAtFixedRate");
                     try {
                         AgentBackupResponse agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
