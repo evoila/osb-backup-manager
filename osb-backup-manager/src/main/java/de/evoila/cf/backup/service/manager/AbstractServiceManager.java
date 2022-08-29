@@ -42,6 +42,7 @@ public class AbstractServiceManager {
         taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setCorePoolSize(3);
         taskExecutor.setMaxPoolSize(10);
+        taskExecutor.setQueueCapacity(10);
         taskExecutor.initialize();
 
         scheduledExcecutor = Executors.newScheduledThreadPool(1);

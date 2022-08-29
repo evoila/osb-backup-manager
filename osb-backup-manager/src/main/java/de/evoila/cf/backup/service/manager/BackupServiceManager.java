@@ -108,25 +108,26 @@ public class BackupServiceManager extends AbstractServiceManager {
         }
         log.info("(3)Inside backup-method before execute() " + backupPlan.getIdAsString());
 
-        log.info("Task Count " + taskExecutor.getActiveCount() + " " + backupPlan.getIdAsString());
-        log.info("Pool size " + taskExecutor.getPoolSize() + " " + backupPlan.getIdAsString());
-        log.info("Max pool size " + taskExecutor.getMaxPoolSize());
-        log.info("Completed task count " + taskExecutor.getThreadPoolExecutor().getCompletedTaskCount());
-        log.info("Queue size " + taskExecutor.getThreadPoolExecutor().getQueue().size());
-        log.info("First task in queue: " + taskExecutor.getThreadPoolExecutor().getQueue().peek());
+        log.info("taskExecutor: Task Count " + taskExecutor.getActiveCount() + " " + backupPlan.getIdAsString());
+        log.info("taskExecutor: Pool size " + taskExecutor.getPoolSize() + " " + backupPlan.getIdAsString());
+        log.info("taskExecutor: Max pool size " + taskExecutor.getMaxPoolSize());
+        log.info("taskExecutor: Completed task count " + taskExecutor.getThreadPoolExecutor().getCompletedTaskCount());
+        log.info("taskExecutor: Queue size " + taskExecutor.getThreadPoolExecutor().getQueue().size());
+        log.info("taskExecutor: First task in queue: " + taskExecutor.getThreadPoolExecutor().getQueue().peek());
+
+        log.info("scheduledExcecutor: Task Count " + scheduledExcecutor.getActiveCount() + " " + backupPlan.getIdAsString());
+        log.info("scheduledExcecutor: Pool size " + scheduledExcecutor.getPoolSize() + " " + backupPlan.getIdAsString());
+        log.info("scheduledExcecutor: Max pool size " + scheduledExcecutor.getMaximumPoolSize());
+        log.info("scheduledExcecutor: Completed task count " + scheduledExcecutor.getCompletedTaskCount());
+        log.info("scheduledExcecutor: Queue size " + scheduledExcecutor.getQueue().size());
+        log.info("scheduledExcecutor: First task in queue: " + scheduledExcecutor.getQueue().peek());
+
         taskExecutor.execute(() -> {
             log.info("(4)Inside backup-method before executeBackup " + backupPlan.getIdAsString());
             executeBackup(backupExecutorService.get(), endpointCredential,
                     backupJob, destination, backupPlan.getItems());
+            log.info("(5)Inside backup-method after executeBackup " + backupPlan.getIdAsString());
         });
-        try {
-            taskExecutor.getThreadPoolExecutor().awaitTermination(15, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-        }
-
-
 
         return backupJob;
     }
