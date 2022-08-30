@@ -115,12 +115,12 @@ public class BackupServiceManager extends AbstractServiceManager {
         log.info("taskExecutor: Queue size " + taskExecutor.getThreadPoolExecutor().getQueue().size());
         log.info("taskExecutor: First task in queue: " + taskExecutor.getThreadPoolExecutor().getQueue().peek());
 
-        log.info("scheduledExcecutor: Task Count " + scheduledExcecutor.getActiveCount() + " " + backupPlan.getIdAsString());
-        log.info("scheduledExcecutor: Pool size " + scheduledExcecutor.getPoolSize() + " " + backupPlan.getIdAsString());
-        log.info("scheduledExcecutor: Max pool size " + scheduledExcecutor.getMaximumPoolSize());
-        log.info("scheduledExcecutor: Completed task count " + scheduledExcecutor.getCompletedTaskCount());
-        log.info("scheduledExcecutor: Queue size " + scheduledExcecutor.getQueue().size());
-        log.info("scheduledExcecutor: First task in queue: " + scheduledExcecutor.getQueue().peek());
+        log.info("scheduledExcecutor: Task Count " + ((ScheduledThreadPoolExecutor)scheduledExcecutor).getActiveCount() + " " + backupPlan.getIdAsString());
+        log.info("scheduledExcecutor: Pool size " + ((ScheduledThreadPoolExecutor)scheduledExcecutor).getPoolSize() + " " + backupPlan.getIdAsString());
+        log.info("scheduledExcecutor: Max pool size " + ((ScheduledThreadPoolExecutor)scheduledExcecutor).getMaximumPoolSize());
+        log.info("scheduledExcecutor: Completed task count " + ((ScheduledThreadPoolExecutor)scheduledExcecutor).getCompletedTaskCount());
+        log.info("scheduledExcecutor: Queue size " + ((ScheduledThreadPoolExecutor)scheduledExcecutor).getQueue().size());
+        log.info("scheduledExcecutor: First task in queue: " + ((ScheduledThreadPoolExecutor)scheduledExcecutor).getQueue().peek());
 
         taskExecutor.execute(() -> {
             log.info("(4)Inside backup-method before executeBackup " + backupPlan.getIdAsString());
