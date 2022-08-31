@@ -90,6 +90,7 @@ public class AgentBasedExecutorService extends AbstractBackupService {
             this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
                     endpointCredential.getBackupPassword());
             HttpEntity entity = new HttpEntity(headers);
+
             log.info("http://" + endpointCredential.getBackupUsername() + ":" + endpointCredential.getBackupPassword() + "@" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id);
             ResponseEntity<T> agentExecutionResponseEntity = restTemplate
                     .exchange("http://" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id,
