@@ -168,10 +168,11 @@ public class BackupServiceManager extends AbstractServiceManager {
                     try {
                         AgentBackupResponse agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
                                 "backup", id, new ParameterizedTypeReference<AgentBackupResponse>() {});
-
-                        updateWithAgentResponse(backupJob, item, agentBackupResponse);
-                        if (!agentBackupResponse.getStatus().equals(JobStatus.RUNNING)) {
-                            completionFuture.complete(agentBackupResponse);
+                        if (agentBackupResponse != null) {
+                            updateWithAgentResponse(backupJob, item, agentBackupResponse);
+                            if (!agentBackupResponse.getStatus().equals(JobStatus.RUNNING)) {
+                                completionFuture.complete(agentBackupResponse);
+                            }
                         }
                     } catch (BackupException ex) {
                         completionFuture.complete(null);

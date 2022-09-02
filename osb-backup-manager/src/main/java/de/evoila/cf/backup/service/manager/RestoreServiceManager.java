@@ -141,10 +141,11 @@ public class RestoreServiceManager extends AbstractServiceManager {
                     try {
                         AgentRestoreResponse agentRestoreResponse = restoreExecutorService.pollExecutionState(endpointCredential,
                                 "restore", id, new ParameterizedTypeReference<AgentRestoreResponse>() {});
-
-                        updateWithAgentResponse(restoreJob, requestDetails.getItem(), agentRestoreResponse);
-                        if (!agentRestoreResponse.getStatus().equals(JobStatus.RUNNING)) {
-                            completionFuture.complete((AgentRestoreResponse) agentRestoreResponse);
+                        if (agentRestoreResponse != null) {
+                            updateWithAgentResponse(restoreJob, requestDetails.getItem(), agentRestoreResponse);
+                            if (!agentRestoreResponse.getStatus().equals(JobStatus.RUNNING)) {
+                                completionFuture.complete((AgentRestoreResponse) agentRestoreResponse);
+                            }
                         }
                     } catch (BackupException ex) {
                         completionFuture.complete(null);
