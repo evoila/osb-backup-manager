@@ -100,7 +100,6 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         } catch (Exception ex) {
             log.error("Failed to poll task", ex);
             log.error("Failed URL: " + "http://" + endpointCredential.getBackupUsername() + ":" + endpointCredential.getBackupPassword() + "@" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id);
-            log.error("AgentExecutionResponse after setting status = " + agentExecutionResponse);
             // we don't need to here anything.
         }
         return agentExecutionResponse;
