@@ -175,6 +175,7 @@ public class BackupServiceManager extends AbstractServiceManager {
                             }
                         }
                     } catch (BackupException ex) {
+                        log.error("restore check failed, creating dummy response", ex);
                         AgentBackupResponse dummyResponse = new AgentBackupResponse();
                         dummyResponse.setStatus(JobStatus.FAILED);
                         dummyResponse.setErrorMessage(ex.getMessage());
