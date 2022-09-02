@@ -149,6 +149,8 @@ public class RestoreServiceManager extends AbstractServiceManager {
                         }
                     } catch (BackupException ex) {
                         completionFuture.complete(null);
+                    } catch (Exception ex) {
+                        log.error("restore check failed", ex);
                     }
 
                 }, 0, 5, TimeUnit.SECONDS);

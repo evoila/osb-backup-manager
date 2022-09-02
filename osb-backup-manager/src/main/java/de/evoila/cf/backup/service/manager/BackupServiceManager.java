@@ -176,6 +176,8 @@ public class BackupServiceManager extends AbstractServiceManager {
                         }
                     } catch (BackupException ex) {
                         completionFuture.complete(null);
+                    } catch (Exception ex) {
+                        log.error("backup check failed", ex);
                     }
 
                 }, 0, 5, TimeUnit.SECONDS);
