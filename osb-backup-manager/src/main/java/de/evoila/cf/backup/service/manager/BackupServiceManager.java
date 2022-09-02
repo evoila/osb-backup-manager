@@ -175,7 +175,10 @@ public class BackupServiceManager extends AbstractServiceManager {
                             }
                         }
                     } catch (BackupException ex) {
-                        completionFuture.complete(null);
+                        AgentBackupResponse dummyResponse = new AgentBackupResponse();
+                        dummyResponse.setStatus(JobStatus.FAILED);
+                        dummyResponse.setErrorMessage(ex.getMessage());
+                        completionFuture.complete(dummyResponse);
                     } catch (Exception ex) {
                         log.error("backup check failed", ex);
                     }

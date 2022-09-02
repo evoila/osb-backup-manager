@@ -5,6 +5,7 @@ import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.service.CredentialService;
 import de.evoila.cf.backup.service.exception.BackupRequestException;
 import de.evoila.cf.backup.service.executor.RestoreExecutorService;
+import de.evoila.cf.model.agent.response.AgentBackupResponse;
 import de.evoila.cf.model.agent.response.AgentRestoreResponse;
 import de.evoila.cf.model.api.BackupJob;
 import de.evoila.cf.model.api.BackupPlan;
@@ -148,7 +149,10 @@ public class RestoreServiceManager extends AbstractServiceManager {
                             }
                         }
                     } catch (BackupException ex) {
-                        completionFuture.complete(null);
+                        AgentRestoreResponse dummyResponse = new AgentRestoreResponse();
+                        dummyResponse.setStatus(JobStatus.FAILED);
+                        dummyResponse.setErrorMessage(ex.getMessage());
+                        completionFuture.complete(dummyResponse);
                     } catch (Exception ex) {
                         log.error("restore check failed", ex);
                     }
