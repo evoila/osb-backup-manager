@@ -88,8 +88,6 @@ public class AgentBasedExecutorService extends AbstractBackupService {
             HttpHeaders headers = this.createAuthenticationHeader(endpointCredential.getBackupUsername(),
                     endpointCredential.getBackupPassword());
             HttpEntity entity = new HttpEntity(headers);
-
-            log.info("http://" + endpointCredential.getBackupUsername() + ":" + endpointCredential.getBackupPassword() + "@" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id);
             ResponseEntity<T> agentExecutionResponseEntity = restTemplate
                     .exchange("http://" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id,
                             HttpMethod.GET, entity, type);
@@ -97,7 +95,6 @@ public class AgentBasedExecutorService extends AbstractBackupService {
 
         } catch (Exception ex) {
             log.error("Failed to poll task", ex);
-            log.error("Failed URL: " + "http://" + endpointCredential.getBackupUsername() + ":" + endpointCredential.getBackupPassword() + "@" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id);
             // we don't need to here anything.
         }
         return agentExecutionResponse;
