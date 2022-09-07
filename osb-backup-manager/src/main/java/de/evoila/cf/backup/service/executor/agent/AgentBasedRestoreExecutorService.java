@@ -51,9 +51,7 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
         AgentRestoreRequest agentRestoreRequest = new AgentRestoreRequest(id, compression, privateKey,
                 destination, endpointCredential);
 
-        this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
-                endpointCredential.getBackupPassword());
-        HttpHeaders httpHeaders = this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+        HttpHeaders httpHeaders = this.createAuthenticationHeader(endpointCredential.getBackupUsername(),
                 endpointCredential.getBackupPassword());
         HttpEntity entity = new HttpEntity(agentRestoreRequest, httpHeaders);
 

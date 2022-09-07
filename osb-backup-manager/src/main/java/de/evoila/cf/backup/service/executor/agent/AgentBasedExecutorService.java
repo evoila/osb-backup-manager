@@ -5,7 +5,6 @@ import de.evoila.cf.model.agent.response.AgentExecutionResponse;
 import de.evoila.cf.model.api.endpoint.EndpointCredential;
 import de.evoila.cf.model.enums.BackupType;
 import de.evoila.cf.model.enums.DestinationType;
-import de.evoila.cf.model.enums.JobStatus;
 import de.evoila.cf.security.utils.AcceptSelfSignedClientHttpRequestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ public class AgentBasedExecutorService extends AbstractBackupService {
 
     protected RestTemplate restTemplate;
 
-    protected HttpHeaders headers;
 
     public List<DestinationType> getDestinationTypes() {
         return this.destinationTypes;
@@ -62,8 +60,8 @@ public class AgentBasedExecutorService extends AbstractBackupService {
      * @param password the password
      * @return configured headers
      */
-    public HttpHeaders setAuthenticationHeader(String username, String password) {
-        this.headers = new HttpHeaders();
+    public HttpHeaders createAuthenticationHeader(String username, String password) {
+        HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/json");
         String token = new String(Base64Utils.encode((username + ":" + password).getBytes()));
@@ -87,17 +85,16 @@ public class AgentBasedExecutorService extends AbstractBackupService {
         try {
             log.info("Polling state of Backup Process for " + id);
 
-            this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+            HttpHeaders headers = this.createAuthenticationHeader(endpointCredential.getBackupUsername(),
                     endpointCredential.getBackupPassword());
             HttpEntity entity = new HttpEntity(headers);
-
             ResponseEntity<T> agentExecutionResponseEntity = restTemplate
                     .exchange("http://" + endpointCredential.getHost() + ":8000/" + suffix + "/" + id,
                             HttpMethod.GET, entity, type);
             agentExecutionResponse = agentExecutionResponseEntity.getBody();
+
         } catch (Exception ex) {
             log.error("Failed to poll task", ex);
-            agentExecutionResponse.setStatus(JobStatus.FAILED);
             // we don't need to here anything.
         }
         return agentExecutionResponse;

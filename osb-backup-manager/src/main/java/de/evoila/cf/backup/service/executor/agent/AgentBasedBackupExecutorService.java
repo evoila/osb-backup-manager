@@ -53,9 +53,7 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
                 endpointCredential.getBackupUsername(),
                 endpointCredential.getBackupPassword()
         ));
-        this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
-                endpointCredential.getBackupPassword());
-        HttpHeaders httpHeaders = this.setAuthenticationHeader(endpointCredential.getBackupUsername(),
+        HttpHeaders httpHeaders = this.createAuthenticationHeader(endpointCredential.getBackupUsername(),
                 endpointCredential.getBackupPassword());
         HttpEntity entity = new HttpEntity(agentBackupRequest, httpHeaders);
 

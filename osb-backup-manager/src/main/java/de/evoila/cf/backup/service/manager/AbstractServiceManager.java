@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Yannic Remmet, Johannes Hiemer.
@@ -31,6 +31,8 @@ public class AbstractServiceManager {
 
     protected ThreadPoolTaskExecutor taskExecutor;
 
+    protected ScheduledExecutorService scheduledExcecutor;
+
     protected AbstractJobRepository abstractJobRepository;
 
     protected CredentialService credentialService;
@@ -38,9 +40,12 @@ public class AbstractServiceManager {
     @PostConstruct
     private void postConstruct() {
         taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(2);
+        taskExecutor.setCorePoolSize(3);
         taskExecutor.setMaxPoolSize(10);
+        taskExecutor.setQueueCapacity(10);
         taskExecutor.initialize();
+
+        scheduledExcecutor = Executors.newScheduledThreadPool(1);
     }
 
     /**
@@ -63,7 +68,34 @@ public class AbstractServiceManager {
      */
     protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
         abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
-        this.updateState(abstractJob, agentExecutionResponse.getStatus());
+
+        JobStatus status = abstractJob.getAgentExecutionReponses()
+                .values()
+                .stream()
+                .map(AgentExecutionResponse::getStatus)
+                .max(Comparator.comparingInt(jobStatus -> {
+                    int priority = 10;
+                    switch (jobStatus) {
+                        case UNKNOWN:
+                            priority = 5;
+                            break;
+                        case RUNNING:
+                            priority = 4;
+                            break;
+                        case STARTED:
+                            priority= 3;
+                            break;
+                        case FAILED:
+                            priority = 2;
+                            break;
+                        case SUCCEEDED:
+                            priority = 1;
+                            break;
+                    }
+                    return priority;
+                }))
+                .orElse(JobStatus.UNKNOWN);
+        updateState(abstractJob, status);
     }
 
     /**
