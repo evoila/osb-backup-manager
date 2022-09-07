@@ -8,7 +8,6 @@
 		<appender-ref ref="CONSOLE" />
 	</root>
 
-	<logger name="de.evoila.cf" level="DEBUG" />
 	<logger name="org.apache.http.wire" level="INFO" />
 
 		

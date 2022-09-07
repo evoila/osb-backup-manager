@@ -43,7 +43,6 @@ public class BackupServiceManager extends AbstractServiceManager {
         this.abstractJobRepository = abstractJobRepository;
         this.credentialService = credentialService;
         this.backupCleanupManager = backupCleanupManager;
-        log.debug("Debug activated");
     }
 
     /**
@@ -172,6 +171,7 @@ public class BackupServiceManager extends AbstractServiceManager {
                         updateWithAgentResponse(backupJob, item, result);
                     }
                     checkFuture.cancel(true);
+                    log.info("Finished execution of Backup Job");
                 });
                     
                 completionFutures.add(completionFutureWithCheck);
