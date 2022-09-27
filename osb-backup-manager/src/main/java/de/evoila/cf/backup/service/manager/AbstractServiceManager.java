@@ -40,9 +40,9 @@ public class AbstractServiceManager {
     @PostConstruct
     private void postConstruct() {
         taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(3);
-        taskExecutor.setMaxPoolSize(10);
-        taskExecutor.setQueueCapacity(10);
+        taskExecutor.setCorePoolSize(5);
+        taskExecutor.setMaxPoolSize(4096);
+        taskExecutor.setQueueCapacity(50);
         taskExecutor.initialize();
 
         scheduledExcecutor = Executors.newScheduledThreadPool(1);
