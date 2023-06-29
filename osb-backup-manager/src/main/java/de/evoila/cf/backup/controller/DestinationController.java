@@ -81,10 +81,10 @@ public class DestinationController extends BaseController {
     @ApiOperation(value = "Create a new S3 destination, specifying where backups " +
             "should be stored for a specific instance.")
     @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
-    public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination, @RequestHeader String authorization) {
+    public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
 
         String instanceID = destination.getServiceInstance().getId();
-        if (!permissionCheckService.hasReadAccess(instanceID, authorization)) {
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
         }
 
@@ -106,10 +106,10 @@ public class DestinationController extends BaseController {
 
     @ApiOperation(value = "Check if a backup can be stored in the given destination.")
     @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
-    public ResponseEntity validate(@RequestBody FileDestination destination, @RequestHeader String authorization) {
+    public ResponseEntity validate(@RequestBody FileDestination destination) {
 
         String instanceID = destination.getServiceInstance().getId();
-        if (!permissionCheckService.hasReadAccess(instanceID, authorization)) {
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
         }
 

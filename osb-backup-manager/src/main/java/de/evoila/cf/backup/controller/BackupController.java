@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -48,10 +47,10 @@ public class BackupController {
     @ApiOperation(value = "Add a new backup request to the queue. The backup will be executed asynchronously at the " +
             "scheduled interval as a job.")
     @RequestMapping(value = "/backup", method = RequestMethod.POST)
-    public ResponseEntity backup(@RequestBody BackupRequest backupRequest, @RequestHeader String authorization) {
+    public ResponseEntity backup(@RequestBody BackupRequest backupRequest) {
 
         String instanceID = backupRequest.getBackupPlan().getServiceInstance().getId();
-        if (!permissionCheckService.hasReadAccess(instanceID, authorization)) {
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
         }
 
@@ -64,10 +63,10 @@ public class BackupController {
     @ApiOperation(value = "Add a new restore request to the queue. The restore will be executed asynchronously at " +
             "the scheduled interval as a job.")
     @RequestMapping(value = "/restore", method = RequestMethod.POST)
-    public ResponseEntity restore(@RequestBody RestoreRequest restoreRequest, @RequestHeader String authorization) {
+    public ResponseEntity restore(@RequestBody RestoreRequest restoreRequest) {
 
         String instanceID = restoreRequest.getBackupJob().getBackupPlan().getServiceInstance().getId();
-        if (!permissionCheckService.hasReadAccess(instanceID, authorization)) {
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
         }
 

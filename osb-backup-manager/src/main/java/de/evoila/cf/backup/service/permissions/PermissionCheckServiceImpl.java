@@ -74,16 +74,13 @@ public class PermissionCheckServiceImpl implements PermissionCheckService{
         return false;
     }
 
-    public boolean hasReadAccess(String serviceInstanceId, String authorizationHeader){
-        if (authorizationHeader == null || authorizationHeader.isBlank()) {
-            return false;
-        }
-        return hasScope(serviceInstanceId, READ, authorizationHeader);
+    public boolean hasReadAccess(String serviceInstanceId){
+        return hasScope(serviceInstanceId, READ);
     }
 
-    public boolean hasScope(String serviceInstanceId, String requiredScope, String jwt){
+    public boolean hasScope(String serviceInstanceId, String requiredScope){
         if (serviceInstanceId != null) {
-            return (boolean) fetchPermissions(serviceInstanceId, jwt).getBody().get(requiredScope);
+            return (boolean) fetchPermissions(serviceInstanceId).getBody().get(requiredScope);
         }
         return false;
     }
@@ -126,11 +123,7 @@ public class PermissionCheckServiceImpl implements PermissionCheckService{
     }
 
     private ResponseEntity<Map> fetchPermissions(String serviceInstanceId) {
-        return fetchPermissions(serviceInstanceId, null);
-    }
-
-    private ResponseEntity<Map> fetchPermissions(String serviceInstanceId, String authHeaderValue) {
-        HttpEntity<String> httpEntity = new HttpEntity<>(getAuthHeader(authHeaderValue));
+        HttpEntity<String> httpEntity = new HttpEntity<>(getAuthHeader());
         String uri = CF_PERMISSIONS_ENDPOINT.replace(":guid", serviceInstanceId);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -146,19 +139,20 @@ public class PermissionCheckServiceImpl implements PermissionCheckService{
         return response;
     }
 
-    private HttpHeaders getAuthHeader(String authHeaderValue) {
+    private HttpHeaders getAuthHeader() {
         HttpHeaders headers = new HttpHeaders();
-        if (authHeaderValue == null || authHeaderValue.isBlank()) {
-            headers.add("Authorization", "Bearer " + getUserToken());
-        } else {
-            headers.add("Authorization", authHeaderValue);
-        }
-
+        headers.add("Authorization", "Bearer " + getUserToken());
         return headers;
     }
 
     private String getUserToken() {
+        System.out.println("SecurityContext = " + SecurityContextHolder.getContext().toString());
+        System.out.println("SecurityContext = " + SecurityContextHolder.getContext().getAuthentication().toString());
+
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("jwtAuthenticationToken = " + jwtAuthenticationToken.toString());
+        System.out.println("Token = " + jwtAuthenticationToken.getToken().toString());
+        System.out.println("TokenValue = " + jwtAuthenticationToken.getToken().getTokenValue().toString());
         return jwtAuthenticationToken.getToken().getTokenValue();
     }
 
