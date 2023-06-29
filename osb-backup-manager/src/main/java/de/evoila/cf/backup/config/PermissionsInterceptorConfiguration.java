@@ -17,13 +17,16 @@ public class PermissionsInterceptorConfiguration implements WebMvcConfigurer {
 
     private Logger log = LoggerFactory.getLogger(PermissionsInterceptorConfiguration.class);
 
-    @Autowired
-    private PermissionCheckServiceImpl permissionsCheckService;
+    private PermissionCheckServiceImpl permissionCheckService;
+
+    public PermissionsInterceptorConfiguration(PermissionCheckServiceImpl permissionCheckService) {
+        this.permissionCheckService = permissionCheckService;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         log.info("Adding ServiceInstancePermissionsInterceptor.");
-        registry.addInterceptor(new ServiceInstancePermissionsInterceptor(permissionsCheckService)).addPathPatterns(
+        registry.addInterceptor(new ServiceInstancePermissionsInterceptor(permissionCheckService)).addPathPatterns(
                 "/*/byInstance/**",
                 "/backupJobs/**",
                 "/backupPlans/**",
