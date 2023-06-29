@@ -1,7 +1,7 @@
 package de.evoila.cf.backup.controller;
 
 import de.evoila.cf.backup.config.MessagingConfiguration;
-import de.evoila.cf.backup.service.PermissionCheckService;
+import de.evoila.cf.backup.service.permissions.PermissionCheckService;
 import de.evoila.cf.model.api.request.BackupRequest;
 import de.evoila.cf.model.api.request.RestoreRequest;
 import io.swagger.annotations.Api;

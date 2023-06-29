@@ -1,4 +1,4 @@
-package de.evoila.cf.backup.service;
+package de.evoila.cf.backup.service.permissions;
 
 import de.evoila.cf.backup.config.CloudFoundryConfiguration;
 import de.evoila.cf.backup.repository.AbstractJobRepository;

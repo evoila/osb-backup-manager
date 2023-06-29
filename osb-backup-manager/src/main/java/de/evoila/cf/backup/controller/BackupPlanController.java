@@ -3,7 +3,7 @@ package de.evoila.cf.backup.controller;
 import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.service.BackupPlanService;
-import de.evoila.cf.backup.service.PermissionCheckService;
+import de.evoila.cf.backup.service.permissions.PermissionCheckService;
 import de.evoila.cf.model.api.BackupPlan;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

@@ -1,6 +1,6 @@
 package de.evoila.cf.backup.Interceptors;
 
-import de.evoila.cf.backup.service.PermissionCheckServiceImpl;
+import de.evoila.cf.backup.service.permissions.PermissionCheckServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
