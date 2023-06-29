@@ -50,10 +50,10 @@ public class BackupPlanController {
     @ApiOperation(value = "Save the BackupPlan in the repository and add it as a task in the scheduling service if " +
             "not paused. The task will periodically add backup jobs to the queue, as is configured in the BackupPlan.")
     @RequestMapping(value = "/backupPlans", method = RequestMethod.POST)
-    public ResponseEntity<BackupPlan> create(@Valid @RequestBody BackupPlan plan) throws BackupException {
+    public ResponseEntity<BackupPlan> create(@Valid @RequestBody BackupPlan plan, @RequestHeader String authorization) throws BackupException {
 
         String instanceID = plan.getServiceInstance().getId();
-        if (!permissionCheckService.hasReadAccess(instanceID)) {
+        if (!permissionCheckService.hasReadAccess(instanceID, authorization)) {
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
         }
 

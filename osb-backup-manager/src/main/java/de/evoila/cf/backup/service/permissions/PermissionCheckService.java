@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 public interface PermissionCheckService {
     public boolean hasReadAccess(HttpServletRequest request);
 
-    public boolean hasReadAccess(String serviceInstanceId);
+    public boolean hasReadAccess(String serviceInstanceId, String authorizationHeader);
 
 
 }

@@ -24,7 +24,7 @@ public class AllowAllPermissionCheckService implements PermissionCheckService {
     }
 
     @Override
-    public boolean hasReadAccess(String serviceInstanceId) {
+    public boolean hasReadAccess(String serviceInstanceId, String authorization) {
         return true;
     }
 }
