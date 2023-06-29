@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.mvc.ParameterizableViewController;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +24,10 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (handler instanceof ResourceHttpRequestHandler ||
+                handler instanceof ParameterizableViewController) {
+            return true;
+        }
         log.info("Intercepting on method '" + ((HandlerMethod) handler).getMethod().getName() + "'");
         if (!permissionsCheckService.hasReadAccess(request)) {
             log.info("Access is not allowed.");
