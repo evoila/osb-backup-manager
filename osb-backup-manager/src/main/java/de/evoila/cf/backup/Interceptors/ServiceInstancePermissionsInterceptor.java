@@ -24,7 +24,13 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (handler instanceof ResourceHttpRequestHandler || handler instanceof ParameterizableViewController) {
+        if ((handler instanceof ResourceHttpRequestHandler ||
+                handler instanceof ParameterizableViewController)
+            ||
+            (request.getMethod() != "GET" ||
+                request.getMethod() != "POST" ||
+                request.getMethod() != "PATCH" ||
+                request.getMethod() != "DELETE" )) {
             return true;
         }
 
