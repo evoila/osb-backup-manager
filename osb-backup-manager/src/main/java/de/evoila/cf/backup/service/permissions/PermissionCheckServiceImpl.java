@@ -146,7 +146,13 @@ public class PermissionCheckServiceImpl implements PermissionCheckService{
     }
 
     private String getUserToken() {
+        System.out.println("SecurityContext = " + SecurityContextHolder.getContext().toString());
+        System.out.println("SecurityContext = " + SecurityContextHolder.getContext().getAuthentication().toString());
+
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("jwtAuthenticationToken = " + jwtAuthenticationToken.toString());
+        System.out.println("Token = " + jwtAuthenticationToken.getToken().toString());
+        System.out.println("TokenValue = " + jwtAuthenticationToken.getToken().getTokenValue().toString());
         return jwtAuthenticationToken.getToken().getTokenValue();
     }
 
