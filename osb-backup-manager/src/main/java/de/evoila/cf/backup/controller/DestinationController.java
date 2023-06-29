@@ -44,10 +44,10 @@ public class DestinationController extends BaseController {
     }
 
     @ApiOperation(value = "Get a page of destinations configured on the given instance.")
-    @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<Page<FileDestination>> all(@PathVariable String serviceInstanceId,
+    @RequestMapping(value = "/fileDestinations/byInstance/{instanceId}", method = RequestMethod.GET)
+    public ResponseEntity<Page<FileDestination>> all(@PathVariable String instanceId,
                                                      @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        Page<FileDestination> dest = destinationRepository.findByServiceInstanceId(serviceInstanceId, pageable);
+        Page<FileDestination> dest = destinationRepository.findByServiceInstanceId(instanceId, pageable);
         return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
