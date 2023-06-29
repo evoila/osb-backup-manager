@@ -7,13 +7,11 @@ import de.evoila.cf.backup.repository.FileDestinationRepository;
 import de.evoila.cf.model.api.AbstractJob;
 import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.file.FileDestination;
-import de.evoila.cf.model.enums.JobType;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,15 +25,14 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.http.HttpRequest;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Component
 @ConditionalOnBean(CloudFoundryConfiguration.class)
-public class PermissionsCheckService {
+public class PermissionCheckServiceImpl implements PermissionCheckService{
 
-    private Logger log = LoggerFactory.getLogger(PermissionsCheckService.class);
+    private Logger log = LoggerFactory.getLogger(PermissionCheckServiceImpl.class);
 
     private static final String CF_PERMISSIONS_ENDPOINT = "/v2/service_instances/:guid/permissions";
 
@@ -61,6 +58,17 @@ public class PermissionsCheckService {
             return hasScope(request, READ);
         } catch (NoSuchElementException ex) {
             ex.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean hasReadAccess(String serviceInstanceId){
+        return hasScope(serviceInstanceId, READ);
+    }
+
+    public boolean hasScope(String serviceInstanceId, String requiredScope){
+        if (serviceInstanceId != null) {
+            return (boolean) fetchPermissions(serviceInstanceId).getBody().get(requiredScope);
         }
         return false;
     }

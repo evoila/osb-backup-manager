@@ -4,6 +4,7 @@ import de.evoila.cf.backup.clients.S3Client;
 import de.evoila.cf.backup.clients.SwiftClient;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
+import de.evoila.cf.backup.service.PermissionCheckService;
 import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.api.file.S3FileDestination;
 import de.evoila.cf.model.api.file.SwiftFileDestination;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,9 +33,12 @@ public class DestinationController extends BaseController {
 
     BackupPlanRepository backupPlanRepository;
 
-    public DestinationController(FileDestinationRepository destinationRepository, BackupPlanRepository backupPlanRepository) {
+    PermissionCheckService permissionCheckService;
+
+    public DestinationController(FileDestinationRepository destinationRepository, BackupPlanRepository backupPlanRepository, PermissionCheckService permissionCheckService) {
         this.destinationRepository = destinationRepository;
         this.backupPlanRepository = backupPlanRepository;
+        this.permissionCheckService = permissionCheckService;
     }
 
     @ApiOperation(value = "Get the specified destination from the repository.")
@@ -77,6 +82,12 @@ public class DestinationController extends BaseController {
             "should be stored for a specific instance.")
     @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
+
+        String instanceID = destination.getServiceInstance().getId();
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
+            throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
+        }
+
         S3FileDestination s3FileDestination = (S3FileDestination) destination;
         s3FileDestination.evaluateSkipSSL();
         FileDestination response = destinationRepository.save(s3FileDestination);
@@ -96,6 +107,12 @@ public class DestinationController extends BaseController {
     @ApiOperation(value = "Check if a backup can be stored in the given destination.")
     @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
     public ResponseEntity validate(@RequestBody FileDestination destination) {
+
+        String instanceID = destination.getServiceInstance().getId();
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
+            throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
+        }
+
         try {
             if (destination.getType().equals(DestinationType.SWIFT)) {
                 SwiftFileDestination swiftFileDestination = (SwiftFileDestination) destination;

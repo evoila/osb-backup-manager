@@ -1,7 +1,7 @@
 package de.evoila.cf.backup.config;
 
 import de.evoila.cf.backup.Interceptors.ServiceInstancePermissionsInterceptor;
-import de.evoila.cf.backup.service.PermissionsCheckService;
+import de.evoila.cf.backup.service.PermissionCheckServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +18,17 @@ public class PermissionsInterceptorConfiguration implements WebMvcConfigurer {
     private Logger log = LoggerFactory.getLogger(PermissionsInterceptorConfiguration.class);
 
     @Autowired
-    private PermissionsCheckService permissionsCheckService;
+    private PermissionCheckServiceImpl permissionsCheckService;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         log.info("Adding ServiceInstancePermissionsInterceptor.");
-        registry.addInterceptor(new ServiceInstancePermissionsInterceptor(permissionsCheckService)).addPathPatterns("/*/byInstance/**");
+        registry.addInterceptor(new ServiceInstancePermissionsInterceptor(permissionsCheckService)).addPathPatterns(
+                "/*/byInstance/**",
+                "/backupJobs/**",
+                "/backupPlans/**",
+                "/fileDestinations/**",
+                "/restoreJobs/**"
+        ).excludePathPatterns("/fileDestinations/validate");
     }
 }

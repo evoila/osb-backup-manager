@@ -1,6 +1,7 @@
 package de.evoila.cf.backup.controller;
 
 import de.evoila.cf.backup.config.MessagingConfiguration;
+import de.evoila.cf.backup.service.PermissionCheckService;
 import de.evoila.cf.model.api.request.BackupRequest;
 import de.evoila.cf.model.api.request.RestoreRequest;
 import io.swagger.annotations.Api;
@@ -10,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,16 +34,26 @@ public class BackupController {
 
     private MessagingConfiguration messagingConfiguration;
 
+    private PermissionCheckService permissionCheckService;
+
     public BackupController(RabbitTemplate rabbitTemplate,
-                            MessagingConfiguration messagingConfiguration) {
+                            MessagingConfiguration messagingConfiguration, PermissionCheckService permissionCheckService) {
         this.rabbitTemplate = rabbitTemplate;
         this.messagingConfiguration = messagingConfiguration;
+        this.permissionCheckService = permissionCheckService;
+
     }
 
     @ApiOperation(value = "Add a new backup request to the queue. The backup will be executed asynchronously at the " +
             "scheduled interval as a job.")
     @RequestMapping(value = "/backup", method = RequestMethod.POST)
     public ResponseEntity backup(@RequestBody BackupRequest backupRequest) {
+
+        String instanceID = backupRequest.getBackupPlan().getServiceInstance().getId();
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
+            throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
+        }
+
         rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
                 messagingConfiguration.getRoutingKey(),
                 backupRequest);
@@ -53,6 +64,12 @@ public class BackupController {
             "the scheduled interval as a job.")
     @RequestMapping(value = "/restore", method = RequestMethod.POST)
     public ResponseEntity restore(@RequestBody RestoreRequest restoreRequest) {
+
+        String instanceID = restoreRequest.getBackupJob().getBackupPlan().getServiceInstance().getId();
+        if (!permissionCheckService.hasReadAccess(instanceID)) {
+            throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
+        }
+
         rabbitTemplate.convertAndSend(messagingConfiguration.getExchange(),
                 messagingConfiguration.getRoutingKey(),
                 restoreRequest);
