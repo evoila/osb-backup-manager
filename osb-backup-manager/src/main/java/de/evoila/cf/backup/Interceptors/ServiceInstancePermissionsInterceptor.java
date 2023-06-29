@@ -24,11 +24,7 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (handler instanceof ResourceHttpRequestHandler ||
-                handler instanceof ParameterizableViewController) {
-            return true;
-        }
-        log.info("Intercepting on method '" + ((HandlerMethod) handler).getMethod().getName() + "'");
+        log.info("Intercepting on URI '" + request.getRequestURI().toString() + "'");
         if (!permissionsCheckService.hasReadAccess(request)) {
             log.info("Access is not allowed.");
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
