@@ -40,7 +40,7 @@ public class RestoreJobController {
     }
 
     @ApiOperation(value = "Gets a page of configured jobs for the specified service instance.")
-    @RequestMapping(value = "/restoreJobs/byInstance/{instanceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/restoreJobs/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
     public ResponseEntity<Page<AbstractJob>> all(@PathVariable String instanceId,
                                                  @PageableDefault(size = 10,sort = {"startDate"},
                                                      direction = Sort.Direction.DESC) Pageable pageable) {

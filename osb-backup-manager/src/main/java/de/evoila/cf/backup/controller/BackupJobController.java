@@ -44,7 +44,7 @@ public class BackupJobController {
     }
 
     @ApiOperation(value = "Gets a page of jobs for the specified service instance.")
-    @RequestMapping(value = "/backupJobs/byInstance/{instanceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/backupJobs/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
     public ResponseEntity<Page<AbstractJob>> all(@PathVariable String instanceId,
                                                  @PageableDefault(size = 10, sort = {"startDate"},
                                                          direction = Sort.Direction.DESC) Pageable pageable) {
@@ -54,7 +54,7 @@ public class BackupJobController {
     }
 
     @ApiOperation(value = "Gets a page of jobs for the specified service instance, filtered by their JobStatus.")
-    @RequestMapping(value = "/backupJobs/byInstance/{instanceId}/filtered", method = RequestMethod.GET)
+    @RequestMapping(value = "/backupJobs/byInstance/{serviceInstanceId}/filtered", method = RequestMethod.GET)
     public ResponseEntity<Page<AbstractJob>> allFiltered(@PathVariable String instanceId,
                                                          @RequestParam JobStatus jobStatus,
                                                          @PageableDefault(size = 10, sort = {"startDate"},
