@@ -34,7 +34,9 @@ public class PermissionsInterceptorConfiguration implements WebMvcConfigurer {
                 "/restoreJobs/**"
         ).excludePathPatterns(
                 "/fileDestinations/validate",
+                "/fileDestinations",
                 "/fileDestinations/",
+                "/backupPlans",
                 "/backupPlans/"
                 );
     }
