@@ -1,6 +1,8 @@
 package de.evoila.cf.backup.service.permissions;
 
+import de.evoila.cf.UaaSecurityConfiguration;
 import de.evoila.cf.backup.config.CloudFoundryConfiguration;
+import de.evoila.cf.backup.config.PermissionsInterceptorConfiguration;
 import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.backup.repository.FileDestinationRepository;
@@ -29,7 +31,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Component
-@ConditionalOnBean(CloudFoundryConfiguration.class)
+@ConditionalOnBean(PermissionsInterceptorConfiguration.class)
 public class PermissionCheckServiceImpl implements PermissionCheckService{
 
     private Logger log = LoggerFactory.getLogger(PermissionCheckServiceImpl.class);
