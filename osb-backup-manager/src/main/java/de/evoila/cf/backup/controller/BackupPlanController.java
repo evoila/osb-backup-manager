@@ -41,9 +41,9 @@ public class BackupPlanController {
 
     @ApiOperation(value = "Get all BackupPlan from the specified service instance.")
     @RequestMapping(value = "/backupPlans/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<Page<BackupPlan>> all(@PathVariable() String instanceId,
+    public ResponseEntity<Page<BackupPlan>> all(@PathVariable() String serviceInstanceId,
                                                 @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        Page<BackupPlan> response = backupPlanService.getPlans(instanceId, pageable);
+        Page<BackupPlan> response = backupPlanService.getPlans(serviceInstanceId, pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
