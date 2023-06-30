@@ -37,10 +37,11 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
             return true;
         }
 
-        log.info("Intercepting on method '" + request.getMethod() + "' URI '" + request.getRequestURI().toString() + "'");
+        String methodAndUri = request.getMethod() + " " + request.getRequestURI().toString();
+        log.info("Intercepting on '" + methodAndUri + "'");
         if (!permissionsCheckService.hasReadAccess(request)) {
-            log.info("Access is not allowed.");
-            throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
+            log.info("Access to '" + methodAndUri + "'is not allowed.");
+            throw new AuthenticationServiceException("User is not authorised to access '" + methodAndUri + "'. Please contact your System Administrator.");
         }
         return true;
     }
