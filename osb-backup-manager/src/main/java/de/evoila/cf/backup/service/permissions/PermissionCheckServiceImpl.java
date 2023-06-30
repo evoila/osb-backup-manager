@@ -101,9 +101,9 @@ public class PermissionCheckServiceImpl implements PermissionCheckService{
             serviceInstanceId = job.getServiceInstance().getId();
             return serviceInstanceId != null && (boolean) fetchPermissions(serviceInstanceId).getBody().get(requiredScope);
         }
-        log.debug("JobID is null. Checking permissions with fileDestinationId...");
+        log.debug("JobID is null. Checking permissions with destinationId...");
 
-        String fileDestinationId = (String) attributes.get("fileDestinationId");
+        String fileDestinationId = (String) attributes.get("destinationId");
         if (fileDestinationId != null) {
             FileDestination fileDestination = fileDestinationRepository.findById(new ObjectId(fileDestinationId)).get();
             serviceInstanceId = fileDestination.getServiceInstance().getId();
@@ -111,7 +111,7 @@ public class PermissionCheckServiceImpl implements PermissionCheckService{
         }
         log.debug("FileDestinationId is null. Checking permissions with BackupPlanId...");
 
-        String backupPlanId = (String) attributes.get("backupPlanId");
+        String backupPlanId = (String) attributes.get("planId");
         if (backupPlanId != null) {
             BackupPlan backupPlan = backupPlanRepository.findById(new ObjectId(backupPlanId)).get();
             serviceInstanceId = backupPlan.getServiceInstance().getId();
