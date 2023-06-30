@@ -27,10 +27,13 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
         if ((handler instanceof ResourceHttpRequestHandler ||
                 handler instanceof ParameterizableViewController)
             ||
-            (request.getMethod() != "GET" ||
-                request.getMethod() != "POST" ||
-                request.getMethod() != "PATCH" ||
-                request.getMethod() != "DELETE" )) {
+            (!
+                (request.getMethod().equals("GET") ||
+                request.getMethod().equals("POST") ||
+                request.getMethod().equals("PATCH") ||
+                request.getMethod().equals("DELETE") ))
+            ) {
+
             return true;
         }
 
