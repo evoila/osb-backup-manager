@@ -108,7 +108,7 @@ public class DestinationController extends BaseController {
     @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
     public ResponseEntity validate(@RequestBody FileDestination destination) {
 
-        if (destination != null || destination.getServiceInstance() != null || !permissionCheckService.hasReadAccess(destination.getServiceInstance().getId())) {
+        if (destination == null || destination.getServiceInstance() == null || !permissionCheckService.hasReadAccess(destination.getServiceInstance().getId())) {
             throw new AuthenticationServiceException("User is not authorised to access the requested resource. Please contact your System Administrator.");
         }
 
