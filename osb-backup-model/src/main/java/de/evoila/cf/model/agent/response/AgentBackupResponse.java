@@ -45,17 +45,17 @@ public class AgentBackupResponse extends AgentExecutionResponse {
 
     public class Filesize {
 
-        private int size;
+        private long size;
 
         private String unit;
 
         public Filesize() {}
 
-        public int getSize() {
+        public long getSize() {
             return size;
         }
 
-        public void setSize(int size) {
+        public void setSize(long size) {
             this.size = size;
         }
 
