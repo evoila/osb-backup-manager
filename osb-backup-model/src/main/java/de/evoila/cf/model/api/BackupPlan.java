@@ -6,7 +6,7 @@ import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.enums.RetentionStyle;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 
 /**

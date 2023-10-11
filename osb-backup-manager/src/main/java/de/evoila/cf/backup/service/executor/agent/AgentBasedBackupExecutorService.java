@@ -39,7 +39,7 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
         endpointCredential.setDatabase(item);
         destination.setFilenamePrefix(planId + "/");
 
-        log.info(String.format("Starting backup process to %s:%d/%s",
+        log.info("Starting backup process to %s:%d/%s".formatted(
                 endpointCredential.getHost(),
                 endpointCredential.getPort(),
                 item
@@ -49,7 +49,7 @@ public class AgentBasedBackupExecutorService extends AgentBasedExecutorService i
         AgentBackupRequest agentBackupRequest = new AgentBackupRequest(id, compression, publicKey,
                 destination, endpointCredential);
 
-        log.info(String.format("Credentials are %s:%s",
+        log.info("Credentials are %s:%s".formatted(
                 endpointCredential.getBackupUsername(),
                 endpointCredential.getBackupPassword()
         ));

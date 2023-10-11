@@ -89,8 +89,8 @@ public class BackupServiceManager extends AbstractServiceManager {
         Optional<BackupExecutorService> backupExecutorService = this
                 .getApplicableBackupService(endpointCredential.getType(), destination.getType());
 
-        if (!backupExecutorService.isPresent()) {
-            String msg = String.format("No Backup Service found (JOB=%s) for Database %s",
+        if (backupExecutorService.isEmpty()) {
+            String msg = "No Backup Service found (JOB=%s) for Database %s".formatted(
                     backupJob.getId(),
                     endpointCredential.getType())
                     + getBackupExecutorServices()
@@ -186,7 +186,7 @@ public class BackupServiceManager extends AbstractServiceManager {
 
         } catch (Exception e) {
             log.error("Exception during backup execution", e);
-            updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
+            updateStateAndLog(backupJob, JobStatus.FAILED, "An error occurred (%s) : %s".formatted(backupJob.getId(), e.getMessage()));
             if(e instanceof InterruptedException){
                 Thread.currentThread().interrupt();
             }

@@ -96,8 +96,8 @@ public class RestoreServiceManager extends AbstractServiceManager {
         Optional<RestoreExecutorService> restoreExecutorService = this
                 .getApplicableRestoreService(endpointCredential.getType(), destination.getType());
 
-        if (!restoreExecutorService.isPresent()) {
-            String msg = String.format("No Restore Service found (JOB=%s) for Database %s", restoreJob.getId(), endpointCredential.getType())
+        if (restoreExecutorService.isEmpty()) {
+            String msg = "No Restore Service found (JOB=%s) for Database %s".formatted(restoreJob.getId(), endpointCredential.getType())
                     + getRestoreExecutorServices().stream().map(s -> s.getSourceType().toString()).collect(Collectors.toList());
             log.warn(msg);
 
@@ -175,7 +175,7 @@ public class RestoreServiceManager extends AbstractServiceManager {
             }
         } catch (BackupException | InterruptedException | ExecutionException e) {
             log.error("Exception during restore execution", e);
-            updateStateAndLog(restoreJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", restoreJob.getId(), e.getMessage()));
+            updateStateAndLog(restoreJob, JobStatus.FAILED, "An error occurred (%s) : %s".formatted(restoreJob.getId(), e.getMessage()));
             if(e instanceof InterruptedException){
                 Thread.currentThread().interrupt();
             }

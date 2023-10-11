@@ -52,10 +52,10 @@ public class JobMessageListener implements MessageListener {
     public void onMessage(Message message) {
         Object request =  messageConverter.fromMessage(message);
         try {
-            if (request instanceof BackupRequest) {
-                handleMessage((BackupRequest) request);
-            } else if (request instanceof RestoreRequest) {
-                handleMessage((RestoreRequest) request);
+            if (request instanceof BackupRequest backupRequest) {
+                handleMessage(backupRequest);
+            } else if (request instanceof RestoreRequest restoreRequest) {
+                handleMessage(restoreRequest);
             }
         } catch (BackupRequestException | BackupException e){
             log.error("Could not execute backup Request: " + e.getMessage());

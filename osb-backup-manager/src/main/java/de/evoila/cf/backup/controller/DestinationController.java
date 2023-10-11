@@ -9,8 +9,8 @@ import de.evoila.cf.model.api.file.FileDestination;
 import de.evoila.cf.model.api.file.S3FileDestination;
 import de.evoila.cf.model.api.file.SwiftFileDestination;
 import de.evoila.cf.model.enums.DestinationType;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "/fileDestinations", description = "Manage where backup files should be stored by defining destinations.")
+@Tag(name = "/fileDestinations", description = "Manage where backup files should be stored by defining destinations.")
 @Controller
 public class DestinationController extends BaseController {
 
@@ -41,23 +41,23 @@ public class DestinationController extends BaseController {
         this.permissionCheckService = permissionCheckService;
     }
 
-    @ApiOperation(value = "Get the specified destination from the repository.")
-    @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.GET)
+    @Operation(summary = "Get the specified destination from the repository.")
+    @GetMapping("/fileDestinations/{destinationId}")
     public ResponseEntity<FileDestination> get(@PathVariable ObjectId destinationId) {
         FileDestination job = destinationRepository.findById(destinationId).orElse(null);
         return new ResponseEntity<>(job, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get a page of destinations configured on the given instance.")
-    @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.GET)
+    @Operation(summary = "Get a page of destinations configured on the given instance.")
+    @GetMapping("/fileDestinations/byInstance/{serviceInstanceId}")
     public ResponseEntity<Page<FileDestination>> all(@PathVariable String serviceInstanceId,
                                                      @PageableDefault(size = 50, page = 0) Pageable pageable) {
         Page<FileDestination> dest = destinationRepository.findByServiceInstanceId(serviceInstanceId, pageable);
         return new ResponseEntity<>(dest, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Delete a destination with the given ID.")
-    @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.DELETE)
+    @Operation(summary = "Delete a destination with the given ID.")
+    @DeleteMapping("/fileDestinations/{destinationId}")
     public ResponseEntity delete(@PathVariable ObjectId destinationId) {
         FileDestination fileDestination = destinationRepository.findById(destinationId).orElse(null);
         if (fileDestination == null) {
@@ -70,17 +70,19 @@ public class DestinationController extends BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "Delete all destinations configured on the given instance.")
-    @RequestMapping(value = "/fileDestinations/byInstance/{serviceInstanceId}", method = RequestMethod.DELETE)
+    @Operation(summary = "Delete all destinations configured on the given instance.")
+    @DeleteMapping("/fileDestinations/byInstance/{serviceInstanceId}")
     public ResponseEntity deleteByInstance(@PathVariable String serviceInstanceId) {
         destinationRepository.deleteByServiceInstanceId(serviceInstanceId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "Create a new S3 destination, specifying where backups " +
-            "should be stored for a specific instance.")
-    @RequestMapping(value = "/fileDestinations", method = RequestMethod.POST)
+    @Operation(summary = """
+            Create a new S3 destination, specifying where backups \
+            should be stored for a specific instance.\
+            """)
+    @PostMapping("/fileDestinations")
     public ResponseEntity<FileDestination> create(@RequestBody FileDestination destination) {
 
         String instanceID = destination.getServiceInstance().getId();
@@ -94,8 +96,8 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Update an existing destination with new configurations.")
-    @RequestMapping(value = "/fileDestinations/{destinationId}", method = RequestMethod.PATCH)
+    @Operation(summary = "Update an existing destination with new configurations.")
+    @PatchMapping("/fileDestinations/{destinationId}")
     public ResponseEntity<FileDestination> update(@PathVariable() ObjectId destinationId,
                                                   @RequestBody FileDestination destination) {
         S3FileDestination s3FileDestination = (S3FileDestination) destination;
@@ -104,8 +106,8 @@ public class DestinationController extends BaseController {
         return new ResponseEntity<>(destination, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Check if a backup can be stored in the given destination.")
-    @RequestMapping(value = "/fileDestinations/validate", method = RequestMethod.POST)
+    @Operation(summary = "Check if a backup can be stored in the given destination.")
+    @PostMapping("/fileDestinations/validate")
     public ResponseEntity validate(@RequestBody FileDestination destination) {
 
         if (destination == null || destination.getServiceInstance() == null || !permissionCheckService.hasReadAccess(destination.getServiceInstance().getId())) {

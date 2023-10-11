@@ -6,6 +6,8 @@ import de.evoila.cf.backup.controller.exception.BackupException;
 import de.evoila.cf.backup.repository.BackupPlanRepository;
 import de.evoila.cf.model.api.BackupPlan;
 import de.evoila.cf.model.api.request.BackupRequest;
+
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,7 +19,6 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class BackupSchedulingService {
      * @param backupPlan A BackupPlan
      */
     public void addTask(BackupPlan backupPlan) {
-        log.debug(String.format("Starting Plan [%s] frequency:", backupPlan.getIdAsString(),
+        log.debug("Starting Plan [%s] frequency:".formatted(backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         BackupTask task = new BackupTask(backupPlan);
 
@@ -118,7 +119,7 @@ public class BackupSchedulingService {
      * @param backupPlan A BackupPlan
      */
     public void removeTask(BackupPlan backupPlan) {
-        log.debug(String.format("Removing Plan [%s] frequency:", backupPlan.getIdAsString(),
+        log.debug("Removing Plan [%s] frequency:".formatted(backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         ScheduledFuture scheduledFuture = scheduledTasks.get(backupPlan.getIdAsString());
         if (scheduledFuture != null)
@@ -132,7 +133,7 @@ public class BackupSchedulingService {
      * @throws BackupException
      */
     public void updateTask(BackupPlan backupPlan) throws BackupException {
-        log.debug(String.format("Updating Plan [%s] frequency:", backupPlan.getIdAsString(),
+        log.debug("Updating Plan [%s] frequency:".formatted(backupPlan.getIdAsString(),
                 backupPlan.getFrequency()));
         this.removeTask(backupPlan);
         this.addTask(backupPlan);
@@ -150,7 +151,7 @@ public class BackupSchedulingService {
 
         @Override
         public void run() {
-            log.debug(String.format("Scheduling Plan [%s] frequency:", backupPlan.getId(),
+            log.debug("Scheduling Plan [%s] frequency:".formatted(backupPlan.getId(),
                     backupPlan.getFrequency()));
 
             BackupRequest backupRequest = new BackupRequest();

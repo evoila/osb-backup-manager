@@ -71,7 +71,7 @@ public class CredentialService {
 
             endpointCredential.setBackupUsername(backupUsernamePasswordCredential.getUsername());
             endpointCredential.setBackupPassword(backupUsernamePasswordCredential.getPassword());
-            log.debug(String.format("Agent Credentials for Service [%s] are %s:%s:", serviceInstance.getId(), backupUsernamePasswordCredential.getUsername(),backupUsernamePasswordCredential.getPassword()));
+            log.debug("Agent Credentials for Service [%s] are %s:%s:".formatted(serviceInstance.getId(), backupUsernamePasswordCredential.getUsername(), backupUsernamePasswordCredential.getPassword()));
 
             endpointCredential.setHost(backupEndpoint.getIp());
             endpointCredential.setPort(backupEndpoint.getPort());

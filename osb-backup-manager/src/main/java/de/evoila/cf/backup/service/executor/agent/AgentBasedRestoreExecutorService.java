@@ -41,7 +41,7 @@ public class AgentBasedRestoreExecutorService extends AgentBasedExecutorService 
         destination.setFilename(requestDetails.getFilename());
         destination.setFilenamePrefix(planId + "/");
 
-        log.info(String.format("Starting restore process to %s:%d/%s",
+        log.info("Starting restore process to %s:%d/%s".formatted(
                 endpointCredential.getHost(),
                 endpointCredential.getPort(),
                 requestDetails.getItem()

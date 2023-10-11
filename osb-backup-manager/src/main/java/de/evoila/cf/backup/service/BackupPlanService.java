@@ -59,7 +59,7 @@ public class BackupPlanService {
      * @throws BackupException
      */
     public BackupPlan createPlan(BackupPlan backupPlan) throws BackupException {
-        if(!fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isPresent())
+        if(fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isEmpty())
             throw new BackupException("Could not create Plan. Backup Destination does not exists ID = " +
                     backupPlan.getFileDestination().getId());
         if(backupPlan.getRetentionPeriod() <= 0) {
@@ -99,7 +99,7 @@ public class BackupPlanService {
 
         if(backupPlan == null)
             throw new BackupException("Backup plan not found" + planId);
-        if(!fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isPresent())
+        if(fileDestinationRepository.findById(backupPlan.getFileDestination().getId()).isEmpty())
             throw new BackupException("Could not update Plan. Backup Destination does not exists ID = " +
                     backupPlan.getFileDestination().getId());
         if(backupPlan.getRetentionPeriod() <= 0) {

@@ -1,6 +1,6 @@
 package de.evoila.cf.backup.service.permissions;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.NoSuchElementException;
 
 public interface PermissionCheckService {
