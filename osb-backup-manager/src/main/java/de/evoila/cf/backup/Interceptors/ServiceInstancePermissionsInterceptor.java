@@ -4,7 +4,6 @@ import de.evoila.cf.backup.service.permissions.PermissionCheckServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
@@ -34,9 +33,6 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
                 .map(key -> key + "=" + attributes.get(key))
                 .collect(Collectors.joining(", ", "{", "}"));
         log.debug("Values: " + mapAsString);
-        log.debug("Authentication class: " + SecurityContextHolder.getContext().getAuthentication().getClass());
-
-
 
         if ((handler instanceof ResourceHttpRequestHandler ||
                 handler instanceof ParameterizableViewController)
