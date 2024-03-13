@@ -4,17 +4,14 @@ import de.evoila.cf.backup.service.permissions.PermissionCheckServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor {
 
@@ -28,10 +25,10 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        log.debug("Authentication class: " + SecurityContextHolder.getContext().getAuthentication().getClass());
-        log.debug("Handler: " + handler.getClass());
         if ((handler instanceof ResourceHttpRequestHandler ||
                 handler instanceof ParameterizableViewController)
+            ||
+            SecurityContextHolder.getContext().getAuthentication() instanceof UsernamePasswordAuthenticationToken
             ||
             (!
                 (request.getMethod().equals("GET") ||
