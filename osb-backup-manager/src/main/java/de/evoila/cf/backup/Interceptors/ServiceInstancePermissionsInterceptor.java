@@ -28,14 +28,8 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        log.debug("Debugging preHandle. Infos about request - AuthType: " + request.getAuthType() + ". Query: " + request.getQueryString() + ". Context path: " + request.getContextPath());
-        Map<Object, Object> attributes = (Map<Object, Object>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        String mapAsString = attributes.keySet().stream()
-                .map(key -> key + "=" + attributes.get(key))
-                .collect(Collectors.joining(", ", "{", "}"));
-        log.debug("Values: " + mapAsString);
         log.debug("Authentication class: " + SecurityContextHolder.getContext().getAuthentication().getClass());
-
+        log.debug("Handler: " + handler.getClass());
         if ((handler instanceof ResourceHttpRequestHandler ||
                 handler instanceof ParameterizableViewController)
             ||
