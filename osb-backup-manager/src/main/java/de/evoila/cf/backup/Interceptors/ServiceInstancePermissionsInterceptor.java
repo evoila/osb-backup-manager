@@ -25,10 +25,16 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+
+        String methodAndUri = request.getMethod() + " " + request.getRequestURI().toString();
+        log.debug("Starting preHandle for '" + methodAndUri + "'.");
+
+        // In these cases the check for read access is not needed or applicable
         if ((handler instanceof ResourceHttpRequestHandler ||
                 handler instanceof ParameterizableViewController)
             ||
-            SecurityContextHolder.getContext().getAuthentication() instanceof UsernamePasswordAuthenticationToken
+                (SecurityContextHolder.getContext() != null &&
+                        SecurityContextHolder.getContext().getAuthentication() instanceof UsernamePasswordAuthenticationToken)
             ||
             (!
                 (request.getMethod().equals("GET") ||
@@ -36,16 +42,16 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
                 request.getMethod().equals("PATCH") ||
                 request.getMethod().equals("DELETE") ))
             ) {
-
+            log.debug("Not intercepting on '" + methodAndUri + "' based on SecurityContext, HTTP Method or handler Class.");
             return true;
         }
 
-        String methodAndUri = request.getMethod() + " " + request.getRequestURI().toString();
         log.info("Intercepting on '" + methodAndUri + "'");
         if (!permissionsCheckService.hasReadAccess(request)) {
             log.info("Access to '" + methodAndUri + "'is not allowed.");
             throw new AuthenticationServiceException("User is not authorised to access '" + methodAndUri + "'. Please contact your System Administrator.");
         }
+        log.debug("Access to '" + methodAndUri + "'is allowed.");
         return true;
     }
 
