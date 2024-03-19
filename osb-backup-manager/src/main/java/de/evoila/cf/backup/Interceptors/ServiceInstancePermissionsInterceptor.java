@@ -30,6 +30,9 @@ public class ServiceInstancePermissionsInterceptor implements HandlerInterceptor
         log.debug("Starting preHandle for '" + methodAndUri + "'.");
 
         // In these cases the check for read access is not needed or applicable
+        log.debug("Handler class: " + handler.getClass());
+        log.debug("Authentication class: " + SecurityContextHolder.getContext().getAuthentication().getClass());
+        log.debug("Security context: " + SecurityContextHolder.getContext().toString());
         if ((handler instanceof ResourceHttpRequestHandler ||
                 handler instanceof ParameterizableViewController)
             ||
