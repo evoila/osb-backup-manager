@@ -10,6 +10,7 @@ import de.evoila.cf.model.api.file.S3FileDestination;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
+import io.minio.messages.Bucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -19,6 +20,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * @author Johannes Hiemer.
@@ -118,7 +120,13 @@ public class S3Client implements FileClient {
     @Override
     public String upload(File file, String bucket, String identifier, String extension) throws IOException, ServerException, InsufficientDataException, InternalException, InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException, XmlParserException, ErrorResponseException {
         Assert.notNull(bucket, "Bucket may not be undefined");
-        Assert.isTrue(client.bucketExists(BucketExistsArgs.builder().bucket(bucket).build()), "The bucket " + bucket + " does not exist");
+        //check if bucket exists
+        List<Bucket> buckets = client.listBuckets();
+        boolean found = buckets.stream().anyMatch(b -> b.name().equals(bucket));
+        if (!found) {
+            throw new IllegalArgumentException("The bucket " + bucket + " does not exist");
+        }
+
         client.uploadObject(
                 UploadObjectArgs.builder()
                         .bucket(bucket)
