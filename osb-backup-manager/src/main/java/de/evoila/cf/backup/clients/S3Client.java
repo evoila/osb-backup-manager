@@ -118,7 +118,7 @@ public class S3Client implements FileClient {
     @Override
     public String upload(File file, String bucket, String identifier, String extension) throws IOException, ServerException, InsufficientDataException, InternalException, InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException, XmlParserException, ErrorResponseException {
         Assert.notNull(bucket, "Bucket may not be undefined");
-
+        Assert.isTrue(client.bucketExists(BucketExistsArgs.builder().bucket(bucket).build()), "The bucket " + bucket + " does not exist");
         client.uploadObject(
                 UploadObjectArgs.builder()
                         .bucket(bucket)
