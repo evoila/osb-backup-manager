@@ -157,7 +157,15 @@ public class BackupServiceManager extends AbstractServiceManager {
                         dummyResponse.setErrorMessage(ex.getMessage());
                         completionFuture.complete(dummyResponse);
                     } catch (Exception ex) {
-                        log.error("backup check failed", ex);
+                        // TODO: split poll-failure (truly unknown) from persistence-failure.
+                        // When updateWithAgentResponse throws, we already have a valid agent
+                        // response and should preserve its status (incl. SUCCEEDED) instead
+                        // of blanket-reporting UNKNOWN here.
+                        log.error("backup check failed, creating dummy response", ex);
+                        AgentBackupResponse dummyResponse = new AgentBackupResponse();
+                        dummyResponse.setStatus(JobStatus.UNKNOWN);
+                        dummyResponse.setErrorMessage(ex.getMessage());
+                        completionFuture.complete(dummyResponse);
                     }
 
                 }, 0, 5, TimeUnit.SECONDS);

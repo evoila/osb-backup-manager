@@ -67,6 +67,7 @@ public class AbstractServiceManager {
      * @param agentExecutionResponse the response from an agent for the progress on the database
      */
     protected void updateWithAgentResponse(AbstractJob abstractJob, String item, AgentExecutionResponse agentExecutionResponse) {
+        LogTruncator.truncateLogs(agentExecutionResponse);
         abstractJob.getAgentExecutionReponses().put(item, agentExecutionResponse);
 
         JobStatus status = abstractJob.getAgentExecutionReponses()
