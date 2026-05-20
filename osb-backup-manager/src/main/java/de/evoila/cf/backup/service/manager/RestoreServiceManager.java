@@ -5,7 +5,6 @@ import de.evoila.cf.backup.repository.AbstractJobRepository;
 import de.evoila.cf.backup.service.CredentialService;
 import de.evoila.cf.backup.service.exception.BackupRequestException;
 import de.evoila.cf.backup.service.executor.RestoreExecutorService;
-import de.evoila.cf.model.agent.response.AgentBackupResponse;
 import de.evoila.cf.model.agent.response.AgentRestoreResponse;
 import de.evoila.cf.model.api.BackupJob;
 import de.evoila.cf.model.api.BackupPlan;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -138,26 +138,54 @@ public class RestoreServiceManager extends AbstractServiceManager {
                         backupPlan.isCompression(), backupPlan.getPrivateKey(), backupPlan.getIdAsString());
 
                 CompletableFuture<AgentRestoreResponse> completionFuture = new CompletableFuture<>();
+                AtomicInteger persistFailures = new AtomicInteger(0);
                 ScheduledFuture<?> checkFuture = scheduledExcecutor.scheduleAtFixedRate(() -> {
+                    AgentRestoreResponse agentRestoreResponse;
                     try {
-                        AgentRestoreResponse agentRestoreResponse = restoreExecutorService.pollExecutionState(endpointCredential,
+                        agentRestoreResponse = restoreExecutorService.pollExecutionState(endpointCredential,
                                 "restore", id, new ParameterizedTypeReference<AgentRestoreResponse>() {});
-                        if (agentRestoreResponse != null) {
-                            updateWithAgentResponse(restoreJob, requestDetails.getItem(), agentRestoreResponse);
-                            if (!agentRestoreResponse.getStatus().equals(JobStatus.RUNNING)) {
-                                completionFuture.complete((AgentRestoreResponse) agentRestoreResponse);
-                            }
-                        }
                     } catch (BackupException ex) {
-                        log.error("restore check failed, creating dummy response", ex);
+                        log.error("restore poll failed, creating dummy response", ex);
                         AgentRestoreResponse dummyResponse = new AgentRestoreResponse();
                         dummyResponse.setStatus(JobStatus.FAILED);
                         dummyResponse.setErrorMessage(ex.getMessage());
                         completionFuture.complete(dummyResponse);
+                        return;
                     } catch (Exception ex) {
-                        log.error("restore check failed", ex);
+                        log.error("restore poll failed unexpectedly, creating dummy response", ex);
+                        AgentRestoreResponse dummyResponse = new AgentRestoreResponse();
+                        dummyResponse.setStatus(JobStatus.UNKNOWN);
+                        dummyResponse.setErrorMessage(ex.getMessage());
+                        completionFuture.complete(dummyResponse);
+                        return;
                     }
 
+                    if (agentRestoreResponse == null) {
+                        return;
+                    }
+
+                    try {
+                        updateWithAgentResponse(restoreJob, requestDetails.getItem(), agentRestoreResponse);
+                        persistFailures.set(0);
+                    } catch (Exception ex) {
+                        int failures = persistFailures.incrementAndGet();
+                        log.warn("Persisting agent response failed (attempt {} of {}); keeping agent status {} in memory",
+                                failures, MAX_CONSECUTIVE_PERSIST_FAILURES, agentRestoreResponse.getStatus(), ex);
+                        if (failures >= MAX_CONSECUTIVE_PERSIST_FAILURES) {
+                            log.error("Giving up on persistence after {} consecutive failures for restore job {}",
+                                    failures, restoreJob.getId());
+                            AgentRestoreResponse dummyResponse = new AgentRestoreResponse();
+                            dummyResponse.setStatus(JobStatus.FAILED);
+                            dummyResponse.setErrorMessage("persistence unavailable after " + failures
+                                    + " attempts: " + ex.getMessage());
+                            completionFuture.complete(dummyResponse);
+                            return;
+                        }
+                    }
+
+                    if (!agentRestoreResponse.getStatus().equals(JobStatus.RUNNING)) {
+                        completionFuture.complete(agentRestoreResponse);
+                    }
                 }, 0, 5, TimeUnit.SECONDS);
 
                 completionFutures.add(completionFuture.whenComplete((result, thrown) -> {

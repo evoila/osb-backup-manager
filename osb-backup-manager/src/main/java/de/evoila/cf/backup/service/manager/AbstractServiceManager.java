@@ -23,6 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class AbstractServiceManager {
 
+    protected static final int MAX_CONSECUTIVE_PERSIST_FAILURES = 12;
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private List<BackupExecutorService> backupExecutorServices = new ArrayList<>();

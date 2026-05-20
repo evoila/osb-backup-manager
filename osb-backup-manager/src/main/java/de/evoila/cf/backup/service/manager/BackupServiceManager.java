@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -140,34 +141,54 @@ public class BackupServiceManager extends AbstractServiceManager {
                 backupJob.setDestination(destination);
 
                 CompletableFuture<AgentBackupResponse> completionFuture = new CompletableFuture<>();
+                AtomicInteger persistFailures = new AtomicInteger(0);
                 ScheduledFuture checkFuture = scheduledExcecutor.scheduleAtFixedRate(() -> {
+                    AgentBackupResponse agentBackupResponse;
                     try {
-                        AgentBackupResponse agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
+                        agentBackupResponse = backupExecutorService.pollExecutionState(endpointCredential,
                                 "backup", id, new ParameterizedTypeReference<AgentBackupResponse>() {});
-                        if (agentBackupResponse != null) {
-                            updateWithAgentResponse(backupJob, item, agentBackupResponse);
-                            if (!agentBackupResponse.getStatus().equals(JobStatus.RUNNING)) {
-                                completionFuture.complete(agentBackupResponse);
-                            }
-                        }
                     } catch (BackupException ex) {
-                        log.error("restore check failed, creating dummy response", ex);
+                        log.error("backup poll failed, creating dummy response", ex);
                         AgentBackupResponse dummyResponse = new AgentBackupResponse();
                         dummyResponse.setStatus(JobStatus.FAILED);
                         dummyResponse.setErrorMessage(ex.getMessage());
                         completionFuture.complete(dummyResponse);
+                        return;
                     } catch (Exception ex) {
-                        // TODO: split poll-failure (truly unknown) from persistence-failure.
-                        // When updateWithAgentResponse throws, we already have a valid agent
-                        // response and should preserve its status (incl. SUCCEEDED) instead
-                        // of blanket-reporting UNKNOWN here.
-                        log.error("backup check failed, creating dummy response", ex);
+                        log.error("backup poll failed unexpectedly, creating dummy response", ex);
                         AgentBackupResponse dummyResponse = new AgentBackupResponse();
                         dummyResponse.setStatus(JobStatus.UNKNOWN);
                         dummyResponse.setErrorMessage(ex.getMessage());
                         completionFuture.complete(dummyResponse);
+                        return;
                     }
 
+                    if (agentBackupResponse == null) {
+                        return;
+                    }
+
+                    try {
+                        updateWithAgentResponse(backupJob, item, agentBackupResponse);
+                        persistFailures.set(0);
+                    } catch (Exception ex) {
+                        int failures = persistFailures.incrementAndGet();
+                        log.warn("Persisting agent response failed (attempt {} of {}); keeping agent status {} in memory",
+                                failures, MAX_CONSECUTIVE_PERSIST_FAILURES, agentBackupResponse.getStatus(), ex);
+                        if (failures >= MAX_CONSECUTIVE_PERSIST_FAILURES) {
+                            log.error("Giving up on persistence after {} consecutive failures for backup job {}",
+                                    failures, backupJob.getId());
+                            AgentBackupResponse dummyResponse = new AgentBackupResponse();
+                            dummyResponse.setStatus(JobStatus.FAILED);
+                            dummyResponse.setErrorMessage("persistence unavailable after " + failures
+                                    + " attempts: " + ex.getMessage());
+                            completionFuture.complete(dummyResponse);
+                            return;
+                        }
+                    }
+
+                    if (!agentBackupResponse.getStatus().equals(JobStatus.RUNNING)) {
+                        completionFuture.complete(agentBackupResponse);
+                    }
                 }, 0, 5, TimeUnit.SECONDS);
                 i++;
                 CompletableFuture<AgentBackupResponse> completionFutureWithCheck = completionFuture.whenComplete((result, thrown) -> {
