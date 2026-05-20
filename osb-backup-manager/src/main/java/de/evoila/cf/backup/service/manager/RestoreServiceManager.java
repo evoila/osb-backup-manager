@@ -172,13 +172,22 @@ public class RestoreServiceManager extends AbstractServiceManager {
                         log.warn("Persisting agent response failed (attempt {} of {}); keeping agent status {} in memory",
                                 failures, MAX_CONSECUTIVE_PERSIST_FAILURES, agentRestoreResponse.getStatus(), ex);
                         if (failures >= MAX_CONSECUTIVE_PERSIST_FAILURES) {
-                            log.error("Giving up on persistence after {} consecutive failures for restore job {}",
-                                    failures, restoreJob.getId());
-                            AgentRestoreResponse dummyResponse = new AgentRestoreResponse();
-                            dummyResponse.setStatus(JobStatus.FAILED);
-                            dummyResponse.setErrorMessage("persistence unavailable after " + failures
-                                    + " attempts: " + ex.getMessage());
-                            completionFuture.complete(dummyResponse);
+                            log.error("Giving up on persistence after {} consecutive failures for restore job {}; " +
+                                            "propagating last agent status {} (restore may have completed on the agent)",
+                                    failures, restoreJob.getId(), agentRestoreResponse.getStatus(), ex);
+                            // Preserve the agent's actual outcome instead of overwriting with FAILED.
+                            // For non-terminal agent states we genuinely don't know the outcome anymore,
+                            // so report UNKNOWN rather than fabricate SUCCEEDED or FAILED.
+                            AgentRestoreResponse finalResponse = agentRestoreResponse;
+                            JobStatus agentStatus = agentRestoreResponse.getStatus();
+                            if (agentStatus == JobStatus.RUNNING || agentStatus == JobStatus.STARTED) {
+                                AgentRestoreResponse unknownResponse = new AgentRestoreResponse();
+                                unknownResponse.setStatus(JobStatus.UNKNOWN);
+                                unknownResponse.setErrorMessage("persistence unavailable after " + failures
+                                        + " attempts; final agent outcome unknown");
+                                finalResponse = unknownResponse;
+                            }
+                            completionFuture.complete(finalResponse);
                             return;
                         }
                     }
@@ -190,7 +199,16 @@ public class RestoreServiceManager extends AbstractServiceManager {
 
                 completionFutures.add(completionFuture.whenComplete((result, thrown) -> {
                     if (result != null) {
-                        updateWithAgentResponse(restoreJob, requestDetails.getItem(), result);
+                        // Best-effort final persistence. If it fails we must NOT let the exception
+                        // escape — otherwise the outer catch would overwrite an authentic SUCCEEDED
+                        // status (preserved by the polling failsafe) with FAILED, undoing the truth.
+                        try {
+                            updateWithAgentResponse(restoreJob, requestDetails.getItem(), result);
+                        } catch (Exception persistEx) {
+                            log.warn("Final persistence of restore job {} failed; agent reported {} " +
+                                            "and in-memory state reflects that, but MongoDB may be stale",
+                                    restoreJob.getId(), result.getStatus(), persistEx);
+                        }
                     }
 
                     checkFuture.cancel(true);
@@ -203,7 +221,23 @@ public class RestoreServiceManager extends AbstractServiceManager {
             }
         } catch (BackupException | InterruptedException | ExecutionException e) {
             log.error("Exception during restore execution", e);
-            updateStateAndLog(restoreJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", restoreJob.getId(), e.getMessage()));
+            // Don't clobber a SUCCEEDED status that the polling failsafe already preserved.
+            // Try one more save with SUCCEEDED so that a transient MongoDB recovery between
+            // whenComplete and here still gets the truth persisted.
+            if (restoreJob.getStatus() != JobStatus.SUCCEEDED) {
+                updateStateAndLog(restoreJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", restoreJob.getId(), e.getMessage()));
+            } else {
+                log.warn("Restore job {} reported SUCCEEDED by the agent but final orchestration threw; " +
+                        "attempting to persist SUCCEEDED before exiting", restoreJob.getId());
+                try {
+                    updateStateAndLog(restoreJob, JobStatus.SUCCEEDED, String.format(
+                            "Agent reported SUCCEEDED; final orchestration threw (%s) : %s",
+                            restoreJob.getId(), e.getMessage()));
+                } catch (Exception persistEx) {
+                    log.warn("Final SUCCEEDED save for restore job {} also failed; in-memory state is correct but MongoDB may be stale",
+                            restoreJob.getId(), persistEx);
+                }
+            }
             if(e instanceof InterruptedException){
                 Thread.currentThread().interrupt();
             }

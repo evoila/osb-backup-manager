@@ -175,13 +175,25 @@ public class BackupServiceManager extends AbstractServiceManager {
                         log.warn("Persisting agent response failed (attempt {} of {}); keeping agent status {} in memory",
                                 failures, MAX_CONSECUTIVE_PERSIST_FAILURES, agentBackupResponse.getStatus(), ex);
                         if (failures >= MAX_CONSECUTIVE_PERSIST_FAILURES) {
-                            log.error("Giving up on persistence after {} consecutive failures for backup job {}",
-                                    failures, backupJob.getId());
-                            AgentBackupResponse dummyResponse = new AgentBackupResponse();
-                            dummyResponse.setStatus(JobStatus.FAILED);
-                            dummyResponse.setErrorMessage("persistence unavailable after " + failures
-                                    + " attempts: " + ex.getMessage());
-                            completionFuture.complete(dummyResponse);
+                            log.error("Giving up on persistence after {} consecutive failures for backup job {}; " +
+                                            "propagating last agent status {} (backup file may still exist in destination)",
+                                    failures, backupJob.getId(), agentBackupResponse.getStatus(), ex);
+                            // Preserve the agent's actual outcome instead of overwriting with FAILED.
+                            // If the agent reported SUCCEEDED, the backup file is in S3/Swift and the
+                            // filename should still flow into BackupJob.files via whenComplete — a later
+                            // successful save (next item, retention check) can then persist the truth.
+                            // For non-terminal agent states we genuinely don't know the outcome anymore,
+                            // so report UNKNOWN rather than fabricate SUCCEEDED or FAILED.
+                            AgentBackupResponse finalResponse = agentBackupResponse;
+                            JobStatus agentStatus = agentBackupResponse.getStatus();
+                            if (agentStatus == JobStatus.RUNNING || agentStatus == JobStatus.STARTED) {
+                                AgentBackupResponse unknownResponse = new AgentBackupResponse();
+                                unknownResponse.setStatus(JobStatus.UNKNOWN);
+                                unknownResponse.setErrorMessage("persistence unavailable after " + failures
+                                        + " attempts; final agent outcome unknown");
+                                finalResponse = unknownResponse;
+                            }
+                            completionFuture.complete(finalResponse);
                             return;
                         }
                     }
@@ -197,7 +209,16 @@ public class BackupServiceManager extends AbstractServiceManager {
                             backupJob.getFiles().put(item, result.getFilename());
                         }
 
-                        updateWithAgentResponse(backupJob, item, result);
+                        // Best-effort final persistence. If it fails we must NOT let the exception
+                        // escape — otherwise the outer catch would overwrite an authentic SUCCEEDED
+                        // status (preserved by the polling failsafe) with FAILED, undoing the truth.
+                        try {
+                            updateWithAgentResponse(backupJob, item, result);
+                        } catch (Exception persistEx) {
+                            log.warn("Final persistence of backup job {} failed; agent reported {} " +
+                                            "and in-memory state reflects that, but MongoDB may be stale",
+                                    backupJob.getId(), result.getStatus(), persistEx);
+                        }
                     }
                     checkFuture.cancel(true);
                     log.info("Finished execution of Backup Job");
@@ -215,7 +236,25 @@ public class BackupServiceManager extends AbstractServiceManager {
 
         } catch (Exception e) {
             log.error("Exception during backup execution", e);
-            updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
+            // Don't clobber a SUCCEEDED status that the polling failsafe already preserved.
+            // If the agent really finished, the backup file is in S3/Swift — marking the job
+            // FAILED here would lose that signal and leave the file as an orphan. Instead,
+            // try one more save with SUCCEEDED so that a transient MongoDB recovery between
+            // whenComplete and here still gets the truth persisted.
+            if (backupJob.getStatus() != JobStatus.SUCCEEDED) {
+                updateStateAndLog(backupJob, JobStatus.FAILED, String.format("An error occurred (%s) : %s", backupJob.getId(), e.getMessage()));
+            } else {
+                log.warn("Backup job {} reported SUCCEEDED by the agent but final orchestration threw; " +
+                        "attempting to persist SUCCEEDED before exiting", backupJob.getId());
+                try {
+                    updateStateAndLog(backupJob, JobStatus.SUCCEEDED, String.format(
+                            "Agent reported SUCCEEDED; final orchestration threw (%s) : %s",
+                            backupJob.getId(), e.getMessage()));
+                } catch (Exception persistEx) {
+                    log.warn("Final SUCCEEDED save for backup job {} also failed; in-memory state is correct but MongoDB may be stale",
+                            backupJob.getId(), persistEx);
+                }
+            }
             if(e instanceof InterruptedException){
                 Thread.currentThread().interrupt();
             }
