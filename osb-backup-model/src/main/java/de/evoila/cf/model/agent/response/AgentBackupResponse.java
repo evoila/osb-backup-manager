@@ -4,6 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Johannes Hiemer.
+ *
+ * NOTE: When adding or removing log fields here, update {@code LogTruncator} in the
+ * osb-backup-manager module accordingly — specifically the {@code BACKUP_LOG_FIELDS}
+ * constant, the field list in {@code truncateLogs}, and the field list in
+ * {@code responseUtf8Bytes}. Forgetting any of these breaks the document-size budget
+ * that protects against MongoDB's 16 MB BSON limit.
  */
 public class AgentBackupResponse extends AgentExecutionResponse {
 

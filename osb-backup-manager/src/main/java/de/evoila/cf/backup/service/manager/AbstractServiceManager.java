@@ -58,6 +58,16 @@ public class AbstractServiceManager {
      */
     protected void updateState(AbstractJob abstractJob, JobStatus status) {
         abstractJob.setStatus(status);
+        persist(abstractJob);
+    }
+
+    /**
+     * Enforces the document-size budget on the accumulated agent responses, then writes
+     * the job to MongoDB. Centralised here so every save goes through the same guard
+     * against the 16 MB BSON document limit.
+     */
+    private void persist(AbstractJob abstractJob) {
+        LogTruncator.enforceDocumentBudget(abstractJob.getAgentExecutionReponses());
         abstractJobRepository.save(abstractJob);
     }
 
@@ -111,7 +121,7 @@ public class AbstractServiceManager {
     protected void updateStateAndLog(AbstractJob abstractJob, JobStatus status, String log) {
         abstractJob.appendLog(log);
         abstractJob.setStatus(status);
-        abstractJobRepository.save(abstractJob);
+        persist(abstractJob);
     }
 
     /**
